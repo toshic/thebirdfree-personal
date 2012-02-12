@@ -123,11 +123,15 @@ and the TCP/IP stack together cannot be accommodated with the 32K size limit. */
 #include "grlib.h"
 #include "rit128x96x4.h"
 #include "uart.h"
+#include "lmi_flash.h"
 
 /* Demo app includes. */
 #include "partest.h"
 #include "lcd_message.h"
 #include "bitmap.h"
+
+/* lwip library */
+#include "lwiplib.h"
 
 /*-----------------------------------------------------------*/
 
@@ -238,7 +242,49 @@ int main( void )
 		PHY. */
 		if( SysCtlPeripheralPresent( SYSCTL_PERIPH_ETH ) )
 		{
-			xTaskCreate( vuIP_Task, ( signed portCHAR * ) "uIP", mainBASIC_WEB_STACK_SIZE, NULL, mainCHECK_TASK_PRIORITY - 1, NULL );
+		    unsigned long ulUser0, ulUser1;
+		    unsigned char pucMACArray[8];
+		
+		    //
+		    // Enable and Reset the Ethernet Controller.
+		    //
+		    SysCtlPeripheralEnable(SYSCTL_PERIPH_ETH);
+		    SysCtlPeripheralReset(SYSCTL_PERIPH_ETH);
+		
+		    //
+		    // Enable Port F for Ethernet LEDs.
+		    //  LED0        Bit 3   Output
+		    //  LED1        Bit 2   Output
+		    //
+		    SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOF);
+		    GPIOPinTypeEthernetLED(GPIO_PORTF_BASE, GPIO_PIN_2 | GPIO_PIN_3);
+		
+		    //
+		    // Configure the hardware MAC address for Ethernet Controller
+		    // filtering of incoming packets.
+		    //
+		    // For the LM3S6965 Evaluation Kit, the MAC address will be stored in the
+		    // non-volatile USER0 and USER1 registers.  These registers can be read
+		    // using the FlashUserGet function, as illustrated below.
+		    //
+		    FlashUserGet(&ulUser0, &ulUser1);
+		
+		    //
+		    // Convert the 24/24 split MAC address from NV ram into a 32/16 split
+		    // MAC address needed to program the hardware registers, then program
+		    // the MAC address into the Ethernet Controller registers.
+		    //
+		    pucMACArray[0] = ((ulUser0 >>  0) & 0xff);
+		    pucMACArray[1] = ((ulUser0 >>  8) & 0xff);
+		    pucMACArray[2] = ((ulUser0 >> 16) & 0xff);
+		    pucMACArray[3] = ((ulUser1 >>  0) & 0xff);
+		    pucMACArray[4] = ((ulUser1 >>  8) & 0xff);
+		    pucMACArray[5] = ((ulUser1 >> 16) & 0xff);
+		
+		    //
+		    // Initialze the lwIP library, using DHCP.
+		    //
+		    lwIPInit(pucMACArray, 0, 0, 0, IPADDR_USE_DHCP);
 		}
 	}
 	#endif
@@ -324,6 +370,7 @@ xOLEDMessage xMessage;
 unsigned portLONG ulY, ulMaxY;
 static portCHAR cMessage[ mainMAX_MSG_LEN ];
 extern volatile unsigned portLONG ulMaxJitter;
+extern volatile unsigned portLONG ulMaxDifference;
 unsigned portBASE_TYPE uxUnusedStackOnEntry;
 const unsigned portCHAR *pucImage;
 
@@ -366,7 +413,8 @@ void ( *vOLEDClear )( void ) = NULL;
 
 		/* Display the message along with the maximum jitter time from the
 		high priority time test. */
-		sprintf( cMessage, "%s [%uns] (%ld)", xMessage.pcMessage, ulMaxJitter * mainNS_PER_CLOCK ,0/*xPortGetFreeHeapSize()*/);
+		sprintf( cMessage, "%s [%uns]", xMessage.pcMessage, ulMaxJitter * mainNS_PER_CLOCK);
+		ulMaxDifference = 0;
 		vOLEDStringDraw( cMessage, 0, ulY, mainFULL_SCALE );
 	}
 }
@@ -377,7 +425,16 @@ void vApplicationStackOverflowHook( xTaskHandle *pxTask, signed portCHAR *pcTask
 	( void ) pxTask;
 	( void ) pcTaskName;
 
-    printf("Stack Overflow\n");
+    printf("Stack Overflow : %s\n",pcTaskName);
     
 	for( ;; );
 }
+
+#ifdef DEBUG
+void
+__error__(char *pcFilename, unsigned long ulLine)
+{
+    printf("ASSERT - %s:%ld\n",pcFilename,ulLine);
+}
+#endif
+

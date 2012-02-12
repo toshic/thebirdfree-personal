@@ -8,6 +8,8 @@
  *      Copyright (c) 2004-2011 KEIL - An ARM Company. All rights reserved.
  *---------------------------------------------------------------------------*/
 
+#include <stdio.h>
+
 /* Scheduler includes. */
 #include "FreeRTOS.h"
 #include "task.h"
@@ -25,6 +27,8 @@
 #include "grlib.h"
 #include "rit128x96x4.h"
 #include "uart.h"
+
+#define USE_UART_INTERRUPTx
 
 xSemaphoreHandle xUartTxInterruptSemaphore = NULL;
 xSemaphoreHandle xUartRxInterruptSemaphore = NULL;
@@ -72,17 +76,22 @@ void init_serial (void) {
     UARTIntDisable(UART0_BASE, 0xFFFFFFFF);
     IntEnable(INT_UART0);
     UARTEnable(UART0_BASE);
+    IntPrioritySet(INT_UART0,3);
+    printf("INT_UART0 %ld\n",IntPriorityGet(INT_UART0));
+
+    printf("This is test message to check long message printf function\n");
 }
 
 /*----------------------------------------------------------------------------
  *       sendchar:  Write a character to Serial Port
  *---------------------------------------------------------------------------*/
 int sendchar (int ch) {
+#ifdef USE_UART_INTERRUPT
     if(!UARTSpaceAvail(UART0_BASE)){
         UARTIntEnable(UART0_BASE, UART_INT_TX);
         xSemaphoreTake( xUartTxInterruptSemaphore, portMAX_DELAY );
-        UARTCharPut (UART0_BASE, ch);
     }
+#endif    
     UARTCharPut (UART0_BASE, ch);
     return (ch);
 }
@@ -91,10 +100,12 @@ int sendchar (int ch) {
  *       getkey:  Read a character from Serial Port
  *---------------------------------------------------------------------------*/
 int getkey (void) {
+#ifdef USE_UART_INTERRUPT
     if(!UARTCharsAvail(UART0_BASE)){
         UARTIntEnable(UART0_BASE, UART_INT_RX);
         xSemaphoreTake( xUartRxInterruptSemaphore, portMAX_DELAY );
     }
+#endif    
     return (UARTCharGet (UART0_BASE));
 }
 
