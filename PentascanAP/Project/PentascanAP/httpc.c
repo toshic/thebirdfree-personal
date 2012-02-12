@@ -11,10 +11,12 @@
 #define PROTO_HTTPS 81
 #define PROTO_FTP   82
 
+#define HTTP_BUFFER_SIZE    1024
+
 void http_req(char *url)
 {
     char *ptr;
-    char pctemp[256];
+    char *pctemp;
 
     int protocol = PROTO_NONE;
     int port;
@@ -26,6 +28,12 @@ void http_req(char *url)
 
     struct hostent *http_host;
     struct sockaddr_in sock_addr;
+
+    pctemp = malloc(HTTP_BUFFER_SIZE);
+    if(!pctemp){
+        printf("Insufficient memory error\n");
+        return;
+    }
     
     /* split host, port, url */
 
@@ -45,6 +53,7 @@ void http_req(char *url)
                 strncpy(pctemp, url, ptr - url);
                 pctemp[ptr - url] = 0;
                 printf("unknown protocol %s\n",pctemp);
+                free(pctemp);
                 return;
             }
             url = ptr + 3;
@@ -118,6 +127,9 @@ void http_req(char *url)
     
     if(http_socket < 0){
         printf("socket create fail\n");
+        free(hostname);
+        free(location);
+        free(pctemp);
         return;
     }
 
@@ -153,6 +165,9 @@ void http_req(char *url)
     } else {
         if(!inet_aton(hostname, &(sock_addr.sin_addr))){
             printf("host addr %s can't resolved\n",hostname);
+            free(hostname);
+            free(location);
+            free(pctemp);
             return;
         }
     }
@@ -163,6 +178,9 @@ void http_req(char *url)
 
     if(ret != 0){
         printf("socket connect fail\n");
+        free(hostname);
+        free(location);
+        free(pctemp);
         return;
     }
 
@@ -170,13 +188,16 @@ void http_req(char *url)
     ret = send(http_socket,"GET /\r\n", strlen("GET /\r\n"),0);
     if(ret < 0){
         printf("socket send fail\n");
+        free(hostname);
+        free(location);
+        free(pctemp);
         return;
     }
     
     
     /* receive data */
     while(ret>0){
-        ret = recv(http_socket,pctemp,256,0);
+        ret = recv(http_socket,pctemp,HTTP_BUFFER_SIZE,0);
         if(ret < 0){
             printf("socket recv fail %d\n",ret);
             break;;
@@ -191,4 +212,5 @@ void http_req(char *url)
  
     free(hostname);
     free(location);
+    free(pctemp);
 }
