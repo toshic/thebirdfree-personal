@@ -87,6 +87,7 @@ void Timer0IntHandler( void );
 
 /* Stores the value of the maximum recorded jitter between interrupts. */
 volatile unsigned portLONG ulMaxJitter = 0;
+volatile unsigned portLONG ulMaxDifference = 0;
 
 /*-----------------------------------------------------------*/
 
@@ -126,7 +127,7 @@ void Timer0IntHandler( void )
 {
 unsigned portLONG ulDifference;
 volatile unsigned portLONG ulCurrentCount;
-static unsigned portLONG ulMaxDifference = 0, ulLastCount = 0;
+static unsigned portLONG ulLastCount = 0;
 
 	/* We use the timer 1 counter value to measure the clock cycles between
 	the timer 0 interrupts. */

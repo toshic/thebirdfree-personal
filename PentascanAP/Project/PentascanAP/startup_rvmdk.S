@@ -146,8 +146,8 @@ __Vectors
         DCD     IntDefaultHandler           ; CAN0
         DCD     IntDefaultHandler           ; CAN1
         DCD     0                           ; Reserved
-        EXTERN  vEMAC_ISR
-        DCD     vEMAC_ISR                   ; Ethernet
+        EXTERN  lwIPEthernetIntHandler
+        DCD     lwIPEthernetIntHandler      ; Ethernet
         DCD     IntDefaultHandler           ; Hibernate
 
 ;******************************************************************************
