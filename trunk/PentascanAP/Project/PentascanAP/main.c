@@ -133,6 +133,9 @@ and the TCP/IP stack together cannot be accommodated with the 32K size limit. */
 /* lwip library */
 #include "lwiplib.h"
 
+/* http client header */
+#include "httpc.h"
+
 /*-----------------------------------------------------------*/
 
 /* The time between cycles of the 'check' functionality (defined within the
@@ -230,6 +233,45 @@ int main( void )
 	prvSetupHardware();
     init_serial();
 
+#if 0
+    /* url parse test */
+    http_req("www.naver.com");
+    http_req("www.naver.com/");
+    http_req("www.naver.com/index.html");
+    http_req("www.naver.com/pub/index.html");
+    http_req("www.naver.com:8080");
+    http_req("www.naver.com:8080/");
+    http_req("www.naver.com:8080/index.html");
+    http_req("www.naver.com:8080/pub/index.html");
+
+    http_req("http://www.naver.com");
+    http_req("http://www.naver.com/");
+    http_req("http://www.naver.com/index.html");
+    http_req("http://www.naver.com/pub/index.html");
+    http_req("http://www.naver.com:8080");
+    http_req("http://www.naver.com:8080/");
+    http_req("http://www.naver.com:8080/index.html");
+    http_req("http://www.naver.com:8080/pub/index.html");
+
+    http_req("https://www.naver.com");
+    http_req("https://www.naver.com/");
+    http_req("https://www.naver.com/index.html");
+    http_req("https://www.naver.com/pub/index.html");
+    http_req("https://www.naver.com:8080");
+    http_req("https://www.naver.com:8080/");
+    http_req("https://www.naver.com:8080/index.html");
+    http_req("https://www.naver.com:8080/pub/index.html");
+
+    http_req("ftp://www.naver.com");
+    http_req("ftp://www.naver.com/");
+    http_req("ftp://www.naver.com/index.html");
+    http_req("ftp://www.naver.com/pub/index.html");
+    http_req("ftp://www.naver.com:8080");
+    http_req("ftp://www.naver.com:8080/");
+    http_req("ftp://www.naver.com:8080/index.html");
+    http_req("ftp://www.naver.com:8080/pub/index.html");
+#endif    
+
 	/* Create the queue used by the OLED task.  Messages for display on the OLED
 	are received via this queue. */
 	xOLEDQueue = xQueueCreate( mainOLED_QUEUE_SIZE, sizeof( xOLEDMessage ) );
@@ -280,6 +322,8 @@ int main( void )
 		    pucMACArray[3] = ((ulUser1 >>  0) & 0xff);
 		    pucMACArray[4] = ((ulUser1 >>  8) & 0xff);
 		    pucMACArray[5] = ((ulUser1 >> 16) & 0xff);
+
+		    printf("MAC = %02x:%02x:%02x:%02x:%02x:%02x\n",pucMACArray[0],pucMACArray[1],pucMACArray[2],pucMACArray[3],pucMACArray[4],pucMACArray[5]);
 		
 		    //
 		    // Initialze the lwIP library, using DHCP.
@@ -294,7 +338,7 @@ int main( void )
 	xTaskCreate( vOLEDTask, ( signed portCHAR * ) "OLED", mainOLED_TASK_STACK_SIZE, NULL, tskIDLE_PRIORITY, NULL );
 
     /* uart loopback task */	
-	xTaskCreate( vUartTask, ( signed portCHAR * ) "UART", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY, NULL );
+	xTaskCreate( vUartTask, ( signed portCHAR * ) "UART", configMINIMAL_STACK_SIZE * 4, NULL, tskIDLE_PRIORITY, NULL );
 
 	/* Configure the high frequency interrupt used to measure the interrupt
 	jitter time. */
@@ -354,12 +398,19 @@ void vApplicationTickHook( void )
 
 void vUartTask( void *pvParameters )
 {
+    char c;
     printf("Enter Text:");
 
 
 	for( ;; )
 	{
-	    putchar(getchar());
+	    c = getchar();
+	    putchar(c);
+	    if(c == 'g'){
+            http_req("www.naver.com");
+	    }else if(c == 'G'){
+            http_req("202.131.30.11");
+	    }
 	}
 }
 
