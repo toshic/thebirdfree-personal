@@ -60,7 +60,7 @@
 //*****************************************************************************
 #define MEM_LIBC_MALLOC                 1
 #define MEM_ALIGNMENT                   4           // default is 1
-#define MEM_SIZE                        (20 * 1024)  // default is 1600
+#define MEM_SIZE                        (8 * 1024)  // default is 1600
 //#define MEMP_OVERFLOW_CHECK             0
 //#define MEMP_SANITY_CHECK               0
 //#define MEM_USE_POOLS                   0
