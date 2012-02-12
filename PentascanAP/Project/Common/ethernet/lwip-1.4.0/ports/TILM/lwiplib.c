@@ -45,6 +45,8 @@
 // performed.
 //
 //*****************************************************************************
+#define LWIP_USE_INTERRUPTx
+
 #ifndef HOST_TMR_INTERVAL
 #define HOST_TMR_INTERVAL       0
 #else
@@ -139,6 +141,8 @@ static unsigned long g_pulStack[128];
 //*****************************************************************************
 static xQueueHandle g_pInterrupt;
 
+static volatile unsigned long g_eth_int_status;
+
 //*****************************************************************************
 //
 // This task handles reading packets from the Ethernet controller and supplying
@@ -156,10 +160,15 @@ lwIPInterruptTask(void *pvArg)
         //
         // Wait until the semaphore has been signalled.
         //
+#ifdef LWIP_USE_INTERRUPT        
         while(xQueueReceive(g_pInterrupt, &pvArg, portMAX_DELAY) != pdPASS)
         {
         }
-
+#else
+        while(g_eth_int_status == 0)
+        {
+        }
+#endif
         //
         // Processes any packets waiting to be sent or received.
         //
@@ -168,6 +177,7 @@ lwIPInterruptTask(void *pvArg)
         //
         // Re-enable the Ethernet interrupts.
         //
+        g_eth_int_status = 0;
         EthernetIntEnable(ETH_BASE, ETH_INT_RX | ETH_INT_TX);
     }
 }
@@ -258,13 +268,18 @@ lwIPPrivateInit(void *pvArg)
     // If using a RTOS, create a queue (to be used as a semaphore) to signal
     // the Ethernet interrupt task from the Ethernet interrupt handler.
     //
+#ifdef LWIP_USE_INTERRUPT        
     g_pInterrupt = xQueueCreate(1,sizeof(void *));
+#else
+    g_eth_int_status = 0;
+#endif    
+
 
     //
     // If using a RTOS, create the Ethernet interrupt task.
     //
     xTaskCreate(lwIPInterruptTask, (signed portCHAR *)"eth_int",
-                128, 0, 1, 0);
+                128, 0, tskIDLE_PRIORITY, 0);
 
     //
     // Setup the network address values.
@@ -438,7 +453,11 @@ lwIPEthernetIntHandler(void)
     //
     // A RTOS is being used.  Signal the Ethernet interrupt task.
     //
+#ifdef LWIP_USE_INTERRUPT        
     xQueueSendFromISR(g_pInterrupt, (void *)&ulStatus, &xWake);
+#else
+    g_eth_int_status = ulStatus;
+#endif
 
     //
     // Disable the Ethernet interrupts.  Since the interrupts have not been

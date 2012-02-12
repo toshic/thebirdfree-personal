@@ -54,6 +54,8 @@ typedef size_t mem_size_t;
 #define mem_free free
 #endif
 #ifndef mem_malloc
+extern void *malloc_hook(size_t size);
+//#define mem_malloc malloc_hook
 #define mem_malloc malloc
 #endif
 #ifndef mem_calloc

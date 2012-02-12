@@ -87,6 +87,9 @@ netconn_new_with_proto_and_callback(enum netconn_type t, u8_t proto, netconn_cal
       memp_free(MEMP_NETCONN, conn);
       return NULL;
     }
+  }else
+  {
+      LWIP_DEBUGF(API_LIB_DEBUG, ("netconn_alloc fail\n"));
   }
   return conn;
 }

@@ -638,5 +638,13 @@ void *mem_calloc(mem_size_t count, mem_size_t size)
   }
   return p;
 }
-
+#else
+#include <stdlib.h>
+void *malloc_hook(size_t size)
+{
+    void *ptr;
+    ptr = malloc(size);
+    printf("malloc size = %ld[%p]\n",size,ptr);
+    return ptr;
+}
 #endif /* !MEM_LIBC_MALLOC */

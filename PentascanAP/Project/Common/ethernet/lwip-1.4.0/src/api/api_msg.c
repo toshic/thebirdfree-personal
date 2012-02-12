@@ -571,6 +571,8 @@ netconn_alloc(enum netconn_type t, netconn_callback callback)
     return NULL;
   }
 
+  printf("netbuff allocated\n");
+  
   conn->last_err = ERR_OK;
   conn->type = t;
   conn->pcb.tcp = NULL;

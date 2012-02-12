@@ -393,6 +393,7 @@ memp_malloc_fn(memp_t type, const char* file, const int line)
 {
   struct memp *memp;
   SYS_ARCH_DECL_PROTECT(old_level);
+  printf("memp_malloc\n");
  
   LWIP_ERROR("memp_malloc: type < MEMP_MAX", (type < MEMP_MAX), return NULL;);
 
