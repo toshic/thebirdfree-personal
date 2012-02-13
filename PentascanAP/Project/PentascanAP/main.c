@@ -338,7 +338,7 @@ int main( void )
 	xTaskCreate( vOLEDTask, ( signed portCHAR * ) "OLED", mainOLED_TASK_STACK_SIZE, NULL, tskIDLE_PRIORITY, NULL );
 
     /* uart loopback task */	
-	xTaskCreate( vUartTask, ( signed portCHAR * ) "UART", configMINIMAL_STACK_SIZE * 4, NULL, tskIDLE_PRIORITY, NULL );
+	xTaskCreate( vUartTask, ( signed portCHAR * ) "UART", configMINIMAL_STACK_SIZE * 3, NULL, tskIDLE_PRIORITY, NULL );
 
 	/* Configure the high frequency interrupt used to measure the interrupt
 	jitter time. */
