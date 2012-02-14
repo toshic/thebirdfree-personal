@@ -278,9 +278,8 @@ int main( void )
 
 	/* Exclude some tasks if using the kickstart version to ensure we stay within
 	the 32K code size limit. */
-	#if mainINCLUDE_WEB_SERVER != 0
 	{
-		/* Create the uIP task if running on a processor that includes a MAC and
+		/* Create the lwIP task if running on a processor that includes a MAC and
 		PHY. */
 		if( SysCtlPeripheralPresent( SYSCTL_PERIPH_ETH ) )
 		{
@@ -331,8 +330,6 @@ int main( void )
 		    lwIPInit(pucMACArray, 0, 0, 0, IPADDR_USE_DHCP);
 		}
 	}
-	#endif
-
 	
 	/* Start the tasks defined within this file/specific to this demo. */
 	xTaskCreate( vOLEDTask, ( signed portCHAR * ) "OLED", mainOLED_TASK_STACK_SIZE, NULL, tskIDLE_PRIORITY, NULL );
