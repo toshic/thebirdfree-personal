@@ -20,6 +20,9 @@ typedef enum{
 	http_content_length,
 	http_content_type,
 	http_transfer_encoding,
+
+	http_resp_version,
+	http_connection_close
 }http_string;
 
 static const char * const http_string_table[] = 
@@ -28,7 +31,10 @@ static const char * const http_string_table[] =
 	"HTTP/1.1 ",
 	"Content-Length: ",
 	"Content-Type: ",
-	"Transfer-Encoding: chunked"
+	"Transfer-Encoding: chunked",
+
+	" HTTP/1.1\r\nAccept: *.*\r\n",
+	"\r\nConnection: close\r\n\r\n"
 };
 
 
@@ -242,17 +248,17 @@ int http_get(char *hostname, unsigned short port, char *location)
 
     /* send url - use MSG_MORE to save buffer memory */
 
-	ret = send(http_socket,"GET ",MSG_MORE);
+	ret = send(http_socket,"GET ",4,MSG_MORE);
 	if(ret > 0)
-		ret = send(http_socket,location,MSG_MORE);
+		ret = send(http_socket,location,strlen(location),MSG_MORE);
 	if(ret > 0)
-		ret = send(http_socket," HTTP/1.1\r\nAccept: *.*\r\n",MSG_MORE);
+		ret = send(http_socket,http_string_table[http_resp_version],strlen(http_string_table[http_resp_version]),MSG_MORE);
 	if(ret > 0)
-		ret = send(http_socket,"Host: ",MSG_MORE);
+		ret = send(http_socket,"Host: ",6,MSG_MORE);
 	if(ret > 0)
-		ret = send(http_socket,hostname,MSG_MORE);
+		ret = send(http_socket,hostname,strlen(hostname),MSG_MORE);
 	if(ret > 0)
-		ret = send(http_socket,"\r\nConnection: close\r\n\r\n",0);
+		ret = send(http_socket,http_string_table[http_connection_close],strlen(http_string_table[http_connection_close]),0);
 
 	if(ret < 0){
 		printf("socket send fail\n");
@@ -266,28 +272,32 @@ int http_get(char *hostname, unsigned short port, char *location)
 
 	while ( ptr && strcmp(ptr,"\r\n") )
 	{
-		if(!strncmp(ptr,http_string_table[http_v10],sizeof(http_string_table[http_v10])))
+		if(!strncmp(ptr,http_string_table[http_v10],strlen(http_string_table[http_v10])))
 		{
-			http_status = atoi(ptr + sizeof(http_string_table[http_v10]));
+			http_status = atoi(ptr + strlen(http_string_table[http_v10]));
 		}
-		else if(!strncmp(ptr,http_string_table[http_v11],sizeof(http_string_table[http_v11])))
+		else if(!strncmp(ptr,http_string_table[http_v11],strlen(http_string_table[http_v11])))
 		{
-			http_status = atoi(ptr + sizeof(http_string_table[http_v11]));
+			http_status = atoi(ptr + strlen(http_string_table[http_v11]));
 		}
-		else if(!strncmp(ptr,http_string_table[http_content_length],sizeof(http_string_table[http_content_length])))
+		else if(!strncmp(ptr,http_string_table[http_content_length],strlen(http_string_table[http_content_length])))
 		{
-			http_length = atol(ptr + sizeof(http_string_table[http_content_length]));
+			http_length = atol(ptr + strlen(http_string_table[http_content_length]));
 		}
-		else if(!strncmp(ptr,http_string_table[http_transfer_encoding],sizeof(http_string_table[http_transfer_encoding])))
+		else if(!strncmp(ptr,http_string_table[http_transfer_encoding],strlen(http_string_table[http_transfer_encoding])))
 		{
 			http_chunked = 1;
 		}
-		else if(!strncmp(ptr,http_string_table[http_content_type],sizeof(http_string_table[http_content_type])))
+		else if(!strncmp(ptr,http_string_table[http_content_type],strlen(http_string_table[http_content_type])))
 		{
 		}
 
 		ptr = GetLine(http_socket);
 	}
+
+    printf("size of http_v10 = %d\n",strlen(http_string_table[http_v10]));
+	printf("http result code = %d\n",http_status);
+	printf("content length = %ld\n",http_length);
 
 	if(http_status != 200){
 		close(http_socket);
@@ -330,13 +340,13 @@ int http_get(char *hostname, unsigned short port, char *location)
 			}
 			// get next chunk length
 			ptr = GetLine(http_socket);
-			if(strcmp(line,"\r\n"))
+			if(strcmp(ptr,"\r\n"))
 				break;
 			ptr = GetLine(http_socket);
 			sscanf(ptr,"%x\r\n",&http_length);
 		}	
 	}else{
-		while( (pack_len = recv(http_socket,recv_buffer,HTTP_BUFFER_SIZE),0) > 0 )
+		while( (pack_len = recv(http_socket,recv_buffer,HTTP_BUFFER_SIZE,0)) > 0 )
 		{
 			total_length += pack_len;
 			for(i=0;i<pack_len;i++)
@@ -349,6 +359,8 @@ int http_get(char *hostname, unsigned short port, char *location)
 			return http_status;
 		}
 	}
+
+	printf("===========\n");
 	
     close(http_socket);
 	free(recv_buffer);

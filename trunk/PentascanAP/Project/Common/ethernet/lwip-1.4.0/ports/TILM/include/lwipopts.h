@@ -405,8 +405,8 @@
 //#define IP_DEBUG                        LWIP_DBG_ON     // default is OFF
 //#define IP_REASS_DEBUG                  LWIP_DBG_OFF
 //#define RAW_DEBUG                       LWIP_DBG_OFF
-#define MEM_DEBUG                       LWIP_DBG_ON
-#define MEMP_DEBUG                      LWIP_DBG_ON
+//#define MEM_DEBUG                       LWIP_DBG_ON
+//#define MEMP_DEBUG                      LWIP_DBG_ON
 #define SYS_DEBUG                       LWIP_DBG_ON
 //#define TCP_DEBUG                       LWIP_DBG_OFF
 //#define TCP_INPUT_DEBUG                 LWIP_DBG_OFF
@@ -421,7 +421,7 @@
 //#define TCPIP_DEBUG                     LWIP_DBG_ON
 //#define PPP_DEBUG                       LWIP_DBG_OFF
 //#define SLIP_DEBUG                      LWIP_DBG_OFF
-#define DHCP_DEBUG                      LWIP_DBG_ON     // default is OFF
+//#define DHCP_DEBUG                      LWIP_DBG_ON     // default is OFF
 //#define AUTOIP_DEBUG                    LWIP_DBG_OFF
 //#define SNMP_MSG_DEBUG                  LWIP_DBG_OFF
 //#define SNMP_MIB_DEBUG                  LWIP_DBG_OFF

@@ -475,6 +475,11 @@
               <FileType>1</FileType>
               <FilePath>.\Retarget.c</FilePath>
             </File>
+            <File>
+              <FileName>httpc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\httpc.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
