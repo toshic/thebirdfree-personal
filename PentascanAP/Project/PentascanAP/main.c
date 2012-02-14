@@ -406,7 +406,9 @@ void vUartTask( void *pvParameters )
 	    if(c == 'g'){
             http_req("www.naver.com");
 	    }else if(c == 'G'){
-            http_req("202.131.30.11");
+            http_req("192.168.100.20");
+	    }else if(c =='a'){
+            http_req("http://192.168.100.20/ap.html");
 	    }
 	}
 }
