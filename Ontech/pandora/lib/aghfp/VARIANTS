@@ -1,0 +1,7 @@
+
+VARIANTS := debug 3gpp_debug
+
+CFLAGS_debug := -DAGHFP_DEBUG_LIB  # flags for building debug version of AGHFP lib
+
+CFLAGS_3gpp_debug := -DAGHFP_DEBUG_3GPP
+
