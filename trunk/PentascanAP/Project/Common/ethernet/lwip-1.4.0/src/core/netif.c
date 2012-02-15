@@ -355,6 +355,7 @@ netif_set_ipaddr(struct netif *netif, ip_addr_t *ipaddr)
         ip_addr_set(&(lpcb->local_ip), ipaddr);
       }
     }
+    /* need to inform address change to application layer */
   }
 #endif
   snmp_delete_ipaddridx_tree(netif);

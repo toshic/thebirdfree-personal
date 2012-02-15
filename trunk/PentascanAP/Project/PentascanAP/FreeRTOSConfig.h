@@ -103,5 +103,9 @@ to exclude the API function. */
 #define configKERNEL_INTERRUPT_PRIORITY 		( 7 << 5 )	/* Priority 7, or 255 as only the top three bits are implemented.  This is the lowest priority. */
 #define configMAX_SYSCALL_INTERRUPT_PRIORITY 	( 5 << 5 )  /* Priority 5, or 160 as only the top three bits are implemented. */
 
+#define configUSE_TIMERS				1
+#define configTIMER_TASK_PRIORITY		( 0 )
+#define configTIMER_QUEUE_LENGTH		10
+#define configTIMER_TASK_STACK_DEPTH	( configMINIMAL_STACK_SIZE * 4 )
 
 #endif /* FREERTOS_CONFIG_H */

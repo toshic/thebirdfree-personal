@@ -12,7 +12,7 @@
 #include <time.h>
 #include <rt_misc.h>
 
-#pragma import(__use_no_semihosting_swi)
+//#pragma import(__use_no_semihosting_swi)
 
 
 extern int  sendchar(int ch);  /* in Serial.c */

@@ -135,6 +135,7 @@ and the TCP/IP stack together cannot be accommodated with the 32K size limit. */
 
 /* http client header */
 #include "httpc.h"
+#include "Rtc.h"
 
 /*-----------------------------------------------------------*/
 
@@ -179,12 +180,6 @@ the jitter time in nano seconds. */
 /*-----------------------------------------------------------*/
 
 /*
- * The task that handles the uIP stack.  All TCP/IP processing is performed in
- * this task.
- */
-extern void vuIP_Task( void *pvParameters );
-
-/*
  * The display is written two by more than one task so is controlled by a
  * 'gatekeeper' task.  This is the only task that is actually permitted to
  * access the display directly.  Other tasks wanting to display a message send
@@ -198,12 +193,6 @@ static void vUartTask( void *pvParameters );
  * Configure the hardware for the demo.
  */
 static void prvSetupHardware( void );
-
-/*
- * Configures the high frequency timers - those used to measure the timing
- * jitter while the real time kernel is executing.
- */
-extern void vSetupHighFrequencyTimer( void );
 
 /*
  * Hook functions that can get called by the kernel.
@@ -337,10 +326,6 @@ int main( void )
     /* uart loopback task */	
 	xTaskCreate( vUartTask, ( signed portCHAR * ) "UART", configMINIMAL_STACK_SIZE * 3, NULL, tskIDLE_PRIORITY, NULL );
 
-	/* Configure the high frequency interrupt used to measure the interrupt
-	jitter time. */
-	vSetupHighFrequencyTimer();
-
 	/* Start the scheduler. */
 	vTaskStartScheduler();
 
@@ -370,6 +355,8 @@ void prvSetupHardware( void )
 	GPIOPadConfigSet( GPIO_PORTF_BASE, (GPIO_PIN_2 | GPIO_PIN_3 ), GPIO_STRENGTH_2MA, GPIO_PIN_TYPE_STD );	
 	
 	vParTestInitialise();
+	RtcInit();
+	RtcSet(42*365*24*3600 + 2*30*24*3600);
 }
 /*-----------------------------------------------------------*/
 
@@ -419,8 +406,6 @@ void vOLEDTask( void *pvParameters )
 xOLEDMessage xMessage;
 unsigned portLONG ulY, ulMaxY;
 static portCHAR cMessage[ mainMAX_MSG_LEN ];
-extern volatile unsigned portLONG ulMaxJitter;
-extern volatile unsigned portLONG ulMaxDifference;
 unsigned portBASE_TYPE uxUnusedStackOnEntry;
 const unsigned portCHAR *pucImage;
 
@@ -463,8 +448,7 @@ void ( *vOLEDClear )( void ) = NULL;
 
 		/* Display the message along with the maximum jitter time from the
 		high priority time test. */
-		sprintf( cMessage, "%s [%uns]", xMessage.pcMessage, ulMaxJitter * mainNS_PER_CLOCK);
-		ulMaxDifference = 0;
+		sprintf( cMessage, "%s", xMessage.pcMessage);
 		vOLEDStringDraw( cMessage, 0, ulY, mainFULL_SCALE );
 	}
 }
