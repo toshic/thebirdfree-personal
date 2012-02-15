@@ -79,7 +79,12 @@ extern void lwIPHostTimerHandler(void);
 #include "lwip/dhcp.h"
 #include "lwip/autoip.h"
 #include "FreeRTOS.h"
+#include "Timers.h"
 #include "netif/stellarisif.h"
+/* http client header */
+#include "httpc.h"
+#include "Rtc.h"
+#include <time.h>
 
 //*****************************************************************************
 //
@@ -140,6 +145,11 @@ static unsigned long g_pulStack[128];
 //
 //*****************************************************************************
 static xQueueHandle g_pInterrupt;
+
+
+// periodic timer
+static xTimerHandle xPeriodicTimer = NULL;
+
 
 static volatile unsigned long g_eth_int_status;
 
@@ -250,6 +260,28 @@ lwIPPrivateHostTimer(void *pvArg)
 }
 #endif
 
+static void lwIPStatus_CB(struct netif *netif)
+{
+    u8_t link_up = netif_is_link_up(netif);
+    printf("lwIPStatus_CB %d\n",link_up);
+
+    if(netif_is_link_up(netif)){
+        xTimerStart(xPeriodicTimer,0);
+    }else{
+        xTimerStop(xPeriodicTimer,0);
+    }
+}
+
+static void httpTimerCallback( xTimerHandle pxExpiredTimer )
+{
+    time_t timer;
+
+    timer=RtcGet();
+    printf("The current time is (%ld) %s.\n",timer,asctime(localtime(&timer)));
+
+    //http_req("http://192.168.100.20/ap.html");
+}
+
 //*****************************************************************************
 //
 // Completes the initialization of lwIP.  This is directly called when not
@@ -274,6 +306,11 @@ lwIPPrivateInit(void *pvArg)
     g_eth_int_status = 0;
 #endif    
 
+	xPeriodicTimer = xTimerCreate(	( const signed char * ) "http timer",/* Text name to facilitate debugging.  The kernel does not use this itself. */
+									( 10 * configTICK_RATE_HZ ),			/* The period for the timer. */
+									pdTRUE,								/* Don't auto-reload - hence a one shot timer. */
+									( void * ) 0,							/* The timer identifier.  In this case this is not used as the timer has its own callback. */
+									httpTimerCallback );				/* The callback to be called when the timer expires. */
 
     //
     // If using a RTOS, create the Ethernet interrupt task.
@@ -307,6 +344,8 @@ lwIPPrivateInit(void *pvArg)
               tcpip_input);
     netif_set_default(&g_sNetIF);
 
+    netif_set_status_callback(&g_sNetIF,lwIPStatus_CB);
+
     //
     // Start DHCP, if enabled.
     //
@@ -330,7 +369,8 @@ lwIPPrivateInit(void *pvArg)
     //
     // Bring the interface up.
     //
-    netif_set_up(&g_sNetIF);
+    if(g_ulIPMode == IPADDR_USE_STATIC)
+        netif_set_up(&g_sNetIF);
 
     //
     // Setup a timeout for the host timer callback function if using a RTOS.
@@ -689,7 +729,8 @@ lwIPPrivateNetworkConfigChange(void *pvArg)
     //
     // Bring the interface up.
     //
-    netif_set_up(&g_sNetIF);
+    if(ulIPMode == IPADDR_USE_STATIC)
+        netif_set_up(&g_sNetIF);
 
     //
     // Save the new mode.
