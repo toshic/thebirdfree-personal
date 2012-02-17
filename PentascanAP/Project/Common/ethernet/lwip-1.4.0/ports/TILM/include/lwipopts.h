@@ -264,7 +264,7 @@
 //*****************************************************************************
 //#define TCPIP_THREAD_NAME              "tcpip_thread"
 #define TCPIP_THREAD_STACKSIZE      configMINIMAL_STACK_SIZE * 3
-#define TCPIP_THREAD_PRIO               tskIDLE_PRIORITY
+#define TCPIP_THREAD_PRIO               tskIDLE_PRIORITY + 3
 #define TCPIP_MBOX_SIZE                 10
 //#define SLIPIF_THREAD_NAME             "slipif_loop"
 //#define SLIPIF_THREAD_STACKSIZE         0
@@ -394,9 +394,9 @@
 #define LWIP_DBG_TYPES_ON               (LWIP_DBG_ON|LWIP_DBG_TRACE|LWIP_DBG_STATE|LWIP_DBG_FRESH)
 
 //#define ETHARP_DEBUG                    LWIP_DBG_ON     // default is OFF
-#define NETIF_DEBUG                     LWIP_DBG_ON     // default is OFF
+//#define NETIF_DEBUG                     LWIP_DBG_ON     // default is OFF
 //#define PBUF_DEBUG                      LWIP_DBG_OFF
-#define API_LIB_DEBUG                   LWIP_DBG_ON
+//#define API_LIB_DEBUG                   LWIP_DBG_ON
 //#define API_MSG_DEBUG                   LWIP_DBG_OFF
 //#define SOCKETS_DEBUG                   LWIP_DBG_ON
 //#define ICMP_DEBUG                      LWIP_DBG_OFF

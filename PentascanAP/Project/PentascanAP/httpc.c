@@ -6,13 +6,21 @@
 #include "lwip/netdb.h"
 #include "FreeRTOS.h"
 
+#define HTTP_DEBUGx
+
+#ifdef HTTP_DEBUG
+    #define DEBUG_HTTP(x)   do { printf x; } while(0)
+#else
+    #define DEBUG_HTTP(x)
+#endif
+
 #define PROTO_NONE  0
 #define PROTO_HTTP  80
 #define PROTO_HTTPS 81
 #define PROTO_FTP   82
 
 #define HTTP_BUFFER_SIZE    1024
-#define LINEBUFFER_SIZE	256
+#define LINEBUFFER_SIZE	80
 
 typedef enum{
 	http_v10,
@@ -51,36 +59,36 @@ static int parseUrl(char *url, char **hostname, unsigned int *port_num, char **l
 	ptr = strchr(url,':');
 	if(ptr){
 		if(ptr[1] == '/' && ptr[2] == '/'){
-			printf("protocol given\n");
+			DEBUG_HTTP(("protocol given\n"));
 			if( (ptr - url) == 4 && !strncmp(url,"http",4)){ /* assume "http" */
-				printf("http://\n"); 
+				DEBUG_HTTP(("http://\n")); 
 				protocol = PROTO_HTTP;
 			}else if( (ptr - url) == 5 && !strncmp(url,"https",5)){ /* assume "https" */
-				printf("https://\n");
+				DEBUG_HTTP(("https://\n"));
 				protocol = PROTO_HTTPS;
 			}else{
 				strncpy(pctemp, url, ptr - url);
 				pctemp[ptr - url] = 0;
-				printf("unknown protocol %s\n",pctemp);
+				DEBUG_HTTP(("unknown protocol %s\n",pctemp));
 				return -1;
 			}
 			url = ptr + 3;
 		}else{
-			printf("protocol not given, assume http\n");
+			DEBUG_HTTP(("protocol not given, assume http\n"));
 			protocol = PROTO_HTTP;
 		}
 	}else{
-		printf("protocol not given, assume http\n");
+		DEBUG_HTTP(("protocol not given, assume http\n"));
 		protocol = PROTO_HTTP;
 	}
 	
 	/* check specific port number */
 	ptr = strchr(url,':');
 	if(ptr){
-		printf("port assigned\n");
-		*hostname = (char *)malloc(ptr - url + 1);
+		DEBUG_HTTP(("port assigned\n"));
+		*hostname = (char *)pvPortMalloc(ptr - url + 1);
 		if(!*hostname){
-			printf("Insufficient memory error\n");
+			DEBUG_HTTP(("Insufficient memory error\n"));
 			return -1;
 		}
 		strncpy(*hostname,url,ptr-url);
@@ -90,77 +98,77 @@ static int parseUrl(char *url, char **hostname, unsigned int *port_num, char **l
 		url = ptr + 1;
 		ptr = strchr(url,'/');
 		if(ptr){
-			printf("location exist\n");
+			DEBUG_HTTP(("location exist\n"));
 			strncpy(pctemp,url,ptr - url);
 			pctemp[ptr-url] = 0;
 			*port_num = atoi(pctemp);
 
-			*location = malloc(strlen(ptr) + 1);
+			*location = pvPortMalloc(strlen(ptr) + 1);
 			if(!*location){
-				printf("Insufficient memory error\n");
-				free(*hostname);
+				DEBUG_HTTP(("Insufficient memory error\n"));
+				vPortFree(*hostname);
 				return -1;
 			}
 			strcpy(*location,ptr);
 		}else{
-			printf("default location\n");
+			DEBUG_HTTP(("default location\n"));
 			*port_num = atoi(url);
 			
-			*location = malloc(2);
+			*location = pvPortMalloc(2);
 			if(!*location){
-				printf("Insufficient memory error\n");
-				free(*hostname);
+				DEBUG_HTTP(("Insufficient memory error\n"));
+				vPortFree(*hostname);
 				return -1;
 			}
 			strcpy(*location,"/");
 		}				 
 
 	}else{
-		printf("port is default 80\n");
+		DEBUG_HTTP(("port is default 80\n"));
 		*port_num = 80;
 
 		ptr = strchr(url,'/');
 		if(ptr){
-			printf("location exist\n");
+			DEBUG_HTTP(("location exist\n"));
 
-			*hostname = (char *)malloc(ptr - url + 1);
+			*hostname = (char *)pvPortMalloc(ptr - url + 1);
 			if(!*hostname){
-				printf("Insufficient memory error\n");
+				DEBUG_HTTP(("Insufficient memory error\n"));
 				return -1;
 			}
 			strncpy(*hostname,url,ptr-url);
 			*hostname[ptr-url]=0;
 
-			*location = malloc(strlen(ptr) + 1);
+			*location = pvPortMalloc(strlen(ptr) + 1);
 			if(!*location){
-				printf("Insufficient memory error\n");
-				free(*hostname);
+				DEBUG_HTTP(("Insufficient memory error\n"));
+				vPortFree(*hostname);
 				return -1;
 			}
 			strcpy(*location,ptr);
 		}else{
-			printf("default location\n");
-			*hostname = malloc(strlen(url) + 1);
+			DEBUG_HTTP(("default location\n"));
+			*hostname = pvPortMalloc(strlen(url) + 1);
 			if(!*hostname){
-				printf("Insufficient memory error\n");
+				DEBUG_HTTP(("Insufficient memory error\n"));
 				return -1;
 			}
 			strcpy(*hostname,url);
 
-			*location = malloc(2);
+			*location = pvPortMalloc(2);
 			if(!*location){
-				printf("Insufficient memory error\n");
-				free(*hostname);
+				DEBUG_HTTP(("Insufficient memory error\n"));
+				vPortFree(*hostname);
 				return -1;
 			}
 			strcpy(*location,"/");
 		}
 	}
 
-	printf("url = %s\n",url);
-	printf("\thost = %s\n",*hostname);
-	printf("\tport = %d\n",*port_num);
-	printf("\tloc = %s\n",*location);
+	DEBUG_HTTP(("url = %s\n",url));
+	DEBUG_HTTP(("\thost = %s\n",*hostname));
+	DEBUG_HTTP(("\tport = %d\n",*port_num));
+	DEBUG_HTTP(("\tloc = %s\n",*location));
 	return protocol;
 }
 
@@ -177,7 +185,7 @@ static char *GetLine(int sock)
 			linebuffer[index++] = c;
 			linebuffer[index] = '\0';
 			index = 0;
-			printf(">>%s",linebuffer);
+			DEBUG_HTTP((">>%s",linebuffer));
 			return linebuffer;
 		}			
 		else
@@ -218,7 +226,7 @@ int http_get(char *hostname, unsigned short port, char *location)
     http_socket = socket(AF_INET,SOCK_STREAM, IPPROTO_TCP);
     
     if(http_socket < 0){
-        printf("socket create fail\n");
+        DEBUG_HTTP(("socket create fail\n"));
         return http_status;
     }
 
@@ -232,17 +240,17 @@ int http_get(char *hostname, unsigned short port, char *location)
         sock_addr.sin_addr.s_addr = *(u32_t *)http_host->h_addr;
     } else {
         if(!inet_aton(hostname, &(sock_addr.sin_addr))){
-            printf("host addr %s can't resolved\n",hostname);
+            DEBUG_HTTP(("host addr %s can't resolved\n",hostname));
             return http_status;
         }
     }
 
-    printf("host name = %s, host ip = %s\n",hostname,ipaddr_ntoa((ip_addr_t*)&sock_addr.sin_addr.s_addr));
+    DEBUG_HTTP(("host name = %s, host ip = %s\n",hostname,ipaddr_ntoa((ip_addr_t*)&sock_addr.sin_addr.s_addr)));
 
     ret = connect(http_socket, (struct sockaddr*)(&sock_addr), sizeof(sock_addr));
 
     if(ret != 0){
-        printf("socket connect fail\n");
+        DEBUG_HTTP(("socket connect fail\n"));
         return http_status;
     }
 
@@ -261,7 +269,7 @@ int http_get(char *hostname, unsigned short port, char *location)
 		ret = send(http_socket,http_string_table[http_connection_close],strlen(http_string_table[http_connection_close]),0);
 
 	if(ret < 0){
-		printf("socket send fail\n");
+		DEBUG_HTTP(("socket send fail\n"));
 		close(http_socket);
 		return http_status;
 	}
@@ -295,25 +303,24 @@ int http_get(char *hostname, unsigned short port, char *location)
 		ptr = GetLine(http_socket);
 	}
 
-    printf("size of http_v10 = %d\n",strlen(http_string_table[http_v10]));
-	printf("http result code = %d\n",http_status);
-	printf("content length = %ld\n",http_length);
+	DEBUG_HTTP(("http result code = %d\n",http_status));
+	DEBUG_HTTP(("content length = %ld\n",http_length));
 
 	if(http_status != 200){
 		close(http_socket);
 		return http_status;
 	}
 
-	recv_buffer = malloc(HTTP_BUFFER_SIZE);
+	recv_buffer = pvPortMalloc(HTTP_BUFFER_SIZE);
 	if(!recv_buffer){
-		printf("memory allocation fail\n");
+		DEBUG_HTTP(("memory allocation fail\n"));
 		close(http_socket);
-		return http_status;
+		return -1;
 	}
 	
 	if(http_chunked)
 	{
-		printf("chunked format\n"); 
+		DEBUG_HTTP(("chunked format\n"));
 		
 		// get first chunk length
 		ptr = GetLine(http_socket);
@@ -328,13 +335,15 @@ int http_get(char *hostname, unsigned short port, char *location)
 				{
 					total_length += pack_len;
 					chunk_length += pack_len;
+#if 0					
 					for(i=0;i<pack_len;i++)
 						printf("%c",recv_buffer[i]);
+#endif						
 				}
 				else
 				{
 					close(http_socket);
-					free(recv_buffer);
+					vPortFree(recv_buffer);
 					return -7;
 				}
 			}
@@ -349,37 +358,41 @@ int http_get(char *hostname, unsigned short port, char *location)
 		while( (pack_len = recv(http_socket,recv_buffer,HTTP_BUFFER_SIZE,0)) > 0 )
 		{
 			total_length += pack_len;
+#if 0					
 			for(i=0;i<pack_len;i++)
 				printf("%c",recv_buffer[i]);
+#endif						
 		}
 		if(http_length != total_length){
-			printf("length mismatch\n");
+			DEBUG_HTTP(("length mismatch\n"));
 			close(http_socket);
-			free(recv_buffer);
-			return http_status;
+			vPortFree(recv_buffer);
+			return -2;
 		}
 	}
 
-	printf("===========\n");
+	DEBUG_HTTP(("===========\n"));
 	
     close(http_socket);
-	free(recv_buffer);
+	vPortFree(recv_buffer);
 	return http_status;
 }
 
-void http_req(char *url)
+int http_req(char *url)
 {
     char *hostname;
     char *location;
     int port;
 	int protocol;
+	int code = 0;
 
 	protocol = parseUrl(url,&hostname,&port,&location);
 	if( protocol == PROTO_HTTP ){
-		http_get(hostname,port,location);
-		free(hostname);
-		free(location);
+		code = http_get(hostname,port,location);
+		vPortFree(hostname);
+		vPortFree(location);
 	}
+	return code;
 }
 
 

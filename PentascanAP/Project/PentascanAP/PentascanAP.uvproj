@@ -456,11 +456,6 @@
               <FilePath>.\startup_rvmdk.S</FilePath>
             </File>
             <File>
-              <FileName>timertest.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\timertest.c</FilePath>
-            </File>
-            <File>
               <FileName>FreeRTOSConfig.h</FileName>
               <FileType>5</FileType>
               <FilePath>.\FreeRTOSConfig.h</FilePath>
@@ -479,6 +474,11 @@
               <FileName>httpc.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\httpc.c</FilePath>
+            </File>
+            <File>
+              <FileName>rtc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\rtc.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -568,6 +568,11 @@
                   </Cads>
                 </FileArmAds>
               </FileOption>
+            </File>
+            <File>
+              <FileName>timers.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\Source\timers.c</FilePath>
             </File>
           </Files>
         </Group>

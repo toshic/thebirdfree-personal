@@ -45,7 +45,7 @@
 // performed.
 //
 //*****************************************************************************
-#define LWIP_USE_INTERRUPTx
+#define LWIP_USE_INTERRUPT
 
 #ifndef HOST_TMR_INTERVAL
 #define HOST_TMR_INTERVAL       0
@@ -162,6 +162,7 @@ static volatile unsigned long g_eth_int_status;
 static void
 lwIPInterruptTask(void *pvArg)
 {
+    unsigned long phy_int_status;
     //
     // Loop forever.
     //
@@ -174,11 +175,25 @@ lwIPInterruptTask(void *pvArg)
         while(xQueueReceive(g_pInterrupt, &pvArg, portMAX_DELAY) != pdPASS)
         {
         }
+        if( (unsigned long)pvArg & ETH_INT_PHY){
 #else
         while(g_eth_int_status == 0)
         {
         }
+        if(g_eth_int_status & ETH_INT_PHY){
 #endif
+            phy_int_status = EthernetPHYRead(ETH_BASE, PHY_MR17);
+            printf("PHY_MR17 %04x\n",phy_int_status);
+            
+            if(phy_int_status & PHY_MR17_ANEGCOMP_INT){
+                netif_set_link_up(&g_sNetIF);
+                printf("<<< link up\n");
+            }else{
+                netif_set_link_down(&g_sNetIF);
+                netif_set_down(&g_sNetIF);
+                printf(">>> link down\n");
+            }
+        }
         //
         // Processes any packets waiting to be sent or received.
         //
@@ -188,7 +203,7 @@ lwIPInterruptTask(void *pvArg)
         // Re-enable the Ethernet interrupts.
         //
         g_eth_int_status = 0;
-        EthernetIntEnable(ETH_BASE, ETH_INT_RX | ETH_INT_TX);
+        EthernetIntEnable(ETH_BASE, ETH_INT_PHY | ETH_INT_RX | ETH_INT_TX);
     }
 }
 
@@ -277,10 +292,9 @@ static void httpTimerCallback( xTimerHandle pxExpiredTimer )
     time_t timer;
 
     timer=RtcGet();
-    printf("The current time is (%ld) %s.\n",timer,asctime(localtime(&timer)));
-
-    //http_req("http://192.168.100.20/ap.html");
-}
+//    printf("The current time is (%ld) %s.\n",timer,asctime(localtime(&timer)));
+//    printf("http %d %s\n",http_get("192.168.100.20",80,"/ap.html"),asctime(localtime(&timer)));
+    printf("http %d %s\n",http_req("http://192.168.100.20:80/ap.html"),asctime(localtime(&timer)));}
 
 //*****************************************************************************
 //
@@ -307,7 +321,7 @@ lwIPPrivateInit(void *pvArg)
 #endif    
 
 	xPeriodicTimer = xTimerCreate(	( const signed char * ) "http timer",/* Text name to facilitate debugging.  The kernel does not use this itself. */
-									( 10 * configTICK_RATE_HZ ),			/* The period for the timer. */
+									( 5 * configTICK_RATE_HZ ),			/* The period for the timer. */
 									pdTRUE,								/* Don't auto-reload - hence a one shot timer. */
 									( void * ) 0,							/* The timer identifier.  In this case this is not used as the timer has its own callback. */
 									httpTimerCallback );				/* The callback to be called when the timer expires. */
@@ -316,7 +330,7 @@ lwIPPrivateInit(void *pvArg)
     // If using a RTOS, create the Ethernet interrupt task.
     //
     xTaskCreate(lwIPInterruptTask, (signed portCHAR *)"eth_int",
-                128, 0, tskIDLE_PRIORITY, 0);
+                128, 0, tskIDLE_PRIORITY + 2, 0);
 
     //
     // Setup the network address values.
@@ -504,7 +518,7 @@ lwIPEthernetIntHandler(void)
     // handled, they are not asserted.  Once they are handled by the Ethernet
     // interrupt task, it will re-enable the interrupts.
     //
-    EthernetIntDisable(ETH_BASE, ETH_INT_RX | ETH_INT_TX);
+    EthernetIntDisable(ETH_BASE, ETH_INT_PHY | ETH_INT_RX | ETH_INT_TX);
 
     //
     // Potentially task switch as a result of the above queue write.

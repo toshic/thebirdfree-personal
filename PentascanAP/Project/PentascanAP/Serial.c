@@ -28,7 +28,7 @@
 #include "rit128x96x4.h"
 #include "uart.h"
 
-#define USE_UART_INTERRUPTx
+#define USE_UART_INTERRUPT
 
 xSemaphoreHandle xUartTxInterruptSemaphore = NULL;
 xSemaphoreHandle xUartRxInterruptSemaphore = NULL;
@@ -68,7 +68,7 @@ void init_serial (void) {
     // Set the UART to interrupt whenever the TX FIFO is almost empty or
     // when any character is received.
     //
-    UARTFIFOLevelSet(UART0_BASE, UART_FIFO_TX1_8, UART_FIFO_RX1_8);
+    //UARTFIFOLevelSet(UART0_BASE, UART_FIFO_TX1_8, UART_FIFO_RX4_8);
 
     //
     // Enable the UART.
@@ -76,6 +76,7 @@ void init_serial (void) {
     UARTIntDisable(UART0_BASE, 0xFFFFFFFF);
     IntEnable(INT_UART0);
     UARTEnable(UART0_BASE);
+    UARTFIFODisable(UART0_BASE);
     IntPrioritySet(INT_UART0,3);
     printf("INT_UART0 %ld\n",IntPriorityGet(INT_UART0));
 
