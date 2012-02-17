@@ -248,7 +248,7 @@ stellarisif_hwinit(struct netif *netif)
 
   /* device capabilities */
   /* don't set NETIF_FLAG_ETHARP if this device is not an ethernet one */
-  netif->flags = NETIF_FLAG_BROADCAST | NETIF_FLAG_ETHARP | NETIF_FLAG_LINK_UP;
+  netif->flags = NETIF_FLAG_BROADCAST | NETIF_FLAG_ETHARP;
 
   /* Do whatever else is needed to initialize interface. */
   /* Disable all Ethernet Interrupts. */
@@ -276,8 +276,10 @@ stellarisif_hwinit(struct netif *netif)
   /* Enable the Ethernet Interrupt handler. */
   IntEnable(INT_ETH);
 
+  EthernetPHYWrite(ETH_BASE, PHY_MR17, PHY_MR17_LSCHG_IE);
+
   /* Enable Ethernet TX and RX Packet Interrupts. */
-  EthernetIntEnable(ETH_BASE, ETH_INT_RX | ETH_INT_TX);
+  EthernetIntEnable(ETH_BASE, ETH_INT_PHY | ETH_INT_RX | ETH_INT_TX);
 }
 
 /**

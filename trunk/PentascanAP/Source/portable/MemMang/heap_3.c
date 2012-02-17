@@ -99,6 +99,30 @@ void *pvReturn;
 	
 	return pvReturn;
 }
+
+void *pvPortCalloc( size_t xWantedNum, size_t xWantedSize  )
+{
+void *pvReturn;
+
+	vTaskSuspendAll();
+	{
+		pvReturn = calloc( xWantedNum, xWantedSize );
+	}
+	xTaskResumeAll();
+
+	#if( configUSE_MALLOC_FAILED_HOOK == 1 )
+	{
+		if( pvReturn == NULL )
+		{
+			extern void vApplicationMallocFailedHook( void );
+			vApplicationMallocFailedHook();
+		}
+	}
+	#endif
+	
+	return pvReturn;
+}
+
 /*-----------------------------------------------------------*/
 
 void vPortFree( void *pv )

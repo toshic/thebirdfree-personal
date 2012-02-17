@@ -220,7 +220,6 @@ const portCHAR * const pcWelcomeMessage = ">> Pentascan AP Test";
 int main( void )
 {
 	prvSetupHardware();
-    init_serial();
 
 #if 0
     /* url parse test */
@@ -267,64 +266,12 @@ int main( void )
 
 	/* Exclude some tasks if using the kickstart version to ensure we stay within
 	the 32K code size limit. */
-	{
-		/* Create the lwIP task if running on a processor that includes a MAC and
-		PHY. */
-		if( SysCtlPeripheralPresent( SYSCTL_PERIPH_ETH ) )
-		{
-		    unsigned long ulUser0, ulUser1;
-		    unsigned char pucMACArray[8];
-		
-		    //
-		    // Enable and Reset the Ethernet Controller.
-		    //
-		    SysCtlPeripheralEnable(SYSCTL_PERIPH_ETH);
-		    SysCtlPeripheralReset(SYSCTL_PERIPH_ETH);
-		
-		    //
-		    // Enable Port F for Ethernet LEDs.
-		    //  LED0        Bit 3   Output
-		    //  LED1        Bit 2   Output
-		    //
-		    SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOF);
-		    GPIOPinTypeEthernetLED(GPIO_PORTF_BASE, GPIO_PIN_2 | GPIO_PIN_3);
-		
-		    //
-		    // Configure the hardware MAC address for Ethernet Controller
-		    // filtering of incoming packets.
-		    //
-		    // For the LM3S6965 Evaluation Kit, the MAC address will be stored in the
-		    // non-volatile USER0 and USER1 registers.  These registers can be read
-		    // using the FlashUserGet function, as illustrated below.
-		    //
-		    FlashUserGet(&ulUser0, &ulUser1);
-		
-		    //
-		    // Convert the 24/24 split MAC address from NV ram into a 32/16 split
-		    // MAC address needed to program the hardware registers, then program
-		    // the MAC address into the Ethernet Controller registers.
-		    //
-		    pucMACArray[0] = ((ulUser0 >>  0) & 0xff);
-		    pucMACArray[1] = ((ulUser0 >>  8) & 0xff);
-		    pucMACArray[2] = ((ulUser0 >> 16) & 0xff);
-		    pucMACArray[3] = ((ulUser1 >>  0) & 0xff);
-		    pucMACArray[4] = ((ulUser1 >>  8) & 0xff);
-		    pucMACArray[5] = ((ulUser1 >> 16) & 0xff);
-
-		    printf("MAC = %02x:%02x:%02x:%02x:%02x:%02x\n",pucMACArray[0],pucMACArray[1],pucMACArray[2],pucMACArray[3],pucMACArray[4],pucMACArray[5]);
-		
-		    //
-		    // Initialze the lwIP library, using DHCP.
-		    //
-		    lwIPInit(pucMACArray, 0, 0, 0, IPADDR_USE_DHCP);
-		}
-	}
 	
 	/* Start the tasks defined within this file/specific to this demo. */
-	xTaskCreate( vOLEDTask, ( signed portCHAR * ) "OLED", mainOLED_TASK_STACK_SIZE, NULL, tskIDLE_PRIORITY, NULL );
+	xTaskCreate( vOLEDTask, ( signed portCHAR * ) "OLED", mainOLED_TASK_STACK_SIZE, NULL, tskIDLE_PRIORITY + 1, NULL );
 
     /* uart loopback task */	
-	xTaskCreate( vUartTask, ( signed portCHAR * ) "UART", configMINIMAL_STACK_SIZE * 3, NULL, tskIDLE_PRIORITY, NULL );
+	xTaskCreate( vUartTask, ( signed portCHAR * ) "UART", configMINIMAL_STACK_SIZE * 3, NULL, tskIDLE_PRIORITY + 2, NULL );
 
 	/* Start the scheduler. */
 	vTaskStartScheduler();
@@ -383,6 +330,58 @@ void vApplicationTickHook( void )
 void vUartTask( void *pvParameters )
 {
     char c;
+
+    init_serial();
+
+    /* Create the lwIP task if running on a processor that includes a MAC and
+    PHY. */
+    if( SysCtlPeripheralPresent( SYSCTL_PERIPH_ETH ) )
+    {
+        unsigned long ulUser0, ulUser1;
+        unsigned char pucMACArray[8];
+    
+        //
+        // Enable and Reset the Ethernet Controller.
+        //
+        SysCtlPeripheralEnable(SYSCTL_PERIPH_ETH);
+        SysCtlPeripheralReset(SYSCTL_PERIPH_ETH);
+    
+        //
+        // Enable Port F for Ethernet LEDs.
+        //  LED0        Bit 3   Output
+        //  LED1        Bit 2   Output
+        //
+        SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOF);
+        GPIOPinTypeEthernetLED(GPIO_PORTF_BASE, GPIO_PIN_2 | GPIO_PIN_3);
+    
+        //
+        // Configure the hardware MAC address for Ethernet Controller
+        // filtering of incoming packets.
+        //
+        // For the LM3S6965 Evaluation Kit, the MAC address will be stored in the
+        // non-volatile USER0 and USER1 registers.  These registers can be read
+        // using the FlashUserGet function, as illustrated below.
+        //
+        FlashUserGet(&ulUser0, &ulUser1);
+    
+        //
+        // Convert the 24/24 split MAC address from NV ram into a 32/16 split
+        // MAC address needed to program the hardware registers, then program
+        // the MAC address into the Ethernet Controller registers.
+        //
+        pucMACArray[0] = ((ulUser0 >>  0) & 0xff);
+        pucMACArray[1] = ((ulUser0 >>  8) & 0xff);
+        pucMACArray[2] = ((ulUser0 >> 16) & 0xff);
+        pucMACArray[3] = ((ulUser1 >>  0) & 0xff);
+        pucMACArray[4] = ((ulUser1 >>  8) & 0xff);
+        pucMACArray[5] = ((ulUser1 >> 16) & 0xff);
+    
+        //
+        // Initialze the lwIP library, using DHCP.
+        //
+        lwIPInit(pucMACArray, 0, 0, 0, IPADDR_USE_DHCP);
+    }
+
     printf("Enter Text:");
 
 
@@ -395,7 +394,7 @@ void vUartTask( void *pvParameters )
 	    }else if(c == 'G'){
             http_req("192.168.100.20");
 	    }else if(c =='a'){
-            http_req("http://192.168.100.20/ap.html");
+            printf("http %d\n",http_req("http://192.168.100.20/ap.html"));
 	    }
 	}
 }
