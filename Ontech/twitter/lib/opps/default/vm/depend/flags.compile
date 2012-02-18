@@ -1,0 +1,16 @@
+-g
+-O
+-fno-builtin-memcpy
+-ansi
+-pedantic
+-Wall
+-Wmissing-prototypes
+-Wstrict-prototypes
+-Wsign-compare
+-Wredundant-decls
+-Werror
+-ID:\Audio-Adaptor-SDK-2009.R1\tools/include/firmware
+-ID:\Audio-Adaptor-SDK-2009.R1\tools/include/standard
+-ID:\Audio-Adaptor-SDK-2009.R1\tools/include/profiles/Audio-Adaptor-SDK2009.R1
+-Wp,-MD,opps/default/vm/depend/
+-Wp,-MQ,opps/default/vm/dummy.force
