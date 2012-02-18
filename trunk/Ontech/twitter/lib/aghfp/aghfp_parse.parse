@@ -1,0 +1,121 @@
+######################################################################################
+#
+# Copyright (C) Cambridge Silicon Radio Ltd. 2005-2009
+# Part of Audio-Adaptor-SDK 2009.R1
+#
+# This file contains all AT commands as specified in the Headset and Hands Free specs. 
+#
+######################################################################################
+
+# ------------------------------------------------------------------------------------
+# AT Commands
+#
+# Format specified in spec AT<cmd>=<value><cr>
+#-------------------------------------------------------------------------------------
+
+# Keypad command
+{ AT + CKPD = %d:keycode \r } : aghfpHandleCkpdParse
+
+# Bluetooth Retrieve Supported Features Request
+{ AT + BRSF = %d:supportedFeatures \r } : aghfpHandleBrsfReqParse
+
+# Call indicators
+{ AT + CIND = ? \r } : aghfpHandleCindSupportReqParse
+{ AT + CIND ? \r } : aghfpHandleCindStatusReqParse
+{ AT + CMER = %d:mode , %d:keyp , %d:disp , %d:ind \r } : aghfpHandleCmerReqParse
+
+# Is call hold supported
+{ AT + CHLD = ? \r } : aghfpHandleChldSupportReqParse
+
+# 
+{ AT + CHLD = %s:cmd \r } : aghfpHandleChldParse
+
+# Answer the call
+{ ATA \r } : aghfpHandleAtaParse
+
+# Enable/disable Calling Line Identification notification
+{ AT + CLIP = %d:state \r } : aghfpHandleClipParse
+
+# Enable/disable call waiting notification
+{ AT + CCWA = %d:state \r } : aghfpHandleCcwaParse
+
+# HF reject incoming call
+{ AT + CHUP \r } : aghfpHandleChupParse
+
+# HF dial
+{ ATD %s:number; \r } : aghfpHandleDialParse
+
+# Dial from a specific slot in the AG's phonebook
+{ ATD > %s:number; \r } : aghfpHandleMemoryDialParse
+
+# Last number redial
+{ AT + BLDN \r } : aghfpHandleBldnParse
+
+# Enable/disable NR and EC in the AG
+{ AT + NREC = %d:state \r } : aghfpHandleNrecParse
+
+# Enable/disable voice recognition in the AG
+{ AT + BVRA = %d:state \r } : aghfpHandleBvraParse
+
+# Request a phone number from the AG
+{ AT + BINP = 1 \r } : aghfpHandleBinpParse
+
+# DTMF generation only one of [0-9 # * A-D] allowed
+{ AT + VTS = %s:code \r } : aghfpHandleVtsParse
+
+# Handle microphone gain instruction from HF
+{ AT + VGM = %d:gain \r } : aghfpHandleVgmParse
+
+# Handle speaker volume instruction from the HF
+{ AT + VGS = %d:volume \r } : aghfpHandleVgsParse
+
+{ AT + BTRH ? \r } : aghfpHandleBtrhStatusRequestParse
+{ AT + BTRH = %d:cmd \r } : aghfpHandleBtrhSetStatusParse
+
+{ AT + CNUM \r } : aghfpHandleCnumParse
+
+{ AT + CLCC \r } : aghfpHandleClccParse
+
+{ AT + COPS = %d:mode , %d:format \r } : aghfpHandleCopsFormatParse
+{ AT + COPS ? \r } : aghfpHandleCopsStatusParse
+
+
+
+#################################
+# CSR Extended Features
+
+# a CSR Supported Features Request
+{ AT + CSRSF = %d:callerName , %d:rawText , %d:smsInd , %d:battLevel , %d:pwrSource , %d:codecs , %*:ignore \r } : aghfpHandleReponseCSRSupportedFeatures
+
+# HS response to codec selection
+{ AT + CSRFN = ( %d:ind , %d:val ) \r } : aghfpHandleFeatureNegotiation
+
+################################
+
+################################################
+# WB-Speech AT Commands
+
+# Codec Negotiation from HF
+{ AT + BCS = %d:codec \r } : aghfpHandleWbsCodecNegotiation
+
+# Codec Connection from HF
+{ AT + BCC \r } : aghfpHandleWbsCodecConnection
+
+# Codec Negotiation from HF
+{ AT + BAC = [codecs,1,10][%d:codec][ , ] \r } : aghfpHandleAvailableCodecs
+
+# 3GPP SMS support 
+{ AT + CPBS = %s:storage \r } : aghfpHandleSelectPhonebookMemoryStorage
+
+{ AT + CNMI = ? \r } : aghfpHandleNewMessageIndicationQuery
+{ AT + CNMI = %d:mode, %d:mt, %d:bm, %d:ds, %d:bfr \r } : aghfpHandleNewMessageIndication
+{ AT + CPMS  ? \r } : aghfpHandlePreferedMessageStorageStatus
+{ AT + CPMS = ? \r } : aghfpHandlePreferedMessageStorageQuery
+{ AT + CPMS = %s:storage \r } : aghfpHandlePreferedMessageStorage
+{ AT + CMGF = ? \r } : aghfpHandleMessageFormatQuery
+{ AT + CMGF = %d:format \r } : aghfpHandleMessageFormat
+{ AT + CMGL = %d:stat \r } : aghfpHandleListMessage
+{ AT + CMGL = %s:stat \r } : aghfpHandleListMessageText
+{ AT + CMGR = %d:index \r } : aghfpHandleReadMessage
+{ AT + CMGS = %s:sender \r } : aghfpHandleSendMessage
+

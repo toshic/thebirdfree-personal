@@ -1,0 +1,8 @@
+
+VARIANTS := debug debug_print
+
+# flags for building debug version of opps lib
+CFLAGS_debug := -DOPPS_LIBRARY_DEBUG
+
+# flags for building debug version of opps lib, including print output
+CFLAGS_debug_print := -DOPPS_LIBRARY_DEBUG -DDEBUG_PRINT_ENABLED

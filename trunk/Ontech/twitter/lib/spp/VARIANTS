@@ -1,0 +1,4 @@
+
+VARIANTS := debug
+
+CFLAGS_debug := -DSPP_DEBUG_LIB  # flags for building debug version of the spp lib

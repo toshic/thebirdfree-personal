@@ -1,0 +1,37 @@
+# ------------------------------------------------------------------------------------
+# AT Commands
+#
+# Format specified in spec AT<cmd>=<value><cr>
+#-------------------------------------------------------------------------------------
+
+{ AT + RDBD	\r } :	read_local_bdaddr
+{ AT + RDSS	\r } :	read_remote_rssi
+{ AT + SPIN	= %s:pin \r } : write_pin
+{ AT + RDNM	\r } :	read_remote_name
+{ AT + SPBN	= %d:index	\r } :	set_phonebook_index
+{ AT + SCON	= %s:bdaddr \r } :	slc_connect_req
+{ AT + SDSC	\r } :	slc_disconnect_req
+{ AT + ACON	\r } :	audio_connect_req
+{ AT + ADSC	\r } :	audio_disconnect_req
+{ AT + CINC	= %s:callerid \r } : virtual_incoming_call
+{ AT + MCON	= %s:bdaddr \r } : a2dp_signal_connect_req
+{ AT + MCON	\r } : a2dp_signal_connect_req_to_ags
+{ AT + MDSC	\r } :	a2dp_signal_disconnect_req
+{ AT + MPLY	\r } :	a2dp_start_req
+{ AT + MSPD	\r } :	a2dp_suspend_req
+{ AT + CMTI = %s:sender , %*:text \r } : sms_new_message_ind
+{ AT + VGS = %d:volume \r } : set_volume_speaker
+{ AT + VGM = %d:volume \r } : set_volume_microphone
+{ AT + MRST \r } : master_reset
+
+
+
+
+
+
+
+
+
+
+
+

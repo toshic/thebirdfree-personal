@@ -1,0 +1,8 @@
+
+VARIANTS := debug debug_print
+
+# flags for building debug version of oppc lib
+CFLAGS_debug := -DOPPC_LIBRARY_DEBUG
+
+# flags for building debug version of oppc lib, including print output
+CFLAGS_debug_print := -DOPPC_LIBRARY_DEBUG -DDEBUG_PRINT_ENABLED

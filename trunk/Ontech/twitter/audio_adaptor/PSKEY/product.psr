@@ -1,0 +1,36 @@
+// PSKEY for Production
+
+// Production Default Address 0007 88 a10000
+// PSKEY_BDADDR
+//&0001 = 00a1 0000 0088 0007
+//&0001 = 0000 ff01 005b 0002
+
+// Bluetooth Starting Address: 0007 88 870DAD
+// Bluetooth Ending Address:   0007 88 870E74
+
+&0001 = 0087 0dad 0088 0007
+
+// ATE mode
+// PSKEY_USR14
+//&0298 = 0001
+
+// PSKEY_HOST_INTERFACE
+//&01f9 = 0004 //Vm Uart
+
+// UART BAUD RATE
+//&01be = 0027 // 9.6k
+
+// license keys for manufacture
+
+// Acoustic License key
+// Bluetooth Starting Address: 0002 5B 00FF01
+// Bluetooth Ending Address:   0002 5B 00FF05
+
+// PSKEY_DSP48: License key SoundCler
+// #### ATS6040 ####
+//&0001 = 0000 ff01 005b 0002
+//&2288 =  0004 000B F03D 5119 D188 B052 6FFC 1A85 4C8F D74E F046 180B EBEB 2B29 C5B8 0589 308D 0000 
+
+// Bluetooth Starting Address: 0007 88 870DAD
+// Bluetooth Ending Address:   0007 88 870E74
+&2288 =  0004 000B 6A93 04FD 82D0 1CC0 4200 E186 30C4 701C BE52 32C4 E6D1 42D1 3E04 0DB1 308D 0000 

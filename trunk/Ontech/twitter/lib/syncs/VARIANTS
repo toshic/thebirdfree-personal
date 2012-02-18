@@ -1,0 +1,8 @@
+
+VARIANTS := debug debug_print
+
+# PBAPS including debug checks
+CFLAGS_debug := -DSYNCS_LIBRARY_DEBUG
+
+# PBAPS including debug checks and print
+CFLAGS_debug_print := -DDEBUG_PRINT_ENABLED -DSYNCS_LIBRARY_DEBUG

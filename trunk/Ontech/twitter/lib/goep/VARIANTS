@@ -1,0 +1,8 @@
+
+VARIANTS := print print_decode
+
+# GOEP including debug print
+CFLAGS_print := -DGOEP_LIBRARY_DEBUG
+
+# GOEP including debug print and Packet decode
+CFLAGS_print_decode := -DGOEP_LIBRARY_DEBUG -DGOEP_LIBRARY_DECODE_PACKETS

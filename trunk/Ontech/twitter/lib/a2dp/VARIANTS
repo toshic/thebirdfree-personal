@@ -1,0 +1,6 @@
+
+VARIANTS := debug atrac
+
+CFLAGS_debug := -DA2DP_DEBUG_LIB  # flags for building debug version of A2DP lib
+
+CFLAGS_atrac := -DA2DP_ATRAC  # flags for building ATRAC version of A2DP lib
