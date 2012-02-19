@@ -402,6 +402,7 @@ static void ResponseSpp(void)
             vin_info[21] = 0;
             break;
         case 0x0004:
+        case 0x0006:
             SppSendPacket(0x01,(uint8*)pkt_activate,sizeof(pkt_activate),0);
             break;
         case 0x000a:
