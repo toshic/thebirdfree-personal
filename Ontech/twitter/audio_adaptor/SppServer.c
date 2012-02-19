@@ -381,6 +381,11 @@ static void SppSendTwitter(uint8 index)
     }    
 }
 
+void SppVinInfoPrint(void)
+{
+    UartPrintf("\r\n+VIN=%s\r\n",vin_info);
+}
+
 static void ResponseSpp(void)
 {
     uint8 cmd[4];
@@ -424,7 +429,7 @@ static void ResponseSpp(void)
             break;
         case 0x0e02:
             if((recv_pkt->fragment_index + 1) == recv_pkt->fragment_number)
-                UartPrintf("\r\n+VIN=%s\r\n",vin_info);
+                SppVinInfoPrint();
             break;
         case 0x1100: /* twitter request */
         case 0x1102: /* twitter update request */

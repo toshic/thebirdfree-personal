@@ -8,6 +8,7 @@
 { AT + RDSS	\r } :	read_remote_rssi
 { AT + SPIN	= %s:pin \r } : write_pin
 { AT + RDNM	\r } :	read_remote_name
+{ AT + WRNM = %*:name \r } : write_local_name
 { AT + SPBN	= %d:index	\r } :	set_phonebook_index
 { AT + SCON	= %s:bdaddr \r } :	slc_connect_req
 { AT + SDSC	\r } :	slc_disconnect_req
@@ -23,7 +24,7 @@
 { AT + VGS = %d:volume \r } : set_volume_speaker
 { AT + VGM = %d:volume \r } : set_volume_microphone
 { AT + MRST \r } : master_reset
-
+{ AT + VIN = ? \r } : vin_request
 
 
 

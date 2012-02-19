@@ -4,4 +4,5 @@ void sppDevInit(void);
 void handleSppMessage(MessageId pId, Message pMessage);
 void SppParse(Source source);
 void SppDisconnectReq(void);
+void SppVinInfoPrint(void);
 
