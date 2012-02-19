@@ -9,6 +9,7 @@
 #include "audioAdaptor_aghfp_slc.h"
 #include "uart.h"
 #include "SppServer.h"
+#include "WritePSKey.h"
 
 #include <ctype.h>
 #include <codec.h>
@@ -36,6 +37,9 @@ static ptr skip1(ptr s, ptr e)
       ++s;
   return s;
 }
+
+static ptr match1(ptr s, ptr e)
+{ return s && s != e && (*s == '\r' || *s == '\n') ? s+1 : 0; }
 
 #ifdef TEST_HARNESS
 static void printString(const char *name, const struct sequence *s)
@@ -95,9 +99,6 @@ static ptr getString(ptr p, ptr e, struct sequence *res)
   res->length = 0;
   return 0;
 }
-
-static ptr match1(ptr s, ptr e)
-{ return s && s != e && (*s == '\r' || *s == '\n') ? s+1 : 0; }
 
 static ptr skipOnce1(ptr s, ptr e)
 {
@@ -222,143 +223,169 @@ static const Arc arcs[] = {
   { 'R', 7 },
   { 'S', 8 },
   { 'V', 9 },
-  { 'C', 10 },
-  { 'D', 11 },
-  { 'I', 12 },
-  { 'M', 13 },
-  { 'C', 14 },
-  { 'D', 15 },
-  { 'P', 16 },
-  { 'R', 17 },
-  { 'S', 18 },
-  { 'D', 19 },
-  { 'C', 20 },
-  { 'D', 21 },
-  { 'P', 22 },
-  { 'G', 23 },
-  { 'O', 24 },
-  { 'S', 25 },
-  { 'N', 26 },
-  { 'T', 27 },
-  { 'O', 28 },
-  { 'S', 29 },
-  { 'L', 30 },
-  { 'S', 31 },
-  { 'P', 32 },
-  { 'B', 33 },
-  { 'N', 34 },
-  { 'S', 35 },
-  { 'O', 36 },
-  { 'S', 37 },
-  { 'B', 38 },
-  { 'I', 39 },
-  { 'M', 40 },
-  { 'S', 41 },
-  { 'N', 42 },
-  { 'C', 43 },
-  { 'C', 44 },
-  { 'I', 45 },
+  { 'W', 10 },
+  { 'C', 11 },
+  { 'D', 12 },
+  { 'I', 13 },
+  { 'M', 14 },
+  { 'C', 15 },
+  { 'D', 16 },
+  { 'P', 17 },
+  { 'R', 18 },
+  { 'S', 19 },
+  { 'D', 20 },
+  { 'C', 21 },
+  { 'D', 22 },
+  { 'P', 23 },
+  { 'G', 24 },
+  { 'I', 25 },
+  { 'R', 26 },
+  { 'O', 27 },
+  { 'S', 28 },
+  { 'N', 29 },
+  { 'T', 30 },
+  { 'O', 31 },
+  { 'S', 32 },
+  { 'L', 33 },
+  { 'S', 34 },
+  { 'P', 35 },
+  { 'B', 36 },
+  { 'N', 37 },
+  { 'S', 38 },
+  { 'O', 39 },
+  { 'S', 40 },
+  { 'B', 41 },
+  { 'I', 42 },
+  { 'M', 43 },
+  { 'S', 44 },
+  { 'N', 45 },
   { 'N', 46 },
-  { 'C', 47 },
-  { 'Y', 48 },
-  { 'T', 49 },
-  { 'D', 50 },
-  { 'D', 51 },
-  { 'M', 52 },
-  { 'S', 53 },
-  { 'N', 54 },
-  { 'C', 55 },
-  { 'N', 56 },
-  { 'N', 57 },
-  { '\t', 40 },
-  { ' ', 40 },
+  { 'N', 47 },
+  { 'C', 48 },
+  { 'C', 49 },
+  { 'I', 50 },
+  { 'N', 51 },
+  { 'C', 52 },
+  { 'Y', 53 },
+  { 'T', 54 },
+  { 'D', 55 },
+  { 'D', 56 },
+  { 'M', 57 },
+  { 'S', 58 },
+  { 'N', 59 },
+  { 'C', 60 },
+  { 'N', 61 },
+  { 'N', 62 },
+  { '\t', 43 },
+  { ' ', 43 },
   { ':', -1 },
   { '=', -1 },
-  { '\t', 41 },
-  { ' ', 41 },
-  { ':', -2 },
-  { '=', -2 },
-  { '\t', 42 },
-  { '\n', -3 },
-  { '\r', -3 },
-  { ' ', 42 },
-  { '\t', 43 },
-  { '\n', -4 },
-  { '\r', -4 },
-  { ' ', 43 },
   { '\t', 44 },
   { ' ', 44 },
-  { ':', -5 },
-  { '=', -5 },
+  { ':', -2 },
+  { '=', -2 },
   { '\t', 45 },
   { ' ', 45 },
-  { ':', -6 },
-  { '=', -6 },
-  { '\t', 46 },
-  { '\n', -7 },
-  { '\r', -7 },
-  { ' ', 46 },
-  { ':', -8 },
-  { '=', -8 },
+  { ':', 63 },
+  { '=', 63 },
+  { 'M', 64 },
   { '\t', 47 },
-  { '\n', -9 },
-  { '\r', -9 },
+  { '\n', -3 },
+  { '\r', -3 },
   { ' ', 47 },
   { '\t', 48 },
-  { '\n', -10 },
-  { '\r', -10 },
+  { '\n', -4 },
+  { '\r', -4 },
   { ' ', 48 },
   { '\t', 49 },
-  { '\n', -11 },
-  { '\r', -11 },
   { ' ', 49 },
+  { ':', -5 },
+  { '=', -5 },
   { '\t', 50 },
-  { '\n', -12 },
-  { '\r', -12 },
   { ' ', 50 },
+  { ':', -6 },
+  { '=', -6 },
   { '\t', 51 },
-  { '\n', -13 },
-  { '\r', -13 },
+  { '\n', -7 },
+  { '\r', -7 },
   { ' ', 51 },
+  { ':', -8 },
+  { '=', -8 },
   { '\t', 52 },
-  { '\n', -14 },
-  { '\r', -14 },
+  { '\n', -9 },
+  { '\r', -9 },
   { ' ', 52 },
   { '\t', 53 },
-  { '\n', -15 },
-  { '\r', -15 },
+  { '\n', -10 },
+  { '\r', -10 },
   { ' ', 53 },
   { '\t', 54 },
+  { '\n', -11 },
+  { '\r', -11 },
   { ' ', 54 },
-  { ':', -16 },
-  { '=', -16 },
   { '\t', 55 },
-  { '\n', -17 },
-  { '\r', -17 },
+  { '\n', -12 },
+  { '\r', -12 },
   { ' ', 55 },
   { '\t', 56 },
+  { '\n', -13 },
+  { '\r', -13 },
   { ' ', 56 },
+  { '\t', 57 },
+  { '\n', -14 },
+  { '\r', -14 },
+  { ' ', 57 },
+  { '\t', 58 },
+  { '\n', -15 },
+  { '\r', -15 },
+  { ' ', 58 },
+  { '\t', 59 },
+  { ' ', 59 },
+  { ':', -16 },
+  { '=', -16 },
+  { '\t', 60 },
+  { '\n', -17 },
+  { '\r', -17 },
+  { ' ', 60 },
+  { '\t', 61 },
+  { ' ', 61 },
   { ':', -18 },
   { '=', -18 },
-  { '\t', 57 },
-  { ' ', 57 },
+  { '\t', 62 },
+  { ' ', 62 },
   { ':', -19 },
   { '=', -19 },
+  { '\t', 63 },
+  { '\n', -20 },
+  { '\r', -20 },
+  { ' ', 63 },
+  { '?', 65 },
+  { '\t', 64 },
+  { ' ', 64 },
+  { ':', -21 },
+  { '=', -21 },
+  { '\t', 66 },
+  { '\n', -20 },
+  { '\r', -20 },
+  { ' ', 66 },
+  { '?', 65 },
+  { '\t', 66 },
+  { '\n', -20 },
+  { '\r', -20 },
+  { ' ', 66 },
 };
 
-static const Arc *const states[59] = {
+static const Arc *const states[68] = {
   &arcs[0],
   &arcs[3],
   &arcs[4],
   &arcs[7],
-  &arcs[15],
-  &arcs[17],
-  &arcs[19],
-  &arcs[24],
+  &arcs[16],
+  &arcs[18],
+  &arcs[20],
   &arcs[25],
-  &arcs[28],
+  &arcs[26],
   &arcs[29],
-  &arcs[30],
   &arcs[31],
   &arcs[32],
   &arcs[33],
@@ -367,13 +394,13 @@ static const Arc *const states[59] = {
   &arcs[36],
   &arcs[37],
   &arcs[38],
+  &arcs[39],
+  &arcs[40],
   &arcs[41],
-  &arcs[42],
-  &arcs[43],
+  &arcs[44],
   &arcs[45],
-  &arcs[47],
+  &arcs[46],
   &arcs[48],
-  &arcs[49],
   &arcs[50],
   &arcs[51],
   &arcs[52],
@@ -388,24 +415,35 @@ static const Arc *const states[59] = {
   &arcs[61],
   &arcs[62],
   &arcs[63],
+  &arcs[64],
+  &arcs[65],
+  &arcs[66],
   &arcs[67],
-  &arcs[71],
-  &arcs[75],
-  &arcs[79],
-  &arcs[83],
-  &arcs[87],
+  &arcs[68],
+  &arcs[72],
+  &arcs[76],
+  &arcs[80],
+  &arcs[81],
+  &arcs[85],
+  &arcs[89],
   &arcs[93],
   &arcs[97],
-  &arcs[101],
-  &arcs[105],
-  &arcs[109],
-  &arcs[113],
-  &arcs[117],
-  &arcs[121],
-  &arcs[125],
-  &arcs[129],
-  &arcs[133],
-  &arcs[137],
+  &arcs[103],
+  &arcs[107],
+  &arcs[111],
+  &arcs[115],
+  &arcs[119],
+  &arcs[123],
+  &arcs[127],
+  &arcs[131],
+  &arcs[135],
+  &arcs[139],
+  &arcs[143],
+  &arcs[147],
+  &arcs[152],
+  &arcs[156],
+  &arcs[161],
+  &arcs[165],
 };
 
 static uint16 matchLiteral(ptr s, ptr e, Task task)
@@ -455,6 +493,7 @@ static ptr parseData(ptr s, ptr e, Task task)
         struct slc_connect_req slc_connect_req;
         struct set_phonebook_index set_phonebook_index;
         struct write_pin write_pin;
+        struct write_local_name write_local_name;
       } u, *uu = &u;
       int state = 0;
       ptr t = s;
@@ -732,6 +771,33 @@ static ptr parseData(ptr s, ptr e, Task task)
             continue;
           }
           break;
+        case 20:
+          if(t)
+          {
+#ifndef TEST_HARNESS
+            vin_request(task);
+#endif
+#ifdef TEST_HARNESS
+            printf("Called vin_request");
+            putchar('\n');
+#endif
+            continue;
+          }
+          break;
+        case 21:
+          if(match1(skip1(getWildString(skip1(t, e), e, &uu->write_local_name.name), e), e))
+          {
+#ifndef TEST_HARNESS
+            write_local_name(task, &uu->write_local_name);
+#endif
+#ifdef TEST_HARNESS
+            printf("Called write_local_name");
+            printString("name", &uu->write_local_name.name);
+            putchar('\n');
+#endif
+            continue;
+          }
+          break;
         default:
           break;
       }
@@ -846,6 +912,13 @@ void read_remote_name(Task task)
         SendError();
 	}
 }
+
+void write_local_name(Task task, const struct write_local_name *name)
+{
+    WritePsKeys(PSKEY_DEVICE_NAME,(uint16 *) (name->name.data),name->name.length);
+	SendOk();
+}
+
 void read_remote_rssi(Task task)
 {
 	if(the_app->dev_inst[0] && the_app->dev_inst[0]->aghfp_sink)
@@ -980,6 +1053,11 @@ void master_reset(Task task)
 {
     ConnectionSmDeleteAllAuthDevices ( 0 );
 	Panic();
+}
+
+void vin_request(Task task)
+{
+    SppVinInfoPrint();
 }
 
 void handleUnrecognisedCmd(const uint8 *data, uint16 length, Task task)

@@ -405,6 +405,7 @@ void avcrpMsgHandleLibMessage(MessageId id, Message message)
         }
         case AVRCP_CONNECT_IND:
         {
+			SendEvent(EVT_AVRCP_SIGNAL_CONNECT_IND,0);
             DEBUG_AVRCP(("AVRCP_CONNECT_IND from: 0x%X 0x%X 0x%lX\n", ((AVRCP_CONNECT_IND_T *)message)->bd_addr.nap, ((AVRCP_CONNECT_IND_T *)message)->bd_addr.uap, ((AVRCP_CONNECT_IND_T *)message)->bd_addr.lap));
             handleAvrcpConnectInd((AVRCP_CONNECT_IND_T *)message);
             break;

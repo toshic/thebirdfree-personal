@@ -443,10 +443,12 @@ DESCRIPTION
 */
 static void handleA2DPSignallingConnectCfm(devInstanceTaskData *inst, A2DP_SIGNALLING_CHANNEL_CONNECT_CFM_T *msg)
 {   
+    bool remote_connect = FALSE;
     switch (getA2dpState(inst))
     {
-        case A2dpStateOpening:
         case A2dpStatePaged:
+            remote_connect = TRUE;
+        case A2dpStateOpening:
         case A2dpStateDisconnected:
         {
             if (msg->status != a2dp_success)
@@ -493,7 +495,10 @@ static void handleA2DPSignallingConnectCfm(devInstanceTaskData *inst, A2DP_SIGNA
                     seconds and if no open indication is received,
                     the audio adaptor opens the media channel.
             */
-            MessageSendLater(&inst->task, APP_INTERNAL_CONNECT_MEDIA_CHANNEL_REQ, 0, D_SEC(3));
+            if(remote_connect)
+                MessageSendLater(&inst->task, APP_INTERNAL_CONNECT_MEDIA_CHANNEL_REQ, 0, D_SEC(3));
+            else
+                a2dpSlcConnect(inst);
            
             break;
         }
@@ -1867,6 +1872,7 @@ void a2dpMsgHandleLibMessage(MessageId id, Message message)
         }
         case A2DP_SIGNALLING_CHANNEL_CONNECT_IND:
         {
+			SendEvent(EVT_A2DP_SIGNAL_CONNECT_IND,0);
             DEBUG_A2DP(("A2DP_SIGNALLING_CHANNEL_CONNECT_IND : \n"));
             handleA2DPSignallingConnectInd((A2DP_SIGNALLING_CHANNEL_CONNECT_IND_T *) message);
             return;

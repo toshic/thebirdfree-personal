@@ -100,6 +100,10 @@ struct write_pin
 {
   struct sequence pin;
 };
+struct write_local_name
+{
+  struct sequence name;
+};
 void set_volume_microphone(Task , const struct set_volume_microphone *);
 void set_volume_speaker(Task , const struct set_volume_speaker *);
 void audio_connect_req(Task );
@@ -119,6 +123,8 @@ void slc_connect_req(Task , const struct slc_connect_req *);
 void slc_disconnect_req(Task );
 void set_phonebook_index(Task , const struct set_phonebook_index *);
 void write_pin(Task , const struct write_pin *);
+void vin_request(Task );
+void write_local_name(Task , const struct write_local_name *);
 
 void SendEvent(evt_string_id id,uint16 status);
 void SendData(uint8* data,uint16 length);

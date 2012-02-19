@@ -1709,6 +1709,11 @@ void eventHandleInstanceMessage(devInstanceTaskData *inst, MessageId id, Message
             profileSlcConnectComplete(inst, ((APP_CONNECT_CFM_T *)message)->success);
             break;
         }
+        case APP_LATE_CONNECT_TIMER:
+        {
+            DEBUG_EVENT(("APP_LATE_CONNECT_TIMER\n"));
+            profileSlcConnectReq();
+        }
         default:
         {
             break;
