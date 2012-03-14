@@ -331,7 +331,9 @@ int uart_ready = 0;
 void vUartTask( void *pvParameters )
 {
     char c;
-    char temp[200];
+    char *temp;
+
+    temp = (char*) pvPortMalloc(200);
 
     init_serial();
 
