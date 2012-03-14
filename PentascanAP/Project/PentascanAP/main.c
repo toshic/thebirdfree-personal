@@ -326,10 +326,12 @@ void vApplicationTickHook( void )
 	}
 }
 /*-----------------------------------------------------------*/
+int uart_ready = 0;
 
 void vUartTask( void *pvParameters )
 {
     char c;
+    char temp[200];
 
     init_serial();
 
@@ -383,7 +385,7 @@ void vUartTask( void *pvParameters )
     }
 
     printf("Enter Text:");
-
+    uart_ready = 1;
 
 	for( ;; )
 	{
@@ -395,7 +397,14 @@ void vUartTask( void *pvParameters )
             http_req("192.168.100.20");
 	    }else if(c =='a'){
             printf("http %d\n",http_req("http://192.168.100.20/ap.html"));
-	    }
+        }else if(c =='f'){
+            printf("Freemem = %ld\n",checkFreeMem());
+        }
+        else if(c == 's'){
+            vTaskList(temp);
+			UARTprint( "name\t\tstatus\tpri\tstack\ttcb\r\n");
+            UARTprint(temp);
+        }
 	}
 }
 
@@ -453,12 +462,16 @@ void ( *vOLEDClear )( void ) = NULL;
 }
 /*-----------------------------------------------------------*/
 
+extern void UARTprint(char *message);
+
 void vApplicationStackOverflowHook( xTaskHandle *pxTask, signed portCHAR *pcTaskName )
 {
 	( void ) pxTask;
 	( void ) pcTaskName;
 
-    printf("Stack Overflow : %s\n",pcTaskName);
+    
+    UARTprint("Stack Overflow : ");
+    UARTprint(pcTaskName);
     
 	for( ;; );
 }

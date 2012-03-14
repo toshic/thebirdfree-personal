@@ -93,6 +93,8 @@ extern void lwIPNetworkConfigChange(unsigned long ulIPAddr,
                                     unsigned long ulGWAddr,
                                     unsigned long ulIPMode);
 
+extern unsigned long checkFreeMem(void);
+
 //*****************************************************************************
 //
 // Mark the end of the C bindings section for C++ compilers.

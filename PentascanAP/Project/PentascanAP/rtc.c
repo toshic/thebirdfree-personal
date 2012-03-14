@@ -16,14 +16,12 @@ void RtcInit(void)
 	SysCtlPeripheralEnable( SYSCTL_PERIPH_TIMER0 );
     TimerConfigure( TIMER0_BASE, TIMER_CFG_32_BIT_PER );
 	
-	/* Set the timer interrupt to be above the kernel - highest. */
-	IntPrioritySet( INT_TIMER0A, 0 );
-
 	/* Ensure interrupts do not start until the scheduler is running. */
 	portDISABLE_INTERRUPTS();
 	
 	/* The rate at which the timer will interrupt. */
     TimerLoadSet( TIMER0_BASE, TIMER_A, configCPU_CLOCK_HZ );
+	IntPrioritySet( INT_TIMER0A, configKERNEL_INTERRUPT_PRIORITY );
     IntEnable( INT_TIMER0A );
     TimerIntEnable( TIMER0_BASE, TIMER_TIMA_TIMEOUT );
 
