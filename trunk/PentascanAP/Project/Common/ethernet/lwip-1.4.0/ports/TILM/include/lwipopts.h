@@ -262,9 +262,9 @@
 // ---------- Thread options ----------
 //
 //*****************************************************************************
-//#define TCPIP_THREAD_NAME              "tcpip_thread"
+#define TCPIP_THREAD_NAME              "lwip"
 #define TCPIP_THREAD_STACKSIZE      configMINIMAL_STACK_SIZE * 3
-#define TCPIP_THREAD_PRIO               tskIDLE_PRIORITY + 3
+#define TCPIP_THREAD_PRIO               tskIDLE_PRIORITY + 2
 #define TCPIP_MBOX_SIZE                 10
 //#define SLIPIF_THREAD_NAME             "slipif_loop"
 //#define SLIPIF_THREAD_STACKSIZE         0
@@ -275,7 +275,7 @@
 //#define DEFAULT_THREAD_NAME            "lwIP"
 //#define DEFAULT_THREAD_STACKSIZE        0
 //#define DEFAULT_THREAD_PRIO             1
-//#define DEFAULT_RAW_RECVMBOX_SIZE       0
+#define DEFAULT_RAW_RECVMBOX_SIZE       5
 #define DEFAULT_UDP_RECVMBOX_SIZE       5
 #define DEFAULT_TCP_RECVMBOX_SIZE       5
 //#define DEFAULT_ACCEPTMBOX_SIZE         0

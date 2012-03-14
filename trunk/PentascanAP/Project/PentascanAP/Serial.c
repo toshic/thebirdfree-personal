@@ -59,7 +59,7 @@ void init_serial (void) {
     //
     // Configure the UART for 115,200, 8-N-1 operation.
     //
-    UARTConfigSetExpClk(UART0_BASE, SysCtlClockGet(), 115200,
+    UARTConfigSetExpClk(UART0_BASE, SysCtlClockGet(), 921600,
                         (UART_CONFIG_WLEN_8 | UART_CONFIG_STOP_ONE |
                          UART_CONFIG_PAR_NONE));
 
@@ -74,10 +74,10 @@ void init_serial (void) {
     // Enable the UART.
     //
     UARTIntDisable(UART0_BASE, 0xFFFFFFFF);
+    IntPrioritySet(INT_UART0,configKERNEL_INTERRUPT_PRIORITY);
     IntEnable(INT_UART0);
     UARTEnable(UART0_BASE);
     UARTFIFODisable(UART0_BASE);
-    IntPrioritySet(INT_UART0,3);
     printf("INT_UART0 %ld\n",IntPriorityGet(INT_UART0));
 
     printf("This is test message to check long message printf function\n");
@@ -139,6 +139,13 @@ UARTIntHandler(void)
 	portEND_SWITCHING_ISR( xHigherPriorityTaskWoken );
 }
 
+void UARTprint(char *message)
+{
+    while(*message){
+        UARTCharPut (UART0_BASE, *message);
+        message++;
+    }
+}
 
 /*----------------------------------------------------------------------------
  * end of file

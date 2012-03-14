@@ -273,6 +273,7 @@ stellarisif_hwinit(struct netif *netif)
   /* Enable the Ethernet Controller transmitter and receiver. */
   EthernetEnable(ETH_BASE);
 
+  IntPrioritySet(INT_ETH, configKERNEL_INTERRUPT_PRIORITY);
   /* Enable the Ethernet Interrupt handler. */
   IntEnable(INT_ETH);
 

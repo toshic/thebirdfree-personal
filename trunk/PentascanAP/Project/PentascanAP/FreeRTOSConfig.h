@@ -70,7 +70,7 @@
 #define configUSE_IDLE_HOOK				0
 #define configUSE_TICK_HOOK				1
 #define configCPU_CLOCK_HZ				( ( unsigned long ) 50000000 )
-#define configTICK_RATE_HZ				( ( portTickType ) 1000 )
+#define configTICK_RATE_HZ				( ( portTickType ) 100 )
 #define configMINIMAL_STACK_SIZE		( ( unsigned short ) 70 )
 #define configTOTAL_HEAP_SIZE			( ( size_t ) ( 0 ) )
 #define configMAX_TASK_NAME_LEN			( 12 )
@@ -107,5 +107,21 @@ to exclude the API function. */
 #define configTIMER_TASK_PRIORITY		( tskIDLE_PRIORITY + 2)
 #define configTIMER_QUEUE_LENGTH		10
 #define configTIMER_TASK_STACK_DEPTH	( configMINIMAL_STACK_SIZE * 4 )
+
+extern int uart_ready;
+//#define traceTASK_SWITCHED_IN()   if(uart_ready) printf(">%s in\n",pxCurrentTCB->pcTaskName)
+//#define traceTASK_SWITCHED_OUT()   if(uart_ready) printf("<%s out\n",pxCurrentTCB->pcTaskName)
+extern void vParTestSetLED( unsigned long uxLED, signed long xValue );
+
+#define traceTASK_SWITCHED_IN() vParTestSetLED( 0, pdFALSE)
+#define traceTASK_SWITCHED_OUT() vParTestSetLED( 0, pdTRUE)
+
+extern void UARTprint(char *message);
+#define configASSERT( x )  do { if (!(x)) { \
+  UARTprint("Assertion \"");\
+  UARTprint(__FILE__);\
+  }\
+} while(0)
+
 
 #endif /* FREERTOS_CONFIG_H */
