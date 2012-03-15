@@ -13,11 +13,16 @@
 #include <rt_misc.h>
 
 //#pragma import(__use_no_semihosting_swi)
+#define LCD_PRINTF
 
-
+#ifdef LCD_PRINTF
+extern int lcd_terminal_char(int ch); /* in LCD.c */
+#else
 extern int  sendchar(int ch);  /* in Serial.c */
+#endif
 extern int  getkey(void);      /* in Serial.c */
 extern long timeval;           /* in Time.c   */
+
 
 
 struct __FILE { int handle; /* Add whatever you need here */ };
@@ -26,7 +31,11 @@ FILE __stdin;
 
 
 int fputc(int ch, FILE *f) {
+#ifdef LCD_PRINTF
+  return (lcd_terminal_char(ch));
+#else  
   return (sendchar(ch));
+#endif
 }
 
 int fgetc(FILE *f) {
@@ -41,7 +50,11 @@ int ferror(FILE *f) {
 
 
 void _ttywrch(int ch) {
+#ifdef LCD_PRINTF
+  lcd_terminal_char(ch);
+#else  
   sendchar (ch);
+#endif  
 }
 
 

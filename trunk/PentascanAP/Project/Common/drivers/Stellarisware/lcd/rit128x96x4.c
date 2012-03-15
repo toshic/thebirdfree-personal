@@ -467,7 +467,7 @@ RIT128x96x4Clear(void)
     //
     // Loop through the rows
     //
-    for(ulRow = 0; ulRow < 96; ulRow++)
+    for(ulRow = 0; ulRow < 128; ulRow++)
     {
         //
         // Loop through the columns.  Each byte is two pixels,
@@ -526,7 +526,7 @@ RIT128x96x4StringDraw(const char *pcStr, unsigned long ulX,
     //
     ASSERT(ulX < 128);
     ASSERT((ulX & 1) == 0);
-    ASSERT(ulY < 96);
+    ASSERT(ulY < 128);
     ASSERT(ucLevel < 16);
 
     //
@@ -602,6 +602,90 @@ RIT128x96x4StringDraw(const char *pcStr, unsigned long ulX,
         }
     }
 }
+
+void
+RIT128x96x4Char(const char ch, unsigned long ulX,
+                      unsigned long ulY, unsigned char ucLevel)
+{
+    unsigned long ulIdx1, ulIdx2;
+    unsigned char ucTemp;
+
+    //
+    // Check the arguments.
+    //
+    ASSERT(ulX < 128);
+    ASSERT((ulX & 1) == 0);
+    ASSERT(ulY < 128);
+    ASSERT(ucLevel < 16);
+
+    //
+    // Setup a window starting at the specified column and row, ending
+    // at the right edge of the display and 8 rows down (single character row).
+    //
+    g_pucBuffer[0] = 0x15;
+    g_pucBuffer[1] = ulX / 2;
+    g_pucBuffer[2] = 63;
+    RITWriteCommand(g_pucBuffer, 3);
+    g_pucBuffer[0] = 0x75;
+    g_pucBuffer[1] = ulY;
+    g_pucBuffer[2] = ulY + 7;
+    RITWriteCommand(g_pucBuffer, 3);
+    RITWriteCommand(g_pucRIT128x96x4VerticalInc,
+                    sizeof(g_pucRIT128x96x4VerticalInc));
+
+    //
+    // Get a working copy of the current character and convert to an
+    // index into the character bit-map array.
+    //
+    ucTemp = ch & 0x7f;
+    if(ucTemp < ' ')
+    {
+        ucTemp = 0;
+    }
+    else
+    {
+        ucTemp -= ' ';
+    }
+
+    //
+    // Build and display the character buffer.
+    //
+    for(ulIdx1 = 0; ulIdx1 < 6; ulIdx1 += 2)
+    {
+        //
+        // Convert two columns of 1-bit font data into a single data
+        // byte column of 4-bit font data.
+        //
+        for(ulIdx2 = 0; ulIdx2 < 8; ulIdx2++)
+        {
+            g_pucBuffer[ulIdx2] = 0;
+            if(g_pucFont[ucTemp][ulIdx1] & (1 << ulIdx2))
+            {
+                g_pucBuffer[ulIdx2] = (ucLevel << 4) & 0xf0;
+            }
+            if((ulIdx1 < 4) &&
+               (g_pucFont[ucTemp][ulIdx1 + 1] & (1 << ulIdx2)))
+            {
+                g_pucBuffer[ulIdx2] |= (ucLevel << 0) & 0x0f;
+            }
+        }
+
+        //
+        // Send this byte column to the display.
+        //
+        RITWriteData(g_pucBuffer, 8);
+        ulX += 2;
+
+        //
+        // Return if the right side of the display has been reached.
+        //
+        if(ulX == 128)
+        {
+            return;
+        }
+    }
+}
+
 
 //*****************************************************************************
 //
@@ -921,6 +1005,18 @@ RIT128x96x4DisplayOff(void)
     //
     // Put the display to sleep.
     //
+    RITWriteCommand(pucCommand1, sizeof(pucCommand1));
+}
+
+void
+RIT128X96X4Scroll(unsigned char start)
+{
+   unsigned char pucCommand1[] =
+    {
+        0xA1, 0, 0xe3
+    };
+
+    pucCommand1[1]=start;
     RITWriteCommand(pucCommand1, sizeof(pucCommand1));
 }
 
