@@ -310,11 +310,9 @@ static void httpTimerCallback( xTimerHandle pxExpiredTimer )
     time_t timer;
 
     timer=RtcGet();
-    printf("The current time is (%ld) %s.\n",timer,asctime(localtime(&timer)));
-//    printf("http %d %s\n",http_get("192.168.100.20",80,"/ap.html"),asctime(localtime(&timer)));
-//    printf("bfr %ld\n",checkFreeMem());
-    printf("http %d %s\n",http_req("http://192.168.100.20:80/ap.html"),asctime(localtime(&timer)));
-    printf("aft %ld\n",checkFreeMem());
+    printf("localtime %s",asctime(localtime(&timer)));
+    printf("http %d\n",http_req("http://192.168.100.20:80/ap.html"));
+    printf("freemem = %ld\n",checkFreeMem());
 }
 
 //*****************************************************************************

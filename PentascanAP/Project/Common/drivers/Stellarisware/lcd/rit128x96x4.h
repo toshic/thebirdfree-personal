@@ -32,6 +32,10 @@
 //
 //*****************************************************************************
 extern void RIT128x96x4Clear(void);
+extern void RIT128x96x4Char(const char ch, 
+                                    unsigned long ulX,
+                                    unsigned long ulY, 
+                                    unsigned char ucLevel);
 extern void RIT128x96x4StringDraw(const char *pcStr,
                                     unsigned long ulX,
                                     unsigned long ulY,
@@ -46,5 +50,6 @@ extern void RIT128x96x4Enable(unsigned long ulFrequency);
 extern void RIT128x96x4Disable(void);
 extern void RIT128x96x4DisplayOn(void);
 extern void RIT128x96x4DisplayOff(void);
+extern void RIT128X96X4Scroll(unsigned char start);
 
 #endif // __RIT128X96X4_H__

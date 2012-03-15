@@ -78,9 +78,6 @@ void init_serial (void) {
     IntEnable(INT_UART0);
     UARTEnable(UART0_BASE);
     UARTFIFODisable(UART0_BASE);
-    printf("INT_UART0 %ld\n",IntPriorityGet(INT_UART0));
-
-    printf("This is test message to check long message printf function\n");
 }
 
 /*----------------------------------------------------------------------------

@@ -129,7 +129,6 @@ static int parseUrl(char *url, char **hostname, unsigned int *port_num, char **l
 
 		ptr = strchr(url,'/');
 		if(ptr){
-		    int i;
 			DEBUG_HTTP(("location exist\n"));
 
 			*hostname = (char *)pvPortMalloc(ptr - url + 1);
@@ -140,14 +139,6 @@ static int parseUrl(char *url, char **hostname, unsigned int *port_num, char **l
 			strncpy(*hostname,url,ptr-url);
 			*hostname[ptr-url]=0;
 			
-            for(i=0;i<100;i++){
-                char ttt[2];
-                if(ptr[i] == NULL)
-                    break;
-                ttt[0] = ptr[i];
-                ttt[1] = 0;
-                RIT128x96x4StringDraw(ttt,0,0,15);
-            }
 			*location = pvPortMalloc(strlen(ptr) + 1);
 			if(!*location){
 				DEBUG_HTTP(("Insufficient memory error\n"));

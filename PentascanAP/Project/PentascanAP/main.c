@@ -121,7 +121,6 @@ and the TCP/IP stack together cannot be accommodated with the 32K size limit. */
 #include "sysctl.h"
 #include "gpio.h"
 #include "grlib.h"
-#include "rit128x96x4.h"
 #include "uart.h"
 #include "lmi_flash.h"
 
@@ -136,6 +135,7 @@ and the TCP/IP stack together cannot be accommodated with the 32K size limit. */
 /* http client header */
 #include "httpc.h"
 #include "Rtc.h"
+#include "lcd_terminal.h"
 
 /*-----------------------------------------------------------*/
 
@@ -146,46 +146,14 @@ tick hook. */
 /* Size of the stack allocated to the uIP task. */
 #define mainBASIC_WEB_STACK_SIZE            ( configMINIMAL_STACK_SIZE * 3 )
 
-/* The OLED task uses the sprintf function so requires a little more stack too. */
-#define mainOLED_TASK_STACK_SIZE			( configMINIMAL_STACK_SIZE + 50 )
 
 /* Task priorities. */
-#define mainQUEUE_POLL_PRIORITY				( tskIDLE_PRIORITY + 2 )
-#define mainCHECK_TASK_PRIORITY				( tskIDLE_PRIORITY + 3 )
-#define mainSEM_TEST_PRIORITY				( tskIDLE_PRIORITY + 1 )
-#define mainBLOCK_Q_PRIORITY				( tskIDLE_PRIORITY + 2 )
-#define mainCREATOR_TASK_PRIORITY           ( tskIDLE_PRIORITY + 3 )
-#define mainINTEGER_TASK_PRIORITY           ( tskIDLE_PRIORITY )
 #define mainGEN_QUEUE_TASK_PRIORITY			( tskIDLE_PRIORITY )
 
-/* The maximum number of message that can be waiting for display at any one
-time. */
-#define mainOLED_QUEUE_SIZE					( 3 )
-
-/* Dimensions the buffer into which the jitter time is written. */
-#define mainMAX_MSG_LEN						25
 
 /* The period of the system clock in nano seconds.  This is used to calculate
 the jitter time in nano seconds. */
 #define mainNS_PER_CLOCK					( ( unsigned portLONG ) ( ( 1.0 / ( double ) configCPU_CLOCK_HZ ) * 1000000000.0 ) )
-
-/* Constants used when writing strings to the display. */
-#define mainCHARACTER_HEIGHT				( 9 )
-#define mainMAX_ROWS_128					( mainCHARACTER_HEIGHT * 14 )
-#define mainMAX_ROWS_96						( mainCHARACTER_HEIGHT * 10 )
-#define mainMAX_ROWS_64						( mainCHARACTER_HEIGHT * 7 )
-#define mainFULL_SCALE						( 15 )
-#define ulSSI_FREQUENCY						( 3500000UL )
-
-/*-----------------------------------------------------------*/
-
-/*
- * The display is written two by more than one task so is controlled by a
- * 'gatekeeper' task.  This is the only task that is actually permitted to
- * access the display directly.  Other tasks wanting to display a message send
- * the message to the gatekeeper.
- */
-static void vOLEDTask( void *pvParameters );
 
 static void vUartTask( void *pvParameters );
 
@@ -198,19 +166,8 @@ static void prvSetupHardware( void );
  * Hook functions that can get called by the kernel.
  */
 void vApplicationStackOverflowHook( xTaskHandle *pxTask, signed portCHAR *pcTaskName );
-void vApplicationTickHook( void );
-
 
 /*-----------------------------------------------------------*/
-
-/* The queue used to send messages to the OLED task. */
-xQueueHandle xOLEDQueue;
-
-/* The welcome text. */
-const portCHAR * const pcWelcomeMessage = ">> Pentascan AP Test";
-
-/*-----------------------------------------------------------*/
-
 
 /*************************************************************************
  * Please ensure to read http://www.freertos.org/portlm3sx965.html
@@ -219,57 +176,13 @@ const portCHAR * const pcWelcomeMessage = ">> Pentascan AP Test";
  *************************************************************************/
 int main( void )
 {
+    int i;
 	prvSetupHardware();
-
-#if 0
-    /* url parse test */
-    http_req("www.naver.com");
-    http_req("www.naver.com/");
-    http_req("www.naver.com/index.html");
-    http_req("www.naver.com/pub/index.html");
-    http_req("www.naver.com:8080");
-    http_req("www.naver.com:8080/");
-    http_req("www.naver.com:8080/index.html");
-    http_req("www.naver.com:8080/pub/index.html");
-
-    http_req("http://www.naver.com");
-    http_req("http://www.naver.com/");
-    http_req("http://www.naver.com/index.html");
-    http_req("http://www.naver.com/pub/index.html");
-    http_req("http://www.naver.com:8080");
-    http_req("http://www.naver.com:8080/");
-    http_req("http://www.naver.com:8080/index.html");
-    http_req("http://www.naver.com:8080/pub/index.html");
-
-    http_req("https://www.naver.com");
-    http_req("https://www.naver.com/");
-    http_req("https://www.naver.com/index.html");
-    http_req("https://www.naver.com/pub/index.html");
-    http_req("https://www.naver.com:8080");
-    http_req("https://www.naver.com:8080/");
-    http_req("https://www.naver.com:8080/index.html");
-    http_req("https://www.naver.com:8080/pub/index.html");
-
-    http_req("ftp://www.naver.com");
-    http_req("ftp://www.naver.com/");
-    http_req("ftp://www.naver.com/index.html");
-    http_req("ftp://www.naver.com/pub/index.html");
-    http_req("ftp://www.naver.com:8080");
-    http_req("ftp://www.naver.com:8080/");
-    http_req("ftp://www.naver.com:8080/index.html");
-    http_req("ftp://www.naver.com:8080/pub/index.html");
-#endif    
-
-	/* Create the queue used by the OLED task.  Messages for display on the OLED
-	are received via this queue. */
-	xOLEDQueue = xQueueCreate( mainOLED_QUEUE_SIZE, sizeof( xOLEDMessage ) );
+	lcd_terminal_init();
 
 	/* Exclude some tasks if using the kickstart version to ensure we stay within
 	the 32K code size limit. */
 	
-	/* Start the tasks defined within this file/specific to this demo. */
-	xTaskCreate( vOLEDTask, ( signed portCHAR * ) "OLED", mainOLED_TASK_STACK_SIZE, NULL, tskIDLE_PRIORITY + 1, NULL );
-
     /* uart loopback task */	
 	xTaskCreate( vUartTask, ( signed portCHAR * ) "UART", configMINIMAL_STACK_SIZE * 3, NULL, tskIDLE_PRIORITY + 2, NULL );
 
@@ -307,25 +220,6 @@ void prvSetupHardware( void )
 }
 /*-----------------------------------------------------------*/
 
-void vApplicationTickHook( void )
-{
-    static xOLEDMessage xMessage = { "PASS" };
-    static unsigned portLONG ulTicksSinceLastDisplay = 0;
-    portBASE_TYPE xHigherPriorityTaskWoken = pdFALSE;
-
-	/* Called from every tick interrupt.  Have enough ticks passed to make it
-	time to perform our health status check again? */
-	ulTicksSinceLastDisplay++;
-	if( ulTicksSinceLastDisplay >= mainCHECK_DELAY )
-	{
-		ulTicksSinceLastDisplay = 0;
-		
-		/* Send the message to the OLED gatekeeper for display. */
-		xHigherPriorityTaskWoken = pdFALSE;
-		xQueueSendFromISR( xOLEDQueue, &xMessage, &xHigherPriorityTaskWoken );
-	}
-}
-/*-----------------------------------------------------------*/
 int uart_ready = 0;
 
 void vUartTask( void *pvParameters )
@@ -393,75 +287,30 @@ void vUartTask( void *pvParameters )
 	{
 	    c = getchar();
 	    putchar(c);
-	    if(c == 'g'){
+
+	    switch(c)
+	    {
+	    case 'g':
             http_req("www.naver.com");
-	    }else if(c == 'G'){
+            break;
+	    case 'G':
             http_req("192.168.100.20");
-	    }else if(c =='a'){
+            break;
+	    case 'a':
             printf("http %d\n",http_req("http://192.168.100.20/ap.html"));
-        }else if(c =='f'){
+            break;
+        case 'f':
             printf("Freemem = %ld\n",checkFreeMem());
-        }
-        else if(c == 's'){
+            break;
+        case 's':
             vTaskList(temp);
 			UARTprint( "name\t\tstatus\tpri\tstack\ttcb\r\n");
             UARTprint(temp);
+            break;
         }
 	}
 }
 
-
-void vOLEDTask( void *pvParameters )
-{
-xOLEDMessage xMessage;
-unsigned portLONG ulY, ulMaxY;
-static portCHAR cMessage[ mainMAX_MSG_LEN ];
-unsigned portBASE_TYPE uxUnusedStackOnEntry;
-const unsigned portCHAR *pucImage;
-
-/* Functions to access the OLED.  The one used depends on the dev kit
-being used. */
-void ( *vOLEDInit )( unsigned portLONG ) = NULL;
-void ( *vOLEDStringDraw )( const portCHAR *, unsigned portLONG, unsigned portLONG, unsigned portCHAR ) = NULL;
-void ( *vOLEDImageDraw )( const unsigned portCHAR *, unsigned portLONG, unsigned portLONG, unsigned portLONG, unsigned portLONG ) = NULL;
-void ( *vOLEDClear )( void ) = NULL;
-
-	/* Just for demo purposes. */
-	uxUnusedStackOnEntry = uxTaskGetStackHighWaterMark( NULL );
-
-	vOLEDInit = RIT128x96x4Init;
-	vOLEDStringDraw = RIT128x96x4StringDraw;
-	vOLEDImageDraw = RIT128x96x4ImageDraw;
-	vOLEDClear = RIT128x96x4Clear;
-	ulMaxY = mainMAX_ROWS_96;
-	pucImage = pucBasicBitmap;
-	ulY = ulMaxY;
-	
-	/* Initialise the OLED and display a startup message. */
-	vOLEDInit( ulSSI_FREQUENCY );	
-	vOLEDStringDraw( "POWERED BY FreeRTOS", 0, 0, mainFULL_SCALE );
-	vOLEDImageDraw( pucImage, 0, mainCHARACTER_HEIGHT + 1, bmpBITMAP_WIDTH, bmpBITMAP_HEIGHT );
-	
-	for( ;; )
-	{
-		/* Wait for a message to arrive that requires displaying. */
-		xQueueReceive( xOLEDQueue, &xMessage, portMAX_DELAY );
-	
-		/* Write the message on the next available row. */
-		ulY += mainCHARACTER_HEIGHT;
-		if( ulY >= ulMaxY )
-		{
-			ulY = mainCHARACTER_HEIGHT;
-			vOLEDClear();
-			vOLEDStringDraw( pcWelcomeMessage, 0, 0, mainFULL_SCALE );			
-		}
-
-		/* Display the message along with the maximum jitter time from the
-		high priority time test. */
-		sprintf( cMessage, "%s", xMessage.pcMessage);
-		vOLEDStringDraw( cMessage, 0, ulY, mainFULL_SCALE );
-	}
-}
 /*-----------------------------------------------------------*/
 
 extern void UARTprint(char *message);

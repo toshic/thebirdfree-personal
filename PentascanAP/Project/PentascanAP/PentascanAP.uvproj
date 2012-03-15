@@ -185,14 +185,14 @@
             <AdsANop>0</AdsANop>
             <AdsANot>0</AdsANot>
             <AdsLLst>1</AdsLLst>
-            <AdsLmap>0</AdsLmap>
-            <AdsLcgr>0</AdsLcgr>
-            <AdsLsym>0</AdsLsym>
+            <AdsLmap>1</AdsLmap>
+            <AdsLcgr>1</AdsLcgr>
+            <AdsLsym>1</AdsLsym>
             <AdsLszi>1</AdsLszi>
             <AdsLtoi>1</AdsLtoi>
             <AdsLsun>0</AdsLsun>
             <AdsLven>0</AdsLven>
-            <AdsLsxf>0</AdsLsxf>
+            <AdsLsxf>1</AdsLsxf>
             <RvctClst>0</RvctClst>
             <GenPPlst>0</GenPPlst>
             <AdsCpuType>"Cortex-M3"</AdsCpuType>
@@ -479,6 +479,11 @@
               <FileName>rtc.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\rtc.c</FilePath>
+            </File>
+            <File>
+              <FileName>lcd_terminal.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\lcd_terminal.c</FilePath>
             </File>
           </Files>
         </Group>
