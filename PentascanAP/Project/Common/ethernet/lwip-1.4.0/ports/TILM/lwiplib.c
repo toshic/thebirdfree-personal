@@ -308,11 +308,18 @@ unsigned long checkFreeMem(void)
 static void httpTimerCallback( xTimerHandle pxExpiredTimer )
 {
     time_t timer;
+    static int count;
+    unsigned long tick;
 
-    timer=RtcGet();
-    printf("localtime %s",asctime(localtime(&timer)));
-    printf("http %d\n",http_req("http://192.168.100.20:80/ap.html"));
+//    printf("[%d]http ^9%d`\n",count++,http_get("192.168.100.20",80,"/ap.html"));
+    tick = xTaskGetTickCount();
+    printf("[%d]naver ^9%d ^f%ld`\n",count,http_get("www.naver.com",80,"/",NULL,NULL),xTaskGetTickCount() - tick);
+    tick = xTaskGetTickCount();
+    printf("[%d]google ^9%d ^f%ld`\n",count++,http_get("www.google.com",80,"/",NULL,NULL),xTaskGetTickCount() - tick);
     printf("freemem = %ld\n",checkFreeMem());
+    printf("stack = ^b%d`\n",uxTaskGetStackHighWaterMark(NULL));
+    timer=RtcGetTime();
+    printf("^f%s`",asctime(localtime(&timer)) + 11);
 }
 
 //*****************************************************************************
@@ -349,7 +356,7 @@ lwIPPrivateInit(void *pvArg)
     // If using a RTOS, create the Ethernet interrupt task.
     //
     xTaskCreate(lwIPInterruptTask, (signed portCHAR *)"eth_int",
-                256, 0, tskIDLE_PRIORITY + 2, 0);
+                256, 0, tskIDLE_PRIORITY + 3, 0);
 
     //
     // Setup the network address values.

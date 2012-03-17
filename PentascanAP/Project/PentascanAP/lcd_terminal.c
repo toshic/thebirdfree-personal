@@ -6,9 +6,6 @@
 #define LCD_HEIGHT				( 128 )
 #define LCD_WIDTH 				( 128 )
 #define LCD_HEIGHT_VIEW         ( 96 )
-#define mainMAX_ROWS_128					( mainCHARACTER_HEIGHT * 14 )
-#define mainMAX_ROWS_96						( mainCHARACTER_HEIGHT * 10 )
-#define mainMAX_ROWS_64						( mainCHARACTER_HEIGHT * 7 )
 #define mainFULL_SCALE						( 15 )
 #define ulSSI_FREQUENCY						( 3500000UL )
 
@@ -39,10 +36,34 @@ void lcd_terminal_set_level(unsigned char lvl)
 
 void lcd_terminal_char(int ch)
 {
-     int clear_line = 0;
+    int clear_line = 0;
     int check_scroll = 0;
+    static int intensity_waiting = 0;
 
- /* process cursor increment */    
+/* process intensity */
+    if(intensity_waiting){
+        if(ch >= '0' && ch <= '9')
+            level = ch - '0';
+        else if(ch >= 'a' && ch <= 'f')
+            level = ch - 'a' + 10;
+        else if(ch >= 'A' && ch <= 'F')
+            level = ch - 'A' + 10;
+        else
+            level = 5;
+        intensity_waiting = 0;
+
+        if(ch != '^')
+            return;
+    }else if(ch == '^'){
+        intensity_waiting = 1;
+        return;
+    }else if(ch == '`'){
+        level = 5;
+        return;
+    }        
+        
+
+/* process cursor increment */    
     if(ch == '\n'){
         if(cursor_x == 0)
             check_scroll = 1;

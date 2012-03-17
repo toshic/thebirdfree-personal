@@ -105,6 +105,7 @@ and the TCP/IP stack together cannot be accommodated with the 32K size limit. */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 /* Scheduler includes. */
 #include "FreeRTOS.h"
@@ -184,7 +185,7 @@ int main( void )
 	the 32K code size limit. */
 	
     /* uart loopback task */	
-	xTaskCreate( vUartTask, ( signed portCHAR * ) "UART", configMINIMAL_STACK_SIZE * 3, NULL, tskIDLE_PRIORITY + 2, NULL );
+	xTaskCreate( vUartTask, ( signed portCHAR * ) "UART", 256, NULL, tskIDLE_PRIORITY + 1, NULL );
 
 	/* Start the scheduler. */
 	vTaskStartScheduler();
@@ -216,7 +217,6 @@ void prvSetupHardware( void )
 	
 	vParTestInitialise();
 	RtcInit();
-	RtcSet(42*365*24*3600 + 2*30*24*3600);
 }
 /*-----------------------------------------------------------*/
 
@@ -291,20 +291,30 @@ void vUartTask( void *pvParameters )
 	    switch(c)
 	    {
 	    case 'g':
-            http_req("www.naver.com");
+            printf("google ^9%d`\n",http_get("www.google.com",80,"/",NULL,NULL));
+            break;
+        case 'n':
+            printf("naver ^9%d`\n",http_get("www.naver.com",80,"/",NULL,NULL));
             break;
 	    case 'G':
-            http_req("192.168.100.20");
+            http_req("192.168.100.20",NULL,NULL);
             break;
 	    case 'a':
-            printf("http %d\n",http_req("http://192.168.100.20/ap.html"));
+            printf("http %d\n",http_req("http://192.168.100.20/ap.html",NULL,NULL));
             break;
         case 'f':
             printf("Freemem = %ld\n",checkFreeMem());
             break;
+        case 't':
+        {
+            unsigned long timer;
+            timer=RtcGetTime();
+            printf("^f%s`",asctime(localtime(&timer)));
+            break;
+        }
         case 's':
             vTaskList(temp);
-			UARTprint( "name\t\tstatus\tpri\tstack\ttcb\r\n");
+			UARTprint( "name\t\tstatus\tpri\tstack\ttcb\n");
             UARTprint(temp);
             break;
         }

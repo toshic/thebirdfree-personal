@@ -12,6 +12,7 @@
 #include <time.h>
 #include <rt_misc.h>
 
+#if 1
 //#pragma import(__use_no_semihosting_swi)
 #define LCD_PRINTF
 
@@ -61,3 +62,4 @@ void _ttywrch(int ch) {
 void _sys_exit(int return_code) {
   while (1);    /* endless loop */
 }
+#endif
