@@ -5,6 +5,8 @@
 #include "lwip/sockets.h"
 #include "lwip/netdb.h"
 #include "FreeRTOS.h"
+#include "httpc.h"
+#include "rtc.h"
 
 #define HTTP_DEBUGx
 
@@ -20,7 +22,7 @@
 #define PROTO_FTP   82
 
 #define HTTP_BUFFER_SIZE    1024
-#define LINEBUFFER_SIZE	80
+#define LINEBUFFER_SIZE	160
 
 typedef enum{
 	http_v10,
@@ -28,7 +30,7 @@ typedef enum{
 	http_content_length,
 	http_content_type,
 	http_transfer_encoding,
-
+    http_date,
 	http_resp_version,
 	http_connection_close
 }http_string;
@@ -40,12 +42,10 @@ static const char * const http_string_table[] =
 	"Content-Length: ",
 	"Content-Type: ",
 	"Transfer-Encoding: chunked",
-
+    "Date: ",
 	" HTTP/1.1\r\nAccept: *.*\r\n",
 	"\r\nConnection: close\r\n\r\n"
 };
-
-
 
 /* split host, port, url */
 static int parseUrl(char *url, char **hostname, unsigned int *port_num, char **location)
@@ -172,42 +172,35 @@ static int parseUrl(char *url, char **hostname, unsigned int *port_num, char **l
 	return protocol;
 }
 
-static char *GetLine(int sock)
+static char *GetLine(int sock, char *buffer, int buffer_len)
 {
 	int pack_len;
-	static char linebuffer[LINEBUFFER_SIZE];
-	static int index;
+	int index = 0;
+	char last_c;
 	char c;
 	while((pack_len = recv(sock,&c,1,0)) == 1)
 	{
-		if(c=='\n' && index > 0 && linebuffer[index-1] == '\r')
+        if(index < buffer_len - 1)
+            buffer[index++] = c;	
+            
+		if(c=='\n' && index > 0 && last_c == '\r')
 		{
-			linebuffer[index++] = c;
-			linebuffer[index] = '\0';
+			buffer[index] = '\0';
 			index = 0;
-			DEBUG_HTTP((">>%s",linebuffer));
-			return linebuffer;
-		}			
-		else
-		{
-			linebuffer[index] = c;
-			if(index < LINEBUFFER_SIZE - 2 ) // for \r\n\0
-			{
-				index++;
-			}else
-			{
-				// skip overflow data
-			}
-		}
+			DEBUG_HTTP((">>%s",buffer));
+			return buffer;
+		}		
+		last_c = c;
 	}
 	return NULL;
 }
 
 
-int http_get(char *hostname, unsigned short port, char *location)
+int http_get(char *hostname, unsigned short port, char *location, http_parse_cb callback, void *pv)
 {
     char *ptr;
     char *recv_buffer;
+    char *line_buffer;
 
     int http_socket;
 	int ret_code = -1;
@@ -215,13 +208,11 @@ int http_get(char *hostname, unsigned short port, char *location)
 	
 	int http_chunked = 0;
 	int http_status = 0;
-	long http_length = 0,total_length = 0, chunk_length = 0;
+	long http_length = 0, total_length = 0, chunk_length = 0, remain_length;
 	int pack_len;
 
     struct hostent *http_host;
     struct sockaddr_in sock_addr;
-
-	/* need lock for thread safe */
 
     http_socket = socket(AF_INET,SOCK_STREAM, IPPROTO_TCP);
     
@@ -276,7 +267,13 @@ int http_get(char *hostname, unsigned short port, char *location)
 	
 
     /* receive data */
-	ptr = GetLine(http_socket);
+    line_buffer = pvPortMalloc(256);
+    if(line_buffer == NULL){
+		DEBUG_HTTP(("line buffer malloc fail\n"));
+		close(http_socket);
+        return http_status;
+    }
+	ptr = GetLine(http_socket,line_buffer, 256);
 
 	while ( ptr && strcmp(ptr,"\r\n") )
 	{
@@ -296,11 +293,27 @@ int http_get(char *hostname, unsigned short port, char *location)
 		{
 			http_chunked = 1;
 		}
+		else if(!strncmp(ptr,http_string_table[http_date],strlen(http_string_table[http_date])))
+		{
+		    /* date set usign http date */
+		    unsigned long http_time, system_time;
+		    system_time = RtcGetTime();
+		    http_time = RtcConvertDateString(ptr + strlen(http_string_table[http_date]));
+		    if(http_time){
+		        if(system_time > http_time){
+		            if(system_time - http_time > 10 * 60) // 10 minute
+		                RtcSetTime(http_time);
+		        }else{
+		            if(http_time - system_time > 10 * 60) // 10 minute
+		                RtcSetTime(http_time);
+		        }
+		    }
+		}
 		else if(!strncmp(ptr,http_string_table[http_content_type],strlen(http_string_table[http_content_type])))
 		{
 		}
 
-		ptr = GetLine(http_socket);
+        ptr = GetLine(http_socket,line_buffer, 256);
 	}
 
 	DEBUG_HTTP(("http result code = %d\n",http_status));
@@ -308,6 +321,7 @@ int http_get(char *hostname, unsigned short port, char *location)
 
 	if(http_status != 200){
 		close(http_socket);
+        vPortFree(line_buffer);
 		return http_status;
 	}
 
@@ -315,6 +329,7 @@ int http_get(char *hostname, unsigned short port, char *location)
 	if(!recv_buffer){
 		DEBUG_HTTP(("memory allocation fail\n"));
 		close(http_socket);
+        vPortFree(line_buffer);
 		return -1;
 	}
 	
@@ -323,19 +338,28 @@ int http_get(char *hostname, unsigned short port, char *location)
 		DEBUG_HTTP(("chunked format\n"));
 		
 		// get first chunk length
-		ptr = GetLine(http_socket);
-		sscanf(ptr,"%x\r\n",&http_length);
-		while(http_length)
+        ptr = GetLine(http_socket,line_buffer, 256);
+		sscanf(ptr,"%x\r\n",&chunk_length);
+		DEBUG_HTTP(("chunk length = %d\n",chunk_length));
+		while(chunk_length)
 		{
-			chunk_length = 0;
-			while(chunk_length < http_length)
+		    remain_length = chunk_length;
+			while(remain_length)
 			{
-				pack_len = recv(http_socket,recv_buffer,http_length-chunk_length,0);
+			    if(remain_length >= HTTP_BUFFER_SIZE)
+    				pack_len = recv(http_socket,recv_buffer,HTTP_BUFFER_SIZE,0);
+    			else
+    				pack_len = recv(http_socket,recv_buffer,remain_length,0);
+
 				if(pack_len > 0)
 				{
 					total_length += pack_len;
-					chunk_length += pack_len;
-#if 0					
+					remain_length -= pack_len;
+
+					/* process data here */
+					if(callback)
+					    (callback)(recv_buffer, pv);
+#if 0
 					for(i=0;i<pack_len;i++)
 						printf("%c",recv_buffer[i]);
 #endif						
@@ -344,21 +368,26 @@ int http_get(char *hostname, unsigned short port, char *location)
 				{
 					close(http_socket);
 					vPortFree(recv_buffer);
+                    vPortFree(line_buffer);
 					return -7;
 				}
 			}
 			// get next chunk length
-			ptr = GetLine(http_socket);
-			if(strcmp(ptr,"\r\n"))
+            ptr = GetLine(http_socket,line_buffer, 256);
+			if(!strcmp(ptr,"\r\n"))
 				break;
-			ptr = GetLine(http_socket);
-			sscanf(ptr,"%x\r\n",&http_length);
+			sscanf(ptr,"%x\r\n",&chunk_length);
+            DEBUG_HTTP(("chunk length = %d\n",chunk_length));
 		}	
+		DEBUG_HTTP(("total length =%d\n",total_length));
 	}else{
 		while( (pack_len = recv(http_socket,recv_buffer,HTTP_BUFFER_SIZE,0)) > 0 )
 		{
 			total_length += pack_len;
-#if 0					
+            /* process data here */
+            if(callback)
+                (callback)(recv_buffer, pv);
+#if 0
 			for(i=0;i<pack_len;i++)
 				printf("%c",recv_buffer[i]);
 #endif						
@@ -367,6 +396,7 @@ int http_get(char *hostname, unsigned short port, char *location)
 			DEBUG_HTTP(("length mismatch\n"));
 			close(http_socket);
 			vPortFree(recv_buffer);
+            vPortFree(line_buffer);
 			return -2;
 		}
 	}
@@ -375,10 +405,11 @@ int http_get(char *hostname, unsigned short port, char *location)
 	
     close(http_socket);
 	vPortFree(recv_buffer);
+    vPortFree(line_buffer);
 	return http_status;
 }
 
-int http_req(char *url)
+int http_req(char *url, http_parse_cb callback, void *pv)
 {
     char *hostname;
     char *location;
@@ -388,7 +419,7 @@ int http_req(char *url)
 
 	protocol = parseUrl(url,&hostname,&port,&location);
 	if( protocol == PROTO_HTTP ){
-		code = http_get(hostname,port,location);
+		code = http_get(hostname,port,location, callback, pv);
 		vPortFree(hostname);
 		vPortFree(location);
 	}
