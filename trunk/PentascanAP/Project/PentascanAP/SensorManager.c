@@ -107,6 +107,7 @@ unsigned long checkFreeMem(void)
 }
 
 
+#if configUSE_TIMERS
 static void httpTimerCallback( xTimerHandle pxExpiredTimer )
 {
     time_t timer;
@@ -115,6 +116,7 @@ static void httpTimerCallback( xTimerHandle pxExpiredTimer )
 
 //    printf("[%d]http ^9%d`\n",count++,http_get("192.168.100.20",80,"/ap.html"));
     tick = xTaskGetTickCount();
+    printf(">>");
     printf("[%d]naver ^9%d ^f%ld`\n",count,http_get("www.naver.com",80,"/",NULL,NULL),xTaskGetTickCount() - tick);
     tick = xTaskGetTickCount();
 //    printf("[%d]google ^9%d ^f%ld`\n",count++,http_get("www.google.com",80,"/",NULL,NULL),xTaskGetTickCount() - tick);
@@ -123,6 +125,20 @@ static void httpTimerCallback( xTimerHandle pxExpiredTimer )
     timer=RtcGetTime();
     printf("^f%s`",asctime(localtime(&timer)) + 11);
 }
+#else
+static void httpTimerCallback(void *pv)
+{
+    time_t timer;
+    static int count;
+    printf("[%d]naver ^9%d\n",count,http_get("www.naver.com",80,"/",NULL,NULL));
+//    printf("[%d]google ^9%d\n",count++,http_get("www.google.com",80,"/",NULL,NULL));
+    printf("freemem = %ld\n",checkFreeMem());
+    timer=RtcGetTime();
+    printf("^f%s`",asctime(localtime(&timer)) + 11);
+
+    sys_timeout(2000, httpTimerCallback, NULL);
+}
+#endif
 
 void vMainTask( void *pvParameters )
 {
@@ -131,11 +147,13 @@ void vMainTask( void *pvParameters )
 
     StartNetwork();
 
+#if configUSE_TIMERS
 	xPeriodicTimer = xTimerCreate(	( const signed char * ) "http timer",/* Text name to facilitate debugging.  The kernel does not use this itself. */
-									( 2 * configTICK_RATE_HZ ),			/* The period for the timer. */
+									( 5 * configTICK_RATE_HZ ),			/* The period for the timer. */
 									pdTRUE,								/* Don't auto-reload - hence a one shot timer. */
 									( void * ) 0,							/* The timer identifier.  In this case this is not used as the timer has its own callback. */
 									httpTimerCallback );				/* The callback to be called when the timer expires. */
+#endif									
 
 
     printf("Pentascan AP\n");
@@ -174,10 +192,18 @@ void vMainTask( void *pvParameters )
             UARTprint(temp);
             break;
         case 'r':
+#if configUSE_TIMERS
             xTimerStart(xPeriodicTimer,0);
+#else
+            sys_timeout(2000, httpTimerCallback, NULL);
+#endif
             break;
         case 'x':
+#if configUSE_TIMERS
             xTimerStop(xPeriodicTimer,0);
+#else
+            sys_untimeout(httpTimerCallback, NULL);
+#endif
             break;
         case 'm':
             show_alloctable();
