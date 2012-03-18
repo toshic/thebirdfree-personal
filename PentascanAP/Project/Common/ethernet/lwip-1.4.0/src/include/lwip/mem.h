@@ -52,16 +52,35 @@ typedef size_t mem_size_t;
  * allow these defines to be overridden.
  */
 #ifndef mem_free
-#define mem_free vPortFree
+    #if MEM_USE_TRACE
+        extern void free_hook(void *pv);
+        #define mem_free free_hook
+    #else    
+        #define mem_free vPortFree
+    #endif    
 #endif
 #ifndef mem_malloc
-extern void *malloc_hook(size_t size);
-//#define mem_malloc malloc_hook
-#define mem_malloc pvPortMalloc
+    #if MEM_USE_TRACE
+        extern void *malloc_hook(size_t size, const char *file, unsigned long line);
+        #define mem_malloc(x) malloc_hook(x,__FILE__,__LINE__)
+    #else        
+        #define mem_malloc pvPortMalloc
+    #endif        
 #endif
 #ifndef mem_calloc
-#define mem_calloc pvPortCalloc
+    #if MEM_USE_TRACE
+        extern void *calloc_hook(size_t num, size_t size, const char *file, unsigned long line);
+        #define mem_calloc(n,x) calloc_hook(n,x,__FILE__,__LINE__)
+    #else        
+        #define mem_calloc pvPortCalloc
+    #endif        
 #endif
+#if MEM_USE_TRACE
+    void show_alloctable(void);
+#else
+    #define show_alloctable()
+#endif
+
 /* Since there is no C library allocation function to shrink memory without
    moving it, define this to nothing. */
 #ifndef mem_trim

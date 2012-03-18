@@ -66,6 +66,8 @@
 //#define MEM_USE_POOLS                   0
 //#define MEMP_USE_CUSTOM_POOLS           0
 #define MEMP_MEM_MALLOC             1
+// jhpark added
+#define MEM_USE_TRACE               1
 //*****************************************************************************
 //
 // ---------- Internal Memory Pool Sizes ----------

@@ -146,11 +146,6 @@ static unsigned long g_pulStack[128];
 //*****************************************************************************
 static xQueueHandle g_pInterrupt;
 
-
-// periodic timer
-static xTimerHandle xPeriodicTimer = NULL;
-
-
 static volatile unsigned long g_eth_int_status;
 
 //*****************************************************************************
@@ -282,44 +277,6 @@ static void lwIPStatus_CB(struct netif *netif)
 {
     u8_t link_up = netif_is_link_up(netif);
     printf("lwIPStatus_CB %d\n",link_up);
-
-    if(netif_is_link_up(netif)){
-        xTimerStart(xPeriodicTimer,0);
-    }else{
-        xTimerStop(xPeriodicTimer,0);
-    }
-}
-
-unsigned long checkFreeMem(void)
-{
-    unsigned long memsize = 0;
-    char *ptr = NULL;
-
-    do{
-        memsize+=1024;
-        ptr = pvPortMalloc(memsize);
-        if(ptr)
-            vPortFree(ptr);
-    }while(ptr);
-    
-    return memsize;
-}
-
-static void httpTimerCallback( xTimerHandle pxExpiredTimer )
-{
-    time_t timer;
-    static int count;
-    unsigned long tick;
-
-//    printf("[%d]http ^9%d`\n",count++,http_get("192.168.100.20",80,"/ap.html"));
-    tick = xTaskGetTickCount();
-    printf("[%d]naver ^9%d ^f%ld`\n",count,http_get("www.naver.com",80,"/",NULL,NULL),xTaskGetTickCount() - tick);
-    tick = xTaskGetTickCount();
-    printf("[%d]google ^9%d ^f%ld`\n",count++,http_get("www.google.com",80,"/",NULL,NULL),xTaskGetTickCount() - tick);
-    printf("freemem = %ld\n",checkFreeMem());
-    printf("stack = ^b%d`\n",uxTaskGetStackHighWaterMark(NULL));
-    timer=RtcGetTime();
-    printf("^f%s`",asctime(localtime(&timer)) + 11);
 }
 
 //*****************************************************************************
@@ -345,12 +302,6 @@ lwIPPrivateInit(void *pvArg)
 #else
     g_eth_int_status = 0;
 #endif    
-
-	xPeriodicTimer = xTimerCreate(	( const signed char * ) "http timer",/* Text name to facilitate debugging.  The kernel does not use this itself. */
-									( 5 * configTICK_RATE_HZ ),			/* The period for the timer. */
-									pdTRUE,								/* Don't auto-reload - hence a one shot timer. */
-									( void * ) 0,							/* The timer identifier.  In this case this is not used as the timer has its own callback. */
-									httpTimerCallback );				/* The callback to be called when the timer expires. */
 
     //
     // If using a RTOS, create the Ethernet interrupt task.

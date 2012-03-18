@@ -485,6 +485,11 @@
               <FileType>1</FileType>
               <FilePath>.\lcd_terminal.c</FilePath>
             </File>
+            <File>
+              <FileName>SensorManager.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\SensorManager.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

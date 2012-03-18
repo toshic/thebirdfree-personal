@@ -1,10 +1,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include "lwip/api.h"
-#include "lwip/sockets.h"
+#include "Lwiplib.h"
 #include "lwip/netdb.h"
-#include "FreeRTOS.h"
 #include "httpc.h"
 #include "rtc.h"
 
@@ -21,7 +19,7 @@
 #define PROTO_HTTPS 81
 #define PROTO_FTP   82
 
-#define HTTP_BUFFER_SIZE    1024
+#define HTTP_BUFFER_SIZE    2048
 #define LINEBUFFER_SIZE	160
 
 typedef enum{
@@ -86,7 +84,7 @@ static int parseUrl(char *url, char **hostname, unsigned int *port_num, char **l
 	ptr = strchr(url,':');
 	if(ptr){
 		DEBUG_HTTP(("port assigned\n"));
-		*hostname = (char *)pvPortMalloc(ptr - url + 1);
+		*hostname = (char *)mem_malloc(ptr - url + 1);
 		if(!*hostname){
 			DEBUG_HTTP(("Insufficient memory error\n"));
 			return -1;
@@ -103,10 +101,10 @@ static int parseUrl(char *url, char **hostname, unsigned int *port_num, char **l
 			pctemp[ptr-url] = 0;
 			*port_num = atoi(pctemp);
 
-			*location = pvPortMalloc(strlen(ptr) + 1);
+			*location = mem_malloc(strlen(ptr) + 1);
 			if(!*location){
 				DEBUG_HTTP(("Insufficient memory error\n"));
-				vPortFree(*hostname);
+				mem_free(*hostname);
 				return -1;
 			}
 			strcpy(*location,ptr);
@@ -114,10 +112,10 @@ static int parseUrl(char *url, char **hostname, unsigned int *port_num, char **l
 			DEBUG_HTTP(("default location\n"));
 			*port_num = atoi(url);
 			
-			*location = pvPortMalloc(2);
+			*location = mem_malloc(2);
 			if(!*location){
 				DEBUG_HTTP(("Insufficient memory error\n"));
-				vPortFree(*hostname);
+				mem_free(*hostname);
 				return -1;
 			}
 			strcpy(*location,"/");
@@ -131,7 +129,7 @@ static int parseUrl(char *url, char **hostname, unsigned int *port_num, char **l
 		if(ptr){
 			DEBUG_HTTP(("location exist\n"));
 
-			*hostname = (char *)pvPortMalloc(ptr - url + 1);
+			*hostname = (char *)mem_malloc(ptr - url + 1);
 			if(!*hostname){
 				DEBUG_HTTP(("Insufficient memory error\n"));
 				return -1;
@@ -139,26 +137,26 @@ static int parseUrl(char *url, char **hostname, unsigned int *port_num, char **l
 			strncpy(*hostname,url,ptr-url);
 			*hostname[ptr-url]=0;
 			
-			*location = pvPortMalloc(strlen(ptr) + 1);
+			*location = mem_malloc(strlen(ptr) + 1);
 			if(!*location){
 				DEBUG_HTTP(("Insufficient memory error\n"));
-				vPortFree(*hostname);
+				mem_free(*hostname);
 				return -1;
 			}
 			strcpy(*location,ptr);
 		}else{
 			DEBUG_HTTP(("default location\n"));
-			*hostname = pvPortMalloc(strlen(url) + 1);
+			*hostname = mem_malloc(strlen(url) + 1);
 			if(!*hostname){
 				DEBUG_HTTP(("Insufficient memory error\n"));
 				return -1;
 			}
 			strcpy(*hostname,url);
 
-			*location = pvPortMalloc(2);
+			*location = mem_malloc(2);
 			if(!*location){
 				DEBUG_HTTP(("Insufficient memory error\n"));
-				vPortFree(*hostname);
+				mem_free(*hostname);
 				return -1;
 			}
 			strcpy(*location,"/");
@@ -232,6 +230,7 @@ int http_get(char *hostname, unsigned short port, char *location, http_parse_cb 
     } else {
         if(!inet_aton(hostname, &(sock_addr.sin_addr))){
             DEBUG_HTTP(("host addr %s can't resolved\n",hostname));
+            close(http_socket);
             return http_status;
         }
     }
@@ -242,6 +241,7 @@ int http_get(char *hostname, unsigned short port, char *location, http_parse_cb 
 
     if(ret != 0){
         DEBUG_HTTP(("socket connect fail\n"));
+		close(http_socket);
         return http_status;
     }
 
@@ -267,7 +267,7 @@ int http_get(char *hostname, unsigned short port, char *location, http_parse_cb 
 	
 
     /* receive data */
-    line_buffer = pvPortMalloc(256);
+    line_buffer = mem_malloc(256);
     if(line_buffer == NULL){
 		DEBUG_HTTP(("line buffer malloc fail\n"));
 		close(http_socket);
@@ -319,17 +319,11 @@ int http_get(char *hostname, unsigned short port, char *location, http_parse_cb 
 	DEBUG_HTTP(("http result code = %d\n",http_status));
 	DEBUG_HTTP(("content length = %ld\n",http_length));
 
-	if(http_status != 200){
-		close(http_socket);
-        vPortFree(line_buffer);
-		return http_status;
-	}
-
-	recv_buffer = pvPortMalloc(HTTP_BUFFER_SIZE);
+	recv_buffer = mem_malloc(HTTP_BUFFER_SIZE);
 	if(!recv_buffer){
 		DEBUG_HTTP(("memory allocation fail\n"));
 		close(http_socket);
-        vPortFree(line_buffer);
+        mem_free(line_buffer);
 		return -1;
 	}
 	
@@ -367,19 +361,31 @@ int http_get(char *hostname, unsigned short port, char *location, http_parse_cb 
 				else
 				{
 					close(http_socket);
-					vPortFree(recv_buffer);
-                    vPortFree(line_buffer);
+					mem_free(recv_buffer);
+                    mem_free(line_buffer);
 					return -7;
 				}
 			}
+            ptr = GetLine(http_socket,line_buffer, 256);
+            if(strcmp(ptr,"\r\n")){
+			    DEBUG_HTTP(("abnormal chunk, abort\n"));
+			    /* consume remaining buffer, to prevent memory leak obsereved in lwip */
+			    while(recv(http_socket,recv_buffer,remain_length,0) > 0);
+			    break;
+			}			
 			// get next chunk length
             ptr = GetLine(http_socket,line_buffer, 256);
-			if(!strcmp(ptr,"\r\n"))
-				break;
 			sscanf(ptr,"%x\r\n",&chunk_length);
+			if(chunk_length == 0){
+                ptr = GetLine(http_socket,line_buffer, 256);
+                if(strcmp(ptr,"\r\n")){
+                    DEBUG_HTTP(("abnormal termination, abort\n"));
+                }
+			    break;
+			}
             DEBUG_HTTP(("chunk length = %d\n",chunk_length));
 		}	
-		DEBUG_HTTP(("total length =%d\n",total_length));
+		DEBUG_HTTP(("total length = %d\n",total_length));
 	}else{
 		while( (pack_len = recv(http_socket,recv_buffer,HTTP_BUFFER_SIZE,0)) > 0 )
 		{
@@ -392,11 +398,13 @@ int http_get(char *hostname, unsigned short port, char *location, http_parse_cb 
 				printf("%c",recv_buffer[i]);
 #endif						
 		}
-		if(http_length != total_length){
+		if(http_length == 0){
+			DEBUG_HTTP(("length unknown\n"));
+		}else if(http_length != total_length){
 			DEBUG_HTTP(("length mismatch\n"));
 			close(http_socket);
-			vPortFree(recv_buffer);
-            vPortFree(line_buffer);
+			mem_free(recv_buffer);
+            mem_free(line_buffer);
 			return -2;
 		}
 	}
@@ -404,8 +412,8 @@ int http_get(char *hostname, unsigned short port, char *location, http_parse_cb 
 	DEBUG_HTTP(("===========\n"));
 	
     close(http_socket);
-	vPortFree(recv_buffer);
-    vPortFree(line_buffer);
+	mem_free(recv_buffer);
+    mem_free(line_buffer);
 	return http_status;
 }
 
@@ -420,8 +428,8 @@ int http_req(char *url, http_parse_cb callback, void *pv)
 	protocol = parseUrl(url,&hostname,&port,&location);
 	if( protocol == PROTO_HTTP ){
 		code = http_get(hostname,port,location, callback, pv);
-		vPortFree(hostname);
-		vPortFree(location);
+		mem_free(hostname);
+		mem_free(location);
 	}
 	return code;
 }
