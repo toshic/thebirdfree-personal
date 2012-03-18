@@ -129,7 +129,6 @@
         <SetRegEntry>
           <Number>0</Number>
           <Key>DLGUARM</Key>
-          <Name>儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆??昊暇더"</Name>
         </SetRegEntry>
         <SetRegEntry>
           <Number>0</Number>
@@ -166,9 +165,9 @@
         <Bp>
           <Number>1</Number>
           <Type>0</Type>
-          <LineNumber>94</LineNumber>
+          <LineNumber>376</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>8628</Address>
+          <Address>32264</Address>
           <ByteObject>0</ByteObject>
           <ManyObjects>0</ManyObjects>
           <SizeOfObject>0</SizeOfObject>
@@ -176,14 +175,14 @@
           <BreakIfRCount>1</BreakIfRCount>
           <Filename></Filename>
           <ExecCommand></ExecCommand>
-          <Expression>\\RTOSDemo\rtc.c\94</Expression>
+          <Expression>\\RTOSDemo\httpc.c\376</Expression>
         </Bp>
         <Bp>
           <Number>2</Number>
           <Type>0</Type>
-          <LineNumber>300</LineNumber>
+          <LineNumber>352</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>32050</Address>
+          <Address>32162</Address>
           <ByteObject>0</ByteObject>
           <ManyObjects>0</ManyObjects>
           <SizeOfObject>0</SizeOfObject>
@@ -191,14 +190,36 @@
           <BreakIfRCount>1</BreakIfRCount>
           <Filename></Filename>
           <ExecCommand></ExecCommand>
-          <Expression>\\RTOSDemo\httpc.c\300</Expression>
+          <Expression>\\RTOSDemo\httpc.c\352</Expression>
         </Bp>
       </Breakpoint>
+      <WatchWindow1>
+        <Ww>
+          <count>0</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>c</ItemText>
+        </Ww>
+        <Ww>
+          <count>1</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>recv_buffer[i]</ItemText>
+        </Ww>
+        <Ww>
+          <count>2</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>i</ItemText>
+        </Ww>
+        <Ww>
+          <count>3</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>index</ItemText>
+        </Ww>
+      </WatchWindow1>
       <MemoryWindow1>
         <Mm>
           <WinNumber>1</WinNumber>
           <SubType>8</SubType>
-          <ItemText>date_string</ItemText>
+          <ItemText>buffer</ItemText>
         </Mm>
       </MemoryWindow1>
       <MemoryWindow2>
@@ -266,8 +287,8 @@
       <Focus>0</Focus>
       <ColumnNumber>0</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>289</TopLine>
-      <CurrentLine>300</CurrentLine>
+      <TopLine>106</TopLine>
+      <CurrentLine>106</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>.\main.c</PathWithFileName>
       <FilenameWithoutPath>main.c</FilenameWithoutPath>
@@ -292,10 +313,10 @@
       <FileType>2</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
-      <ColumnNumber>24</ColumnNumber>
+      <ColumnNumber>0</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
       <TopLine>28</TopLine>
-      <CurrentLine>40</CurrentLine>
+      <CurrentLine>45</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>.\startup_rvmdk.S</PathWithFileName>
       <FilenameWithoutPath>startup_rvmdk.S</FilenameWithoutPath>
@@ -348,10 +369,10 @@
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
-      <ColumnNumber>0</ColumnNumber>
+      <ColumnNumber>12</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>288</TopLine>
-      <CurrentLine>301</CurrentLine>
+      <TopLine>168</TopLine>
+      <CurrentLine>177</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>.\httpc.c</PathWithFileName>
       <FilenameWithoutPath>httpc.c</FilenameWithoutPath>
@@ -360,11 +381,11 @@
       <GroupNumber>1</GroupNumber>
       <FileNumber>8</FileNumber>
       <FileType>1</FileType>
-      <tvExp>1</tvExp>
+      <tvExp>0</tvExp>
       <Focus>0</Focus>
       <ColumnNumber>60</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>1</TopLine>
+      <TopLine>12</TopLine>
       <CurrentLine>27</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>.\rtc.c</PathWithFileName>
@@ -383,6 +404,20 @@
       <bDave2>0</bDave2>
       <PathWithFileName>.\lcd_terminal.c</PathWithFileName>
       <FilenameWithoutPath>lcd_terminal.c</FilenameWithoutPath>
+    </File>
+    <File>
+      <GroupNumber>1</GroupNumber>
+      <FileNumber>0</FileNumber>
+      <FileType>1</FileType>
+      <tvExp>0</tvExp>
+      <Focus>0</Focus>
+      <ColumnNumber>0</ColumnNumber>
+      <tvExpOptDlg>0</tvExpOptDlg>
+      <TopLine>0</TopLine>
+      <CurrentLine>0</CurrentLine>
+      <bDave2>0</bDave2>
+      <PathWithFileName>.\SensorManager.c</PathWithFileName>
+      <FilenameWithoutPath>SensorManager.c</FilenameWithoutPath>
     </File>
   </Group>
 
@@ -446,10 +481,10 @@
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
-      <ColumnNumber>45</ColumnNumber>
+      <ColumnNumber>0</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>2054</TopLine>
-      <CurrentLine>2063</CurrentLine>
+      <TopLine>2078</TopLine>
+      <CurrentLine>2086</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\Source\tasks.c</PathWithFileName>
       <FilenameWithoutPath>tasks.c</FilenameWithoutPath>
@@ -539,8 +574,8 @@
       <Focus>0</Focus>
       <ColumnNumber>0</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>0</TopLine>
-      <CurrentLine>0</CurrentLine>
+      <TopLine>727</TopLine>
+      <CurrentLine>740</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>..\Common\ethernet\lwip-1.4.0\src\api\api_lib.c</PathWithFileName>
       <FilenameWithoutPath>api_lib.c</FilenameWithoutPath>
@@ -595,8 +630,8 @@
       <Focus>0</Focus>
       <ColumnNumber>0</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>0</TopLine>
-      <CurrentLine>0</CurrentLine>
+      <TopLine>97</TopLine>
+      <CurrentLine>105</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>..\Common\ethernet\lwip-1.4.0\src\api\netdb.c</PathWithFileName>
       <FilenameWithoutPath>netdb.c</FilenameWithoutPath>
@@ -637,8 +672,8 @@
       <Focus>0</Focus>
       <ColumnNumber>0</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>141</TopLine>
-      <CurrentLine>141</CurrentLine>
+      <TopLine>95</TopLine>
+      <CurrentLine>95</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>..\Common\ethernet\lwip-1.4.0\src\api\tcpip.c</PathWithFileName>
       <FilenameWithoutPath>tcpip.c</FilenameWithoutPath>
@@ -677,10 +712,10 @@
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
-      <ColumnNumber>0</ColumnNumber>
+      <ColumnNumber>31</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>0</TopLine>
-      <CurrentLine>0</CurrentLine>
+      <TopLine>605</TopLine>
+      <CurrentLine>613</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>..\Common\ethernet\lwip-1.4.0\src\core\dns.c</PathWithFileName>
       <FilenameWithoutPath>dns.c</FilenameWithoutPath>
@@ -705,10 +740,10 @@
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
-      <ColumnNumber>0</ColumnNumber>
+      <ColumnNumber>14</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>84</TopLine>
-      <CurrentLine>89</CurrentLine>
+      <TopLine>418</TopLine>
+      <CurrentLine>426</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>..\Common\ethernet\lwip-1.4.0\src\core\lwip_timers.c</PathWithFileName>
       <FilenameWithoutPath>lwip_timers.c</FilenameWithoutPath>
@@ -721,8 +756,8 @@
       <Focus>0</Focus>
       <ColumnNumber>0</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>0</TopLine>
-      <CurrentLine>0</CurrentLine>
+      <TopLine>661</TopLine>
+      <CurrentLine>679</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>..\Common\ethernet\lwip-1.4.0\src\core\mem.c</PathWithFileName>
       <FilenameWithoutPath>mem.c</FilenameWithoutPath>
@@ -763,8 +798,8 @@
       <Focus>0</Focus>
       <ColumnNumber>0</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>0</TopLine>
-      <CurrentLine>0</CurrentLine>
+      <TopLine>662</TopLine>
+      <CurrentLine>671</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>..\Common\ethernet\lwip-1.4.0\src\core\pbuf.c</PathWithFileName>
       <FilenameWithoutPath>pbuf.c</FilenameWithoutPath>
@@ -819,8 +854,8 @@
       <Focus>0</Focus>
       <ColumnNumber>0</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>547</TopLine>
-      <CurrentLine>559</CurrentLine>
+      <TopLine>1180</TopLine>
+      <CurrentLine>1188</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>..\Common\ethernet\lwip-1.4.0\src\core\tcp.c</PathWithFileName>
       <FilenameWithoutPath>tcp.c</FilenameWithoutPath>
@@ -831,10 +866,10 @@
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
-      <ColumnNumber>0</ColumnNumber>
+      <ColumnNumber>83</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>552</TopLine>
-      <CurrentLine>552</CurrentLine>
+      <TopLine>320</TopLine>
+      <CurrentLine>340</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>..\Common\ethernet\lwip-1.4.0\src\core\tcp_in.c</PathWithFileName>
       <FilenameWithoutPath>tcp_in.c</FilenameWithoutPath>
@@ -861,8 +896,8 @@
       <Focus>0</Focus>
       <ColumnNumber>0</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>661</TopLine>
-      <CurrentLine>673</CurrentLine>
+      <TopLine>422</TopLine>
+      <CurrentLine>454</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>..\Common\ethernet\lwip-1.4.0\src\core\udp.c</PathWithFileName>
       <FilenameWithoutPath>udp.c</FilenameWithoutPath>
@@ -945,8 +980,8 @@
       <Focus>0</Focus>
       <ColumnNumber>0</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>0</TopLine>
-      <CurrentLine>0</CurrentLine>
+      <TopLine>506</TopLine>
+      <CurrentLine>506</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>..\Common\ethernet\lwip-1.4.0\src\core\ipv4\ip.c</PathWithFileName>
       <FilenameWithoutPath>ip.c</FilenameWithoutPath>
@@ -1139,104 +1174,112 @@
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
-      <ColumnNumber>0</ColumnNumber>
+      <ColumnNumber>94</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>307</TopLine>
-      <CurrentLine>315</CurrentLine>
+      <TopLine>342</TopLine>
+      <CurrentLine>370</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>..\Common\ethernet\lwip-1.4.0\ports\TILM\lwiplib.c</PathWithFileName>
       <FilenameWithoutPath>lwiplib.c</FilenameWithoutPath>
     </File>
   </Group>
 
-  <AlienFiles>
-    <PathWithFilename>D:\Work\PentascanAP\Project\PentascanAP\httpc.h</PathWithFilename>
-    <TopLine>1</TopLine>
-    <CurrentLine>2</CurrentLine>
-    <Constant>0</Constant>
-    <WindowPosition>
-      <length>0</length>
-      <flags>0</flags>
-      <showCmd>0</showCmd>
-      <MinPosition>
-        <xPos>0</xPos>
-        <yPos>0</yPos>
-      </MinPosition>
-      <MaxPosition>
-        <xPos>0</xPos>
-        <yPos>0</yPos>
-      </MaxPosition>
-      <NormalPosition>
-        <Top>0</Top>
-        <Left>0</Left>
-        <Right>0</Right>
-        <Bottom>0</Bottom>
-      </NormalPosition>
-    </WindowPosition>
-  </AlienFiles>
-
-  <AlienFiles>
-    <PathWithFilename>d:\Keil\ARM\RV31\INC\time.h</PathWithFilename>
-    <TopLine>111</TopLine>
-    <CurrentLine>111</CurrentLine>
-    <Constant>0</Constant>
-    <WindowPosition>
-      <length>0</length>
-      <flags>0</flags>
-      <showCmd>0</showCmd>
-      <MinPosition>
-        <xPos>0</xPos>
-        <yPos>0</yPos>
-      </MinPosition>
-      <MaxPosition>
-        <xPos>0</xPos>
-        <yPos>0</yPos>
-      </MaxPosition>
-      <NormalPosition>
-        <Top>0</Top>
-        <Left>0</Left>
-        <Right>0</Right>
-        <Bottom>0</Bottom>
-      </NormalPosition>
-    </WindowPosition>
-  </AlienFiles>
-
   <MDIGroups>
     <Orientation>1</Orientation>
     <ActiveMDIGroup>0</ActiveMDIGroup>
     <MDIGroup>
       <Size>100</Size>
-      <ActiveTab>3</ActiveTab>
+      <ActiveTab>1</ActiveTab>
       <Documents>
-        <Doc>
-          <Name>httpc.h</Name>
-          <ColumnNumber>0</ColumnNumber>
-          <TopLine>1</TopLine>
-          <CurrentLine>2</CurrentLine>
-        </Doc>
         <Doc>
           <Name>.\main.c</Name>
           <ColumnNumber>0</ColumnNumber>
-          <TopLine>289</TopLine>
-          <CurrentLine>300</CurrentLine>
+          <TopLine>106</TopLine>
+          <CurrentLine>106</CurrentLine>
         </Doc>
         <Doc>
           <Name>.\httpc.c</Name>
+          <ColumnNumber>12</ColumnNumber>
+          <TopLine>168</TopLine>
+          <CurrentLine>177</CurrentLine>
+        </Doc>
+        <Doc>
+          <Name>..\Common\ethernet\lwip-1.4.0\src\api\netdb.c</Name>
           <ColumnNumber>0</ColumnNumber>
-          <TopLine>288</TopLine>
-          <CurrentLine>301</CurrentLine>
+          <TopLine>97</TopLine>
+          <CurrentLine>105</CurrentLine>
         </Doc>
         <Doc>
-          <Name>.\rtc.c</Name>
-          <ColumnNumber>60</ColumnNumber>
-          <TopLine>1</TopLine>
-          <CurrentLine>27</CurrentLine>
+          <Name>..\Common\ethernet\lwip-1.4.0\src\api\api_lib.c</Name>
+          <ColumnNumber>0</ColumnNumber>
+          <TopLine>727</TopLine>
+          <CurrentLine>740</CurrentLine>
         </Doc>
         <Doc>
-          <Name>d:\Keil\ARM\RV31\INC\time.h</Name>
-          <ColumnNumber>72</ColumnNumber>
-          <TopLine>111</TopLine>
-          <CurrentLine>111</CurrentLine>
+          <Name>..\Common\ethernet\lwip-1.4.0\src\core\dns.c</Name>
+          <ColumnNumber>31</ColumnNumber>
+          <TopLine>605</TopLine>
+          <CurrentLine>613</CurrentLine>
+        </Doc>
+        <Doc>
+          <Name>..\..\Source\tasks.c</Name>
+          <ColumnNumber>0</ColumnNumber>
+          <TopLine>2078</TopLine>
+          <CurrentLine>2086</CurrentLine>
+        </Doc>
+        <Doc>
+          <Name>..\Common\ethernet\lwip-1.4.0\src\core\udp.c</Name>
+          <ColumnNumber>0</ColumnNumber>
+          <TopLine>422</TopLine>
+          <CurrentLine>454</CurrentLine>
+        </Doc>
+        <Doc>
+          <Name>..\Common\ethernet\lwip-1.4.0\src\core\ipv4\ip.c</Name>
+          <ColumnNumber>0</ColumnNumber>
+          <TopLine>506</TopLine>
+          <CurrentLine>506</CurrentLine>
+        </Doc>
+        <Doc>
+          <Name>..\Common\ethernet\lwip-1.4.0\src\core\pbuf.c</Name>
+          <ColumnNumber>0</ColumnNumber>
+          <TopLine>662</TopLine>
+          <CurrentLine>671</CurrentLine>
+        </Doc>
+        <Doc>
+          <Name>..\Common\ethernet\lwip-1.4.0\src\core\lwip_timers.c</Name>
+          <ColumnNumber>14</ColumnNumber>
+          <TopLine>418</TopLine>
+          <CurrentLine>426</CurrentLine>
+        </Doc>
+        <Doc>
+          <Name>.\startup_rvmdk.S</Name>
+          <ColumnNumber>0</ColumnNumber>
+          <TopLine>28</TopLine>
+          <CurrentLine>45</CurrentLine>
+        </Doc>
+        <Doc>
+          <Name>..\Common\ethernet\lwip-1.4.0\src\core\mem.c</Name>
+          <ColumnNumber>0</ColumnNumber>
+          <TopLine>661</TopLine>
+          <CurrentLine>679</CurrentLine>
+        </Doc>
+        <Doc>
+          <Name>..\Common\ethernet\lwip-1.4.0\src\core\tcp.c</Name>
+          <ColumnNumber>0</ColumnNumber>
+          <TopLine>1180</TopLine>
+          <CurrentLine>1188</CurrentLine>
+        </Doc>
+        <Doc>
+          <Name>..\Common\ethernet\lwip-1.4.0\src\api\tcpip.c</Name>
+          <ColumnNumber>0</ColumnNumber>
+          <TopLine>95</TopLine>
+          <CurrentLine>95</CurrentLine>
+        </Doc>
+        <Doc>
+          <Name>..\Common\ethernet\lwip-1.4.0\src\core\tcp_in.c</Name>
+          <ColumnNumber>83</ColumnNumber>
+          <TopLine>320</TopLine>
+          <CurrentLine>340</CurrentLine>
         </Doc>
       </Documents>
     </MDIGroup>
