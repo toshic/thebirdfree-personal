@@ -36,6 +36,7 @@
 
 // periodic timer
 static xTimerHandle xPeriodicTimer = NULL;
+static xSemaphoreHandle xSemaphoreTimer = NULL;
 
 static void StartNetwork(void)
 {
@@ -108,22 +109,27 @@ unsigned long checkFreeMem(void)
 
 
 #if configUSE_TIMERS
-static void httpTimerCallback( xTimerHandle pxExpiredTimer )
+static void TimerCallback( xTimerHandle pxExpiredTimer )
 {
-    time_t timer;
-    static int count;
-    unsigned long tick;
+	xSemaphoreGive(xSemaphoreTimer);
+}
+static void http_test(void)
+{
+	time_t timer;
+	static int count;
+	unsigned long tick;
 
-//    printf("[%d]http ^9%d`\n",count++,http_get("192.168.100.20",80,"/ap.html"));
-    tick = xTaskGetTickCount();
-    printf(">>");
-    printf("[%d]naver ^9%d ^f%ld`\n",count,http_get("www.naver.com",80,"/",NULL,NULL),xTaskGetTickCount() - tick);
-    tick = xTaskGetTickCount();
-//    printf("[%d]google ^9%d ^f%ld`\n",count++,http_get("www.google.com",80,"/",NULL,NULL),xTaskGetTickCount() - tick);
-    printf("freemem = %ld\n",checkFreeMem());
-    printf("stack = ^b%d`\n",uxTaskGetStackHighWaterMark(NULL));
-    timer=RtcGetTime();
-    printf("^f%s`",asctime(localtime(&timer)) + 11);
+//	  printf("[%d]http ^9%d`\n",count++,http_get("192.168.100.20",80,"/ap.html"));
+	tick = xTaskGetTickCount();
+	printf(">>");
+	printf("[%d]naver ^9%d ^f%ld`\n",count,http_get("www.naver.com",80,"/",NULL,NULL),xTaskGetTickCount() - tick);
+	tick = xTaskGetTickCount();
+//	  printf("[%d]google ^9%d ^f%ld`\n",count++,http_get("www.google.com",80,"/",NULL,NULL),xTaskGetTickCount() - tick);
+	printf("freemem = %ld\n",checkFreeMem());
+	printf("stack = ^b%d`\n",uxTaskGetStackHighWaterMark(NULL));
+	timer=RtcGetTime();
+	printf("^f%s`",asctime(localtime(&timer)) + 11);
+
 }
 #else
 static void httpTimerCallback(void *pv)
@@ -145,6 +151,17 @@ void vMainTask( void *pvParameters )
     char c;
     char *temp = mem_malloc(200);
 
+	// Semaphore cannot be used before a call to xSemaphoreCreateCounting().
+	// The max value to which the semaphore can count should be 10, and the
+	// initial value assigned to the count should be 0.
+	xSemaphoreTimer = xSemaphoreCreateCounting( 10, 0 );
+
+	if( xSemaphoreTimer == NULL )
+	{
+		printf("#### Fail to create semaphore\n");
+		return;
+	}
+
     StartNetwork();
 
 #if configUSE_TIMERS
@@ -159,55 +176,62 @@ void vMainTask( void *pvParameters )
     printf("Pentascan AP\n");
 	for( ;; )
 	{
-	    c = getchar();
-	    putchar(c);
+		/* wait 100msec */
+		if(xSemaphoreTake( xSemaphoreTimer, configTICK_RATE_HZ / 10 ) == pdTRUE){
+			http_test();
+		}
 
-	    switch(c)
-	    {
-	    case 'g':
-            printf("google ^9%d`\n",http_get("www.google.com",80,"/",NULL,NULL));
-            break;
-        case 'n':
-            printf("naver ^9%d`\n",http_get("www.naver.com",80,"/",NULL,NULL));
-            break;
-	    case 'G':
-            printf("google ip ^9%d`\n",http_get("173.194.72.105",80,"/",NULL,NULL));
-            break;
-	    case 'a':
-            printf("http %d\n",http_req("http://192.168.100.20/ap.html",NULL,NULL));
-            break;
-        case 'f':
-            printf("Freemem = %ld\n",checkFreeMem());
-            break;
-        case 't':
-        {
-            unsigned long timer;
-            timer=RtcGetTime();
-            printf("^f%s`",asctime(localtime(&timer)));
-            break;
-        }
-        case 's':
-            vTaskList(temp);
-			UARTprint( "name\t\tstatus\tpri\tstack\ttcb");
-            UARTprint(temp);
-            break;
-        case 'r':
+		if(UARTCharsAvail(UART0_BASE)){
+		    c = getchar();
+		    putchar(c);
+
+		    switch(c)
+		    {
+		    case 'g':
+	            printf("google ^9%d`\n",http_get("www.google.com",80,"/",NULL,NULL));
+	            break;
+	        case 'n':
+	            printf("naver ^9%d`\n",http_get("www.naver.com",80,"/",NULL,NULL));
+	            break;
+		    case 'G':
+	            printf("google ip ^9%d`\n",http_get("173.194.72.105",80,"/",NULL,NULL));
+	            break;
+		    case 'a':
+	            printf("http %d\n",http_req("http://192.168.100.20/ap.html",NULL,NULL));
+	            break;
+	        case 'f':
+	            printf("Freemem = %ld\n",checkFreeMem());
+	            break;
+	        case 't':
+	        {
+	            unsigned long timer;
+	            timer=RtcGetTime();
+	            printf("^f%s`",asctime(localtime(&timer)));
+	            break;
+	        }
+	        case 's':
+	            vTaskList(temp);
+				UARTprint( "name\t\tstatus\tpri\tstack\ttcb");
+	            UARTprint(temp);
+	            break;
+	        case 'r':
 #if configUSE_TIMERS
-            xTimerStart(xPeriodicTimer,0);
+	            xTimerStart(xPeriodicTimer,0);
 #else
-            sys_timeout(2000, httpTimerCallback, NULL);
+	            sys_timeout(2000, httpTimerCallback, NULL);
 #endif
-            break;
-        case 'x':
+	            break;
+	        case 'x':
 #if configUSE_TIMERS
-            xTimerStop(xPeriodicTimer,0);
+	            xTimerStop(xPeriodicTimer,0);
 #else
-            sys_untimeout(httpTimerCallback, NULL);
+	            sys_untimeout(httpTimerCallback, NULL);
 #endif
-            break;
-        case 'm':
-            show_alloctable();
-        }
+	            break;
+	        case 'm':
+	            show_alloctable();
+	        }
+		}
 	}
 }
 
