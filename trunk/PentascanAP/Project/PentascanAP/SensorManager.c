@@ -236,19 +236,44 @@ void vMainTask( void *pvParameters )
 }
 
 
+
 int report_measure(){
     char *rpt;
     char node_string[100];
     int i;
-#if 0
+
+	struct {
+		unsigned char addr;
+		int temp;
+		int humidity;
+		int co2;
+		int retry;
+		int sound;
+	}sensor[10] = {
+		{0xA0, 20 * 100, 40 * 100, 3600, 0, 0},
+		{0xA1, 20 * 100, 40 * 100, 3600, 0, 0},
+		{0xA2, 20 * 100, 40 * 100, 3600, 0, 0},
+		{0xA3, 20 * 100, 40 * 100, 3600, 0, 0},
+		{0xA4, 20 * 100, 40 * 100, 3600, 0, 0},
+		{0xA5, 20 * 100, 40 * 100, 3600, 0, 0},
+		{0xA6, 20 * 100, 40 * 100, 3600, 0, 0},
+		{0xA7, 20 * 100, 40 * 100, 3600, 0, 0},
+		{0xA8, 20 * 100, 40 * 100, 3600, 0, 0},
+		{0xA9, 20 * 100, 40 * 100, 3600, 0, 0}
+	};
+			
+	
+	
     rpt = mem_malloc(1024);
-    sprintf(rpt,"/sensor/logging?id=%lu",time);
+    sprintf(rpt,"/sensor/logging?id=%lu",RtcGetTime());
     for(i=0;i<10;i++){
-        sprintf(node_string,"||%02x|%d.%02d,%d.%02d,%d,%d,%d",addr,temp/100,temp%100,humidity/100,humidity%100,co2,retry,sound);
+        sprintf(node_string,"||%02x|%d.%02d,%d.%02d,%d,%d,%d", sensor[i].addr,
+				sensor[i].temp/100,sensor[i].temp%100,
+				sensor[i].humidity/100,sensor[i].humidity%100,
+				sensor[i].co2,sensor[i].retry,sensor[i].sound);
         strcat(rpt,node_string);
     }
     http_get("pentascan.dyndns.org",2222,rpt);
-#endif    
     return 0;
 }
 
