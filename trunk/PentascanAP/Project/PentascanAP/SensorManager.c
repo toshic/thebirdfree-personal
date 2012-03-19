@@ -146,6 +146,57 @@ static void httpTimerCallback(void *pv)
 }
 #endif
 
+int report_measure(){
+    char *rpt;
+    char node_string[100];
+    time_t timer;
+    int i, ret;
+    static int count, success;
+    
+
+	struct {
+		unsigned char addr;
+		int temp;
+		int humidity;
+		int co2;
+		int retry;
+		int sound;
+	}sensor[10] = {
+		{0xA0, 19 * 100, 41 * 100, 3600, 0, 0},
+		{0xA1, 20 * 100, 42 * 100, 3600, 0, 0},
+		{0xA2, 21 * 100, 43 * 100, 3600, 0, 0},
+		{0xA3, 22 * 100, 44 * 100, 3600, 0, 0},
+		{0xA4, 23 * 100, 45 * 100, 3600, 0, 0},
+		{0xA5, 24 * 100, 46 * 100, 3600, 0, 0},
+		{0xA6, 25 * 100, 47 * 100, 3600, 0, 0},
+		{0xA7, 26 * 100, 48 * 100, 3600, 0, 0},
+		{0xA8, 27 * 100, 49 * 100, 3600, 0, 0},
+		{0xA9, 28 * 100, 50 * 100, 3600, 0, 0}
+	};
+			
+	
+	
+    rpt = mem_malloc(1024);
+    sprintf(rpt,"/sensor/logging?id=%lu",RtcGetTime());
+    for(i=0;i<10;i++){
+        sprintf(node_string,"||AABBCCDDEEFF00%02x|%d.%02d,%d.%02d,%d,%d,%d", sensor[i].addr,
+				sensor[i].temp/100,sensor[i].temp%100,
+				sensor[i].humidity/100,sensor[i].humidity%100,
+				sensor[i].co2,sensor[i].retry,sensor[i].sound);
+        strcat(rpt,node_string);
+    }
+    count++;
+    if( (ret = http_get("pentascan.dyndns.org",2222,rpt,NULL,NULL)) == 200)
+        success++;
+    mem_free(rpt);
+
+    printf("^a<%d/%d>`result ^f[%d]`\n",success,count,ret);
+    timer=RtcGetTime();
+    printf("^f%s`",asctime(localtime(&timer)) + 11);
+    return 0;
+}
+
+
 void vMainTask( void *pvParameters )
 {
     char c;
@@ -166,19 +217,21 @@ void vMainTask( void *pvParameters )
 
 #if configUSE_TIMERS
 	xPeriodicTimer = xTimerCreate(	( const signed char * ) "http timer",/* Text name to facilitate debugging.  The kernel does not use this itself. */
-									( 5 * configTICK_RATE_HZ ),			/* The period for the timer. */
+									( 60 * configTICK_RATE_HZ ),			/* The period for the timer. */
 									pdTRUE,								/* Don't auto-reload - hence a one shot timer. */
 									( void * ) 0,							/* The timer identifier.  In this case this is not used as the timer has its own callback. */
-									httpTimerCallback );				/* The callback to be called when the timer expires. */
+									TimerCallback );				/* The callback to be called when the timer expires. */
 #endif									
 
 
     printf("Pentascan AP\n");
+    xTimerStart(xPeriodicTimer,0);
+    
 	for( ;; )
 	{
 		/* wait 100msec */
 		if(xSemaphoreTake( xSemaphoreTimer, configTICK_RATE_HZ / 10 ) == pdTRUE){
-			http_test();
+			report_measure();
 		}
 
 		if(UARTCharsAvail(UART0_BASE)){
@@ -199,6 +252,9 @@ void vMainTask( void *pvParameters )
 		    case 'a':
 	            printf("http %d\n",http_req("http://192.168.100.20/ap.html",NULL,NULL));
 	            break;
+	        case 'p':
+    	        report_measure();
+    	        break;
 	        case 'f':
 	            printf("Freemem = %ld\n",checkFreeMem());
 	            break;
@@ -233,47 +289,5 @@ void vMainTask( void *pvParameters )
 	        }
 		}
 	}
-}
-
-
-
-int report_measure(){
-    char *rpt;
-    char node_string[100];
-    int i;
-
-	struct {
-		unsigned char addr;
-		int temp;
-		int humidity;
-		int co2;
-		int retry;
-		int sound;
-	}sensor[10] = {
-		{0xA0, 20 * 100, 40 * 100, 3600, 0, 0},
-		{0xA1, 20 * 100, 40 * 100, 3600, 0, 0},
-		{0xA2, 20 * 100, 40 * 100, 3600, 0, 0},
-		{0xA3, 20 * 100, 40 * 100, 3600, 0, 0},
-		{0xA4, 20 * 100, 40 * 100, 3600, 0, 0},
-		{0xA5, 20 * 100, 40 * 100, 3600, 0, 0},
-		{0xA6, 20 * 100, 40 * 100, 3600, 0, 0},
-		{0xA7, 20 * 100, 40 * 100, 3600, 0, 0},
-		{0xA8, 20 * 100, 40 * 100, 3600, 0, 0},
-		{0xA9, 20 * 100, 40 * 100, 3600, 0, 0}
-	};
-			
-	
-	
-    rpt = mem_malloc(1024);
-    sprintf(rpt,"/sensor/logging?id=%lu",RtcGetTime());
-    for(i=0;i<10;i++){
-        sprintf(node_string,"||%02x|%d.%02d,%d.%02d,%d,%d,%d", sensor[i].addr,
-				sensor[i].temp/100,sensor[i].temp%100,
-				sensor[i].humidity/100,sensor[i].humidity%100,
-				sensor[i].co2,sensor[i].retry,sensor[i].sound);
-        strcat(rpt,node_string);
-    }
-    http_get("pentascan.dyndns.org",2222,rpt);
-    return 0;
 }
 
