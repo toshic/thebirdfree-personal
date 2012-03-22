@@ -45,7 +45,8 @@ static void prvSetupHardware( void )
 	
 	vParTestInitialise();
 	RtcInit();
-	lcd_terminal_init();
+// use lcd	
+//	lcd_terminal_init();
     init_serial();
 }
 

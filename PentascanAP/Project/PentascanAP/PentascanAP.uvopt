@@ -128,10 +128,6 @@
       <TargetDriverDllRegistry>
         <SetRegEntry>
           <Number>0</Number>
-          <Key>DLGUARM</Key>
-        </SetRegEntry>
-        <SetRegEntry>
-          <Number>0</Number>
           <Key>DLGTARM</Key>
           <Name>(1010=725,143,1091,689,0)(1007=105,136,282,400,0)(1008=90,120,456,345,0)(1009=483,150,717,687,0)(110=490,388,1107,813,0)(100=-1,-1,-1,-1,0)(101=-1,-1,-1,-1,0)(102=-1,-1,-1,-1,0)(103=-1,-1,-1,-1,0)(104=-1,-1,-1,-1,0)(105=-1,-1,-1,-1,0)(106=-1,-1,-1,-1,0)(161=-1,-1,-1,-1,0)(162=-1,-1,-1,-1,0)(163=-1,-1,-1,-1,0)(164=-1,-1,-1,-1,0)(150=-1,-1,-1,-1,0)(151=-1,-1,-1,-1,0)(152=-1,-1,-1,-1,0)(1011=-1,-1,-1,-1,0)(1012=90,120,315,410,0)(1013=-1,-1,-1,-1,0)(171=-1,-1,-1,-1,0)(172=-1,-1,-1,-1,0)(173=-1,-1,-1,-1,0)(1014=-1,-1,-1,-1,0)(1016=-1,-1,-1,-1,0)(136=-1,-1,-1,-1,0)</Name>
         </SetRegEntry>
@@ -291,10 +287,10 @@
       <FileType>2</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
-      <ColumnNumber>0</ColumnNumber>
+      <ColumnNumber>59</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
       <TopLine>32</TopLine>
-      <CurrentLine>45</CurrentLine>
+      <CurrentLine>62</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>.\startup_rvmdk.S</PathWithFileName>
       <FilenameWithoutPath>startup_rvmdk.S</FilenameWithoutPath>
@@ -391,8 +387,8 @@
       <Focus>0</Focus>
       <ColumnNumber>0</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>124</TopLine>
-      <CurrentLine>139</CurrentLine>
+      <TopLine>600</TopLine>
+      <CurrentLine>611</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>.\SensorManager.c</PathWithFileName>
       <FilenameWithoutPath>SensorManager.c</FilenameWithoutPath>
@@ -541,7 +537,7 @@
 
   <Group>
     <GroupName>lwIP_Source</GroupName>
-    <tvExp>1</tvExp>
+    <tvExp>0</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <File>
@@ -1162,13 +1158,108 @@
     </File>
   </Group>
 
+  <Group>
+    <GroupName>FatFs</GroupName>
+    <tvExp>1</tvExp>
+    <tvExpOptDlg>0</tvExpOptDlg>
+    <cbSel>0</cbSel>
+    <File>
+      <GroupNumber>0</GroupNumber>
+      <FileNumber>0</FileNumber>
+      <FileType>1</FileType>
+      <tvExp>1</tvExp>
+      <Focus>0</Focus>
+      <ColumnNumber>0</ColumnNumber>
+      <tvExpOptDlg>0</tvExpOptDlg>
+      <TopLine>1</TopLine>
+      <CurrentLine>1</CurrentLine>
+      <bDave2>0</bDave2>
+      <PathWithFileName>..\Common\FatFs\src\ff.c</PathWithFileName>
+      <FilenameWithoutPath>ff.c</FilenameWithoutPath>
+    </File>
+    <File>
+      <GroupNumber>0</GroupNumber>
+      <FileNumber>0</FileNumber>
+      <FileType>1</FileType>
+      <tvExp>1</tvExp>
+      <Focus>0</Focus>
+      <ColumnNumber>0</ColumnNumber>
+      <tvExpOptDlg>0</tvExpOptDlg>
+      <TopLine>135</TopLine>
+      <CurrentLine>146</CurrentLine>
+      <bDave2>0</bDave2>
+      <PathWithFileName>..\Common\FatFs\port\mmc-ek-lm3s6965.c</PathWithFileName>
+      <FilenameWithoutPath>mmc-ek-lm3s6965.c</FilenameWithoutPath>
+    </File>
+    <File>
+      <GroupNumber>0</GroupNumber>
+      <FileNumber>0</FileNumber>
+      <FileType>1</FileType>
+      <tvExp>0</tvExp>
+      <Focus>0</Focus>
+      <ColumnNumber>4</ColumnNumber>
+      <tvExpOptDlg>0</tvExpOptDlg>
+      <TopLine>47</TopLine>
+      <CurrentLine>58</CurrentLine>
+      <bDave2>0</bDave2>
+      <PathWithFileName>..\Common\FatFs\src\option\syscall.c</PathWithFileName>
+      <FilenameWithoutPath>syscall.c</FilenameWithoutPath>
+    </File>
+    <File>
+      <GroupNumber>0</GroupNumber>
+      <FileNumber>0</FileNumber>
+      <FileType>1</FileType>
+      <tvExp>0</tvExp>
+      <Focus>0</Focus>
+      <ColumnNumber>0</ColumnNumber>
+      <tvExpOptDlg>0</tvExpOptDlg>
+      <TopLine>0</TopLine>
+      <CurrentLine>0</CurrentLine>
+      <bDave2>0</bDave2>
+      <PathWithFileName>..\Common\FatFs\src\option\cc949.c</PathWithFileName>
+      <FilenameWithoutPath>cc949.c</FilenameWithoutPath>
+    </File>
+  </Group>
+
+  <AlienFiles>
+    <PathWithFilename>D:\Work\PentascanAP\Project\Common\FatFs\src\ff.h</PathWithFilename>
+    <TopLine>1</TopLine>
+    <CurrentLine>28</CurrentLine>
+    <Constant>0</Constant>
+    <WindowPosition>
+      <length>0</length>
+      <flags>0</flags>
+      <showCmd>0</showCmd>
+      <MinPosition>
+        <xPos>0</xPos>
+        <yPos>0</yPos>
+      </MinPosition>
+      <MaxPosition>
+        <xPos>0</xPos>
+        <yPos>0</yPos>
+      </MaxPosition>
+      <NormalPosition>
+        <Top>0</Top>
+        <Left>0</Left>
+        <Right>0</Right>
+        <Bottom>0</Bottom>
+      </NormalPosition>
+    </WindowPosition>
+  </AlienFiles>
+
   <MDIGroups>
     <Orientation>1</Orientation>
     <ActiveMDIGroup>0</ActiveMDIGroup>
     <MDIGroup>
       <Size>100</Size>
-      <ActiveTab>4</ActiveTab>
+      <ActiveTab>2</ActiveTab>
       <Documents>
+        <Doc>
+          <Name>..\..\Source\tasks.c</Name>
+          <ColumnNumber>0</ColumnNumber>
+          <TopLine>2054</TopLine>
+          <CurrentLine>2062</CurrentLine>
+        </Doc>
         <Doc>
           <Name>.\main.c</Name>
           <ColumnNumber>0</ColumnNumber>
@@ -1178,8 +1269,8 @@
         <Doc>
           <Name>.\SensorManager.c</Name>
           <ColumnNumber>0</ColumnNumber>
-          <TopLine>124</TopLine>
-          <CurrentLine>139</CurrentLine>
+          <TopLine>600</TopLine>
+          <CurrentLine>611</CurrentLine>
         </Doc>
         <Doc>
           <Name>..\Common\ethernet\lwip-1.4.0\src\core\lwip_timers.c</Name>
@@ -1194,10 +1285,34 @@
           <CurrentLine>1</CurrentLine>
         </Doc>
         <Doc>
-          <Name>..\..\Source\tasks.c</Name>
+          <Name>..\Common\FatFs\src\ff.c</Name>
           <ColumnNumber>0</ColumnNumber>
-          <TopLine>2054</TopLine>
-          <CurrentLine>2062</CurrentLine>
+          <TopLine>1</TopLine>
+          <CurrentLine>1</CurrentLine>
+        </Doc>
+        <Doc>
+          <Name>..\Common\FatFs\port\mmc-ek-lm3s6965.c</Name>
+          <ColumnNumber>0</ColumnNumber>
+          <TopLine>135</TopLine>
+          <CurrentLine>146</CurrentLine>
+        </Doc>
+        <Doc>
+          <Name>..\Common\FatFs\src\ff.h</Name>
+          <ColumnNumber>0</ColumnNumber>
+          <TopLine>1</TopLine>
+          <CurrentLine>28</CurrentLine>
+        </Doc>
+        <Doc>
+          <Name>..\Common\FatFs\src\option\syscall.c</Name>
+          <ColumnNumber>4</ColumnNumber>
+          <TopLine>47</TopLine>
+          <CurrentLine>58</CurrentLine>
+        </Doc>
+        <Doc>
+          <Name>.\startup_rvmdk.S</Name>
+          <ColumnNumber>59</ColumnNumber>
+          <TopLine>32</TopLine>
+          <CurrentLine>62</CurrentLine>
         </Doc>
       </Documents>
     </MDIGroup>
