@@ -346,7 +346,7 @@
               <MiscControls>--diag_suppress 191,550,513,167,177,144</MiscControls>
               <Define>RVDS_ARMCM3_LM3S102, "PACK_STRUCT_END=","ALIGN_STRUCT_END=" DEBUG</Define>
               <Undefine></Undefine>
-              <IncludePath>.;..\..\Source\portable\RVDS\ARM_CM3;..\..\Source\include;..\Common\include;..\Common\drivers\Stellarisware\drivers;..\Common\drivers\Stellarisware\grlib;..\Common\drivers\Stellarisware\inc;..\Common\drivers\Stellarisware\lcd</IncludePath>
+              <IncludePath>.;..\..\Source\portable\RVDS\ARM_CM3;..\..\Source\include;..\Common\include;..\Common\drivers\Stellarisware\drivers;..\Common\drivers\Stellarisware\grlib;..\Common\drivers\Stellarisware\inc;..\Common\drivers\Stellarisware\lcd;..\Common\FatFs\src</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -862,6 +862,85 @@
               <FileName>lwiplib.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Common\ethernet\lwip-1.4.0\ports\TILM\lwiplib.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>FatFs</GroupName>
+          <GroupOption>
+            <CommonProperty>
+              <UseCPPCompiler>0</UseCPPCompiler>
+              <RVCTCodeConst>0</RVCTCodeConst>
+              <RVCTZI>0</RVCTZI>
+              <RVCTOtherData>0</RVCTOtherData>
+              <ModuleSelection>0</ModuleSelection>
+              <IncludeInBuild>2</IncludeInBuild>
+              <AlwaysBuild>2</AlwaysBuild>
+              <GenerateAssemblyFile>2</GenerateAssemblyFile>
+              <AssembleAssemblyFile>2</AssembleAssemblyFile>
+              <PublicsOnly>2</PublicsOnly>
+              <StopOnExitCode>11</StopOnExitCode>
+              <CustomArgument></CustomArgument>
+              <IncludeLibraryModules></IncludeLibraryModules>
+            </CommonProperty>
+            <GroupArmAds>
+              <Cads>
+                <interw>2</interw>
+                <Optim>0</Optim>
+                <oTime>2</oTime>
+                <SplitLS>2</SplitLS>
+                <OneElfS>2</OneElfS>
+                <Strict>2</Strict>
+                <EnumInt>2</EnumInt>
+                <PlainCh>2</PlainCh>
+                <Ropi>2</Ropi>
+                <Rwpi>2</Rwpi>
+                <wLevel>0</wLevel>
+                <uThumb>2</uThumb>
+                <VariousControls>
+                  <MiscControls></MiscControls>
+                  <Define></Define>
+                  <Undefine></Undefine>
+                  <IncludePath>..\Common\ethernet\lwip-1.4.0\src\include;..\Common\ethernet\lwip-1.4.0\src\include\ipv4;..\Common\ethernet\lwip-1.4.0\ports\TILM\include;..\Common\ethernet\lwip-1.4.0\ports\TILM</IncludePath>
+                </VariousControls>
+              </Cads>
+              <Aads>
+                <interw>2</interw>
+                <Ropi>2</Ropi>
+                <Rwpi>2</Rwpi>
+                <thumb>2</thumb>
+                <SplitLS>2</SplitLS>
+                <SwStkChk>2</SwStkChk>
+                <NoWarn>2</NoWarn>
+                <VariousControls>
+                  <MiscControls></MiscControls>
+                  <Define></Define>
+                  <Undefine></Undefine>
+                  <IncludePath></IncludePath>
+                </VariousControls>
+              </Aads>
+            </GroupArmAds>
+          </GroupOption>
+          <Files>
+            <File>
+              <FileName>ff.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Common\FatFs\src\ff.c</FilePath>
+            </File>
+            <File>
+              <FileName>mmc-ek-lm3s6965.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Common\FatFs\port\mmc-ek-lm3s6965.c</FilePath>
+            </File>
+            <File>
+              <FileName>syscall.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Common\FatFs\src\option\syscall.c</FilePath>
+            </File>
+            <File>
+              <FileName>cc949.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Common\FatFs\src\option\cc949.c</FilePath>
             </File>
           </Files>
         </Group>

@@ -14,7 +14,7 @@
 
 #if 1
 //#pragma import(__use_no_semihosting_swi)
-#define LCD_PRINTF
+#define LCD_PRINTFx
 
 #ifdef LCD_PRINTF
 extern int lcd_terminal_char(int ch); /* in LCD.c */
