@@ -731,8 +731,11 @@ DWORD get_fattime (void)
     struct tm * timeinfo;
 
     timeinfo = localtime(&tm);
+
+    if(timeinfo->tm_year + 1900 < 1980)
+        timeinfo->tm_year = 80;
     
-    return    ((timeinfo->tm_year + 80) << 25)    // Year = 2007
+    return    ((timeinfo->tm_year + 1900 - 1980) << 25)    // Year = 2002 base (0)
             | (timeinfo->tm_mon + 1 << 21)            // Month = June
             | (timeinfo->tm_mday << 16)            // Day = 5
             | (timeinfo->tm_hour << 11)            // Hour = 11
