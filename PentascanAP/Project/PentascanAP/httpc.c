@@ -52,6 +52,8 @@ static int parseUrl(char *url, char **hostname, unsigned int *port_num, char **l
     char pctemp[LINEBUFFER_SIZE];
     int protocol = PROTO_NONE;
 
+	printf("**hostname = %p\n",hostname);
+
 	/* search :// */
 	
 	ptr = strchr(url,':');
@@ -426,6 +428,9 @@ int http_req(char *url, http_parse_cb callback, void *pv)
 	int code = 0;
 
 	protocol = parseUrl(url,&hostname,&port,&location);
+	printf("hostname = \"%s\"\n",hostname);
+	printf("location = \"%s\"\n",location);
+
 	if( protocol == PROTO_HTTP ){
 		code = http_get(hostname,port,location, callback, pv);
 		mem_free(hostname);
