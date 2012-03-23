@@ -646,6 +646,137 @@ Cmd_cd(char *path)
     return(0);
 }
 
+int
+Cmd_mkdir(char *path)
+{
+    unsigned int uIdx;
+    FRESULT fresult;
+
+    //
+    // Copy the current working path into a temporary buffer so
+    // it can be manipulated.
+    //
+    strcpy(g_cTmpBuf, g_cCwdBuf);
+
+    //
+    // If the first character is /, then this is a fully specified
+    // path, and it should just be used as-is.
+    //
+    if(path[0] == '/')
+    {
+        //
+        // Make sure the new path is not bigger than the cwd buffer.
+        //
+        if(strlen(path) + 1 > sizeof(g_cCwdBuf))
+        {
+            printf("Resulting path name is too long\n");
+            return(0);
+        }
+
+        //
+        // If the new path name (in argv[1])  is not too long, then
+        // copy it into the temporary buffer so it can be checked.
+        //
+        else
+        {
+            strncpy(g_cTmpBuf, path, sizeof(g_cTmpBuf));
+        }
+    }
+
+    //
+    // If the argument is .. then attempt to remove the lowest level
+    // on the CWD.
+    //
+    else if(!strcmp(path, ".."))
+    {
+        //
+        // Get the index to the last character in the current path.
+        //
+        uIdx = strlen(g_cTmpBuf) - 1;
+
+        //
+        // Back up from the end of the path name until a separator (/)
+        // is found, or until we bump up to the start of the path.
+        //
+        while((g_cTmpBuf[uIdx] != '/') && (uIdx > 1))
+        {
+            //
+            // Back up one character.
+            //
+            uIdx--;
+        }
+
+        //
+        // Now we are either at the lowest level separator in the
+        // current path, or at the beginning of the string (root).
+        // So set the new end of string here, effectively removing
+        // that last part of the path.
+        //
+        g_cTmpBuf[uIdx] = 0;
+    }
+
+    //
+    // Otherwise this is just a normal path name from the current
+    // directory, and it needs to be appended to the current path.
+    //
+    else
+    {
+        //
+        // Test to make sure that when the new additional path is
+        // added on to the current path, there is room in the buffer
+        // for the full new path.  It needs to include a new separator,
+        // and a trailing null character.
+        //
+        if(strlen(g_cTmpBuf) + strlen(path) + 1 + 1 > sizeof(g_cCwdBuf))
+        {
+            printf("Resulting path name is too long\n");
+            return(0);
+        }
+
+        //
+        // The new path is okay, so add the separator and then append
+        // the new directory to the path.
+        //
+        else
+        {
+            //
+            // If not already at the root level, then append a /
+            //
+            if(strcmp(g_cTmpBuf, "/"))
+            {
+                strcat(g_cTmpBuf, "/");
+            }
+
+            //
+            // Append the new directory to the path.
+            //
+            strcat(g_cTmpBuf, path);
+        }
+    }
+
+    //
+    // At this point, a candidate new directory path is in chTmpBuf.
+    // Try to open it to make sure it is valid.
+    //
+    fresult = f_mkdir(g_cTmpBuf);
+
+    //
+    // If it cant be opened, then it is a bad path.  Inform
+    // user and return.
+    //
+    if(fresult != FR_OK)
+    {
+        printf("mkdir: %s fail\n", g_cTmpBuf);
+        return(fresult);
+    }
+
+    //
+    // Return success.
+    //
+    return(0);
+}
+
+
 //*****************************************************************************
 //
 // This function implements the "cat" command.  It reads the contents of
@@ -782,44 +913,31 @@ Cmd_log(char *argv)
 	file = strtok(argv," \t\r\n");
 	if(file== NULL){
 		printf("filename not given\n");
-		return;
+		return 0;
 	}
-	string = strtok(NULL,"\n");
+	string = strtok(NULL,"\r");
 	if(string== NULL){
 		printf("string not given\n");
-		return;
+		return 0 ;
 	}
 	
-    //
-    // First, check to make sure that the current path (CWD), plus
-    // the file name, plus a separator and trailing null, will all
-    // fit in the temporary buffer that will be used to hold the
-    // file name.  The file name must be fully specified, with path,
-    // to FatFs.
-    //
-    if(strlen(g_cCwdBuf) + strlen(file) + 1 + 1 > sizeof(g_cTmpBuf))
-    {
-        printf("Resulting path name is too long\n");
-        return(0);
-    }
-
-    //
-    // Copy the current path to the temporary buffer so it can be manipulated.
-    //
     strcpy(g_cTmpBuf, g_cCwdBuf);
-
-    //
-    // If not already at the root level, then append a separator.
-    //
-    if(strcmp("/", g_cCwdBuf))
+    if(file[0] == '/')
+        strncpy(g_cTmpBuf, file, sizeof(g_cTmpBuf));
+    else
     {
-        strcat(g_cTmpBuf, "/");
-    }
+        if(strlen(g_cCwdBuf) + strlen(file) + 1 + 1 > sizeof(g_cTmpBuf))
+        {
+            printf("Resulting path name is too long\n");
+            return(0);
+        }
 
-    //
-    // Now finally, append the file name to result in a fully specified file.
-    //
-    strcat(g_cTmpBuf, file);
+        if(strcmp(g_cTmpBuf, "/"))
+        {
+            strcat(g_cTmpBuf, "/");
+        }
+        strcat(g_cTmpBuf, file);
+    }
 
     //
     // Open the file for reading.
@@ -847,9 +965,9 @@ Cmd_log(char *argv)
         return(fresult);
     }
 
-    fresult = f_write(&g_sFileObject, timeinfo, strlen(timeinfo),
+    fresult = f_write(&g_sFileObject, ts_string, strlen(ts_string),
                      &usBytesWritten);
-    if(fresult != FR_OK || strlen(timeinfo) != usBytesWritten)
+    if(fresult != FR_OK || strlen(ts_string) != usBytesWritten)
     {
         f_close(&g_sFileObject);
         return(fresult);
@@ -864,6 +982,14 @@ Cmd_log(char *argv)
         return(fresult);
     }
 
+    fresult = f_write(&g_sFileObject, "\n", 1,
+                     &usBytesWritten);
+    if(fresult != FR_OK || usBytesWritten != 1)
+    {
+        f_close(&g_sFileObject);
+        return(fresult);
+    }
+
     f_close(&g_sFileObject);
     //
     // Return success.
@@ -871,7 +997,7 @@ Cmd_log(char *argv)
     return(0);
 }
 
-void Cmd_free(char *argv)
+int Cmd_free(char *argv)
 {
 #ifdef MEM_USE_TRACE
 	char free_mem[80];
@@ -879,26 +1005,27 @@ void Cmd_free(char *argv)
 	printf(free_mem);	
 #else
 	unsigned long free = checkFreeMem();
-	printf("\ttotal\tused\tfree\n");
-	printf("mem\t%d\t%d\t%d",Heap,Heap-free,free);
+	printf("Free mem = %d\n",free);
 #endif
+    return 0;
 }
 
-void Cmd_date(char *argv)
+int Cmd_date(char *argv)
 {
 	time_t timer;
 	timer=RtcGetTime();
 	printf("%s",asctime(localtime(&timer)));
+	return 0;
 }
 
-void print_http(unsigned long size,char *content,void *pv)
+static void print_http(unsigned long size,char *content,void *pv)
 {
 	unsigned long i;
 	for(i=0;i<size;i++)
-		putc(content[i]);
+		putchar(content[i]);
 }
 
-void file_http(unsigned long size,char *content,void *pv)
+static void file_http(unsigned long size,char *content,void *pv)
 {
     FRESULT fresult;
     unsigned int usBytesWritten;
@@ -908,75 +1035,144 @@ void file_http(unsigned long size,char *content,void *pv)
 }
 
 
-void Cmd_wget(char *url)
+int Cmd_wget(char *argv)
 {
-	/* need to support file option later */
-	http_req(url,print_http,NULL);
-/* if file save option 
-	fresult = f_open(&g_sFileObject, g_cTmpBuf, FA_WRITE | FA_CREATE_NEW);
-	http_req(url,file_http,NULL);
-	f_close(&g_sFileObject);
-*/	
+    char *url,*file;
+    FRESULT fresult;
+
+    url = strtok(argv," \t\r\n");
+    if(url == NULL)
+        return 0;
+
+    printf("url = %s\n",url);
+
+    file = strtok(NULL," \r\n");
+    if(file == NULL)
+    	http_req(url,print_http,NULL);
+    else{
+        printf("file = %s\n",file);
+        
+        strcpy(g_cTmpBuf, g_cCwdBuf);
+        if(file[0] == '/')
+            strncpy(g_cTmpBuf, file, sizeof(g_cTmpBuf));
+        else
+        {
+            if(strcmp(g_cTmpBuf, "/"))
+            {
+                strcat(g_cTmpBuf, "/");
+            }
+            strcat(g_cTmpBuf, file);
+        }
+
+    	fresult = f_open(&g_sFileObject, g_cTmpBuf, FA_WRITE | FA_CREATE_ALWAYS);
+    	if(fresult != FR_OK){
+    	    printf("file open error\n");
+    	    return 0;
+    	}
+    	http_req(url,file_http,NULL);
+    	f_close(&g_sFileObject);
+    }
+
+    return 0;
 }
 
-void Cmd_tasks(char*argv)
+int Cmd_task(char*argv)
 {
     char *task_status = mem_malloc(200);
 
 	if(task_status == NULL){
 		printf("task_status malloc fail\n");
-		return;
+		return 0;
 	}
 	vTaskList(task_status);
 	printf("name\t\tstatus\tpri\tstack\ttcb");
 	printf(task_status);
 	mem_free(task_status);
+	return 0;
 }
 
-void Cmd_reboot(char *argv)
+int Cmd_top(char*argv)
 {
+#if configGENERATE_RUN_TIME_STATS
+    char *top_string = mem_malloc(200);
 
+	if(top_string == NULL){
+		printf("top_string malloc fail\n");
+		return 0;
+	}
+
+    vTaskGetRunTimeStats(top_string);
+	printf(top_string);
+	mem_free(top_string);
+#endif    
+    return 0;
 }
 
-void Cmd_ifconfig(char *argv)
+int Cmd_reboot(char *argv)
 {
-
+    return 0;
 }
 
-typedef (*cmd_func)(char *argv);
+int Cmd_ifconfig(char *argv)
+{
+    return 0;
+}
 
-struct {
+int Cmd_help(char *argv);
+
+typedef int (*cmd_func)(char *argv);
+
+typedef struct {
 	const char *cmd;
+	const char *desc;
 	cmd_func cb;
-}
-CMD_TABLE[] = 
+}command_table;
+
+command_table CMD_TABLE[] = 
 {
-	"ls",Cmd_ls,
-	"cd",Cmd_cd,
-	"cat",Cmd_cat,
-	"free",Cmd_free,
-	"date",Cmd_date,
-	"wget",Cmd_wget,
-	"tasks",Cmd_tasks,
-	"log",Cmd_log,
-	"reboot",Cmd_reboot,
-	"ifconfig",Cmd_ifconfig
+	"ls","list files",Cmd_ls,
+	"cd","change directory",Cmd_cd,
+	"mkdir","make directory",Cmd_mkdir,
+	"cat","show file content",Cmd_cat,
+	"free","show free memory",Cmd_free,
+	"date","show current time",Cmd_date,
+	"wget","get URL",Cmd_wget,
+	"task","show task status",Cmd_task,
+	"top","show cpu usage",Cmd_top,
+	"log","write log",Cmd_log,
+	"reboot","reboot system",Cmd_reboot,
+	"ifconfig","show network configuration",Cmd_ifconfig,
+	"help","show this message",Cmd_help
 };
 	
+int Cmd_help(char *argv)
+{
+	int i;
+    for(i=0;i<sizeof(CMD_TABLE)/sizeof(command_table);i++){
+        printf("%s\t: %s\n",CMD_TABLE[i].cmd,CMD_TABLE[i].desc);
+    }   
+	return 0;
+}
 
 void parse_cmd(char *cmd)
 {
 	int i;
 	char *ptr;
-	if(ptr == NULL || *ptr == NULL)
-		return;
-	ptr = strtok(cmd," \t\n\r");
-	for*i=0;i<sizeof(CMD_TABLE);i++){
-		if(!strcmp(CMD_TABLE[i].cmd,ptr){
-			CMD_TABLE[i].cb(strtok(NULL,"\n"));
-			break;
+	printf("\n");
+	if(cmd && *cmd){
+    	ptr = strtok(cmd," \t\n\r");
+		if(ptr){
+	    	for(i=0;i<sizeof(CMD_TABLE)/sizeof(command_table);i++){
+	    		if(!strcmp(CMD_TABLE[i].cmd,ptr)){
+	    			CMD_TABLE[i].cb(strtok(NULL,"\r"));
+	    			break;
+	    		}
+	    	}	
+            if(i ==sizeof(CMD_TABLE)/sizeof(command_table))
+                printf("Unknown command\n");
 		}
-	}	
+    }
+	printf("%s>",g_cCwdBuf);
 }
 
 #define CMD_BUFFER_LEN	100
@@ -1027,19 +1223,22 @@ void vMainTask( void *pvParameters )
     
 	for( ;; )
 	{
-		/* wait 100msec */
-		if(xSemaphoreTake( xSemaphoreTimer, configTICK_RATE_HZ / 10 ) == pdTRUE){
+		/* wait 10msec */
+		if(xSemaphoreTake( xSemaphoreTimer, configTICK_RATE_HZ / 100 ) == pdTRUE){
 			report_measure();
 		}
 
 		if(UARTCharsAvail(UART0_BASE)){
 		    c = getchar();
 		    putchar(c);
-			if(c == '\n'){
+			if(c == '\r'){
 				cmd_buffer[cmd_index++] = c;
 				cmd_buffer[cmd_index] = '\0';
 				cmd_index = 0;
 				parse_cmd(cmd_buffer);
+			}else if(c == '\b'){
+			    if(cmd_index > 0)
+			        cmd_index--;
 			}else if(cmd_index < CMD_BUFFER_LEN - 1){
 				cmd_buffer[cmd_index++] = c;
 			}else{

@@ -100,7 +100,7 @@ to exclude the API function. */
 #define INCLUDE_uxTaskGetStackHighWaterMark	1
 
 /* stat setting */
-#define configGENERATE_RUN_TIME_STATS		1
+#define configGENERATE_RUN_TIME_STATS		0
 #define portCONFIGURE_TIMER_FOR_RUN_TIME_STATS() vSetupHighFrequencyTimer()
 #define portGET_RUN_TIME_COUNTER_VALUE()	vGetHighFrequencyTimerTicks()
 

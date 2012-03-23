@@ -10,6 +10,7 @@
 #include "hw_types.h"
 #include "hw_sysctl.h"
 #include "sysctl.h"
+#include "lmi_timer.h"
 #include "gpio.h"
 /* Demo app includes. */
 #include "partest.h"
@@ -36,11 +37,11 @@ void vSetupHighFrequencyTimer( void )
     TimerConfigure( TIMER1_BASE, TIMER_CFG_32_BIT_PER );
 
 	/* Just used to measure time. */
-    TimerLoadSet(TIMER1_BASE, TIMER_A, timerMAX_32BIT_VALUE );
+    TimerLoadSet(TIMER1_BASE, TIMER_A, 0 );
     TimerEnable( TIMER1_BASE, TIMER_A );
 }
 
-void vGetHighFrequencyTimerTicks( void )
+unsigned long vGetHighFrequencyTimerTicks( void )
 {
 	return TimerLoadGet(TIMER1_BASE, TIMER_A);
 }
