@@ -257,18 +257,126 @@ static FIL g_sFileObject;
 // file sizes at the end along with free space.
 //
 //*****************************************************************************
-int Cmd_ls(void)
+int Cmd_ls(char *path)
 {
     unsigned long ulTotalSize;
     unsigned long ulFileCount;
     unsigned long ulDirCount;
+    unsigned int uIdx;
     FRESULT fresult;
     FATFS *pFatFs;
 
+
+
     //
+    // Copy the current working path into a temporary buffer so
+    // it can be manipulated.
+    //
+    strcpy(g_cTmpBuf, g_cCwdBuf);
+
+    //
+    // If the first character is /, then this is a fully specified
+    // path, and it should just be used as-is.
+    //
+    if(path == 0){
+		//printf("current directory\n");
+    }
+    else if(path[0] == '/')
+    {
+        //
+        // Make sure the new path is not bigger than the cwd buffer.
+        //
+        if(strlen(path) + 1 > sizeof(g_cCwdBuf))
+        {
+            printf("Resulting path name is too long\n");
+            return(0);
+        }
+
+        //
+        // If the new path name (in argv[1])  is not too long, then
+        // copy it into the temporary buffer so it can be checked.
+        //
+        else
+        {
+            strncpy(g_cTmpBuf, path, sizeof(g_cTmpBuf));
+        }
+    }
+
+    //
+    // If the argument is .. then attempt to remove the lowest level
+    // on the CWD.
+    //
+    else if(!strcmp(path, ".."))
+    {
+        //
+        // Get the index to the last character in the current path.
+        //
+        uIdx = strlen(g_cTmpBuf) - 1;
+
+        //
+        // Back up from the end of the path name until a separator (/)
+        // is found, or until we bump up to the start of the path.
+        //
+        while((g_cTmpBuf[uIdx] != '/') && (uIdx > 1))
+        {
+            //
+            // Back up one character.
+            //
+            uIdx--;
+        }
+
+        //
+        // Now we are either at the lowest level separator in the
+        // current path, or at the beginning of the string (root).
+        // So set the new end of string here, effectively removing
+        // that last part of the path.
+        //
+        g_cTmpBuf[uIdx] = 0;
+    }
+
+    //
+    // Otherwise this is just a normal path name from the current
+    // directory, and it needs to be appended to the current path.
+    //
+    else
+    {
+        //
+        // Test to make sure that when the new additional path is
+        // added on to the current path, there is room in the buffer
+        // for the full new path.  It needs to include a new separator,
+        // and a trailing null character.
+        //
+        if(strlen(g_cTmpBuf) + strlen(path) + 1 + 1 > sizeof(g_cCwdBuf))
+        {
+            printf("Resulting path name is too long\n");
+            return(0);
+        }
+
+        //
+        // The new path is okay, so add the separator and then append
+        // the new directory to the path.
+        //
+        else
+        {
+            //
+            // If not already at the root level, then append a /
+            //
+            if(strcmp(g_cTmpBuf, "/"))
+            {
+                strcat(g_cTmpBuf, "/");
+            }
+
+            //
+            // Append the new directory to the path.
+            //
+            strcat(g_cTmpBuf, path);
+        }
+    }    
+
+	//
     // Open the current directory for access.
     //
-    fresult = f_opendir(&g_sDirObject, g_cCwdBuf);
+    fresult = f_opendir(&g_sDirObject, g_cTmpBuf);
 
     //
     // Check for error and return if there is a problem.
@@ -655,11 +763,33 @@ Cmd_cat(char *file)
 //
 //*****************************************************************************
 int
-Cmd_log(char *file, char *string)
+Cmd_log(char *argv)
 {
     FRESULT fresult;
     unsigned int usBytesWritten;
+	char *file,*string;
+	char ts_string[22];
+	unsigned long timestamp = get_fattime();
+    time_t tm = RtcGetTime();
+    struct tm * timeinfo;
 
+    timeinfo = localtime(&tm);
+
+	sprintf(ts_string,"%04d/%02d/%02d %02d:%02d:%02d ",timeinfo->tm_year + 1900, timeinfo->tm_mon+ 1 , timeinfo->tm_mday,
+			timeinfo->tm_hour, timeinfo->tm_min, timeinfo->tm_sec);
+	
+
+	file = strtok(argv," \t\r\n");
+	if(file== NULL){
+		printf("filename not given\n");
+		return;
+	}
+	string = strtok(NULL,"\n");
+	if(string== NULL){
+		printf("string not given\n");
+		return;
+	}
+	
     //
     // First, check to make sure that the current path (CWD), plus
     // the file name, plus a separator and trailing null, will all
@@ -717,20 +847,19 @@ Cmd_log(char *file, char *string)
         return(fresult);
     }
 
-    //
-    // Read a block of data from the file.  Read as much as can fit
-    // in the temporary buffer, including a space for the trailing null.
-    //
+    fresult = f_write(&g_sFileObject, timeinfo, strlen(timeinfo),
+                     &usBytesWritten);
+    if(fresult != FR_OK || strlen(timeinfo) != usBytesWritten)
+    {
+        f_close(&g_sFileObject);
+        return(fresult);
+    }
+	
+
     fresult = f_write(&g_sFileObject, string, strlen(string),
                      &usBytesWritten);
-
-    //
-    // If there was an error reading, then print a newline and
-    // return the error to the user.
-    //
     if(fresult != FR_OK || strlen(string) != usBytesWritten)
     {
-        printf("\n");
         f_close(&g_sFileObject);
         return(fresult);
     }
@@ -742,12 +871,127 @@ Cmd_log(char *file, char *string)
     return(0);
 }
 
+void Cmd_free(char *argv)
+{
+#ifdef MEM_USE_TRACE
+	char free_mem[80];
+	show_free(free_mem);
+	printf(free_mem);	
+#else
+	unsigned long free = checkFreeMem();
+	printf("\ttotal\tused\tfree\n");
+	printf("mem\t%d\t%d\t%d",Heap,Heap-free,free);
+#endif
+}
+
+void Cmd_date(char *argv)
+{
+	time_t timer;
+	timer=RtcGetTime();
+	printf("%s",asctime(localtime(&timer)));
+}
+
+void print_http(unsigned long size,char *content,void *pv)
+{
+	unsigned long i;
+	for(i=0;i<size;i++)
+		putc(content[i]);
+}
+
+void file_http(unsigned long size,char *content,void *pv)
+{
+    FRESULT fresult;
+    unsigned int usBytesWritten;
+
+    fresult = f_write(&g_sFileObject, content, size,
+		&usBytesWritten);
+}
+
+
+void Cmd_wget(char *url)
+{
+	/* need to support file option later */
+	http_req(url,print_http,NULL);
+/* if file save option 
+	fresult = f_open(&g_sFileObject, g_cTmpBuf, FA_WRITE | FA_CREATE_NEW);
+	http_req(url,file_http,NULL);
+	f_close(&g_sFileObject);
+*/	
+}
+
+void Cmd_tasks(char*argv)
+{
+    char *task_status = mem_malloc(200);
+
+	if(task_status == NULL){
+		printf("task_status malloc fail\n");
+		return;
+	}
+	vTaskList(task_status);
+	printf("name\t\tstatus\tpri\tstack\ttcb");
+	printf(task_status);
+	mem_free(task_status);
+}
+
+void Cmd_reboot(char *argv)
+{
+
+}
+
+void Cmd_ifconfig(char *argv)
+{
+
+}
+
+typedef (*cmd_func)(char *argv);
+
+struct {
+	const char *cmd;
+	cmd_func cb;
+}
+CMD_TABLE[] = 
+{
+	"ls",Cmd_ls,
+	"cd",Cmd_cd,
+	"cat",Cmd_cat,
+	"free",Cmd_free,
+	"date",Cmd_date,
+	"wget",Cmd_wget,
+	"tasks",Cmd_tasks,
+	"log",Cmd_log,
+	"reboot",Cmd_reboot,
+	"ifconfig",Cmd_ifconfig
+};
+	
+
+void parse_cmd(char *cmd)
+{
+	int i;
+	char *ptr;
+	if(ptr == NULL || *ptr == NULL)
+		return;
+	ptr = strtok(cmd," \t\n\r");
+	for*i=0;i<sizeof(CMD_TABLE);i++){
+		if(!strcmp(CMD_TABLE[i].cmd,ptr){
+			CMD_TABLE[i].cb(strtok(NULL,"\n"));
+			break;
+		}
+	}	
+}
+
+#define CMD_BUFFER_LEN	100
 
 void vMainTask( void *pvParameters )
 {
     char c;
-    char *temp = mem_malloc(200);
+	char *cmd_buffer = mem_malloc(CMD_BUFFER_LEN);
+	int cmd_index = 0;
     FRESULT fresult;
+
+	if(cmd_buffer == NULL){
+		printf("cmd_buffer malloc fail\n");
+		return;
+	}
 
 	// Semaphore cannot be used before a call to xSemaphoreCreateCounting().
 	// The max value to which the semaphore can count should be 10, and the
@@ -791,75 +1035,16 @@ void vMainTask( void *pvParameters )
 		if(UARTCharsAvail(UART0_BASE)){
 		    c = getchar();
 		    putchar(c);
-
-		    switch(c)
-		    {
-		    case 'g':
-	            printf("google ^9%d`\n",http_get("www.google.com",80,"/",NULL,NULL));
-	            break;
-	        case 'n':
-	            printf("naver ^9%d`\n",http_get("www.naver.com",80,"/",NULL,NULL));
-	            break;
-		    case 'G':
-	            printf("google ip ^9%d`\n",http_get("173.194.72.105",80,"/",NULL,NULL));
-	            break;
-		    case 'a':
-	            printf("http %d\n",http_req("http://192.168.100.20/ap.html",NULL,NULL));
-	            break;
-	        case 'p':
-    	        report_measure();
-    	        break;
-	        case 'f':
-	            printf("Freemem = %ld\n",checkFreeMem());
-	            break;
-	        case 't':
-	        {
-	            unsigned long timer;
-	            timer=RtcGetTime();
-	            printf("^f%s`",asctime(localtime(&timer)));
-	            break;
-	        }
-	        case 's':
-	            vTaskList(temp);
-				UARTprint( "name\t\tstatus\tpri\tstack\ttcb");
-	            UARTprint(temp);
-	            break;
-	        case 'r':
-#if configUSE_TIMERS
-	            xTimerStart(xPeriodicTimer,0);
-#else
-	            sys_timeout(2000, httpTimerCallback, NULL);
-#endif
-	            break;
-	        case 'x':
-#if configUSE_TIMERS
-	            xTimerStop(xPeriodicTimer,0);
-#else
-	            sys_untimeout(httpTimerCallback, NULL);
-#endif
-	            break;
-	        case 'm':
-	            show_alloctable();
-	            break;
-            case '0':
-                Cmd_cd("/");
-                break;
-	        case '1':
-	            Cmd_cd("/PHOTO");
-	            break;
-            case '2':
-                Cmd_cd("/MP3");
-                break;
-	        case 'l':
-	            Cmd_ls();
-	            break;
-	        case 'L':
-	            Cmd_cat("/log.txt");
-	            break;
-	        case 'W':
-	            Cmd_log("/log.txt","This is test stirng\n");
-	            break;
-	        }
+			if(c == '\n'){
+				cmd_buffer[cmd_index++] = c;
+				cmd_buffer[cmd_index] = '\0';
+				cmd_index = 0;
+				parse_cmd(cmd_buffer);
+			}else if(cmd_index < CMD_BUFFER_LEN - 1){
+				cmd_buffer[cmd_index++] = c;
+			}else{
+				printf("cmd buffer overflow\n");
+			}
 		}
 	}
 }
