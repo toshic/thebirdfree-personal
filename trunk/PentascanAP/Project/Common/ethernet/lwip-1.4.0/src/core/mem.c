@@ -800,5 +800,15 @@ void show_alloctable(void)
     printf("Maximum %d entry, size = %ld\n",max_entry,max_alloc_size);
 //    xTaskResumeAll();
 }
+
+void show_free(char *buffer)
+{
+	unsigned long total, used, max;
+	unsigned int total_entry, used_entry, max_entry;
+	
+	sprintf(buffer,"\ttotal\tused\max\n"\
+		"mem\t%d\t%d\t%d\n"\
+		"entry\t%d\t%d\t%d\n",total,used,max,total_entry,used_entry,max_entry);
+}
 #endif /* MEM_USE_TRACE */
 #endif /* !MEM_LIBC_MALLOC */

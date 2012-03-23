@@ -77,6 +77,7 @@ typedef size_t mem_size_t;
 #endif
 #if MEM_USE_TRACE
     void show_alloctable(void);
+	void show_free(char *buffer);
 #else
     #define show_alloctable()
 #endif

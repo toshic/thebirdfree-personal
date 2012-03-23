@@ -99,6 +99,10 @@ to exclude the API function. */
 #define INCLUDE_vTaskDelay					1
 #define INCLUDE_uxTaskGetStackHighWaterMark	1
 
+/* stat setting */
+#define configGENERATE_RUN_TIME_STATS		1
+#define portCONFIGURE_TIMER_FOR_RUN_TIME_STATS() vSetupHighFrequencyTimer()
+#define portGET_RUN_TIME_COUNTER_VALUE()	vGetHighFrequencyTimerTicks()
 
 
 #define configKERNEL_INTERRUPT_PRIORITY 		( 7 << 5 )	/* Priority 7, or 255 as only the top three bits are implemented.  This is the lowest priority. */

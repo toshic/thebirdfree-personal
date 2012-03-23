@@ -352,7 +352,7 @@ int http_get(char *hostname, unsigned short port, char *location, http_parse_cb 
 
 					/* process data here */
 					if(callback)
-					    (callback)(recv_buffer, pv);
+					    (callback)(pack_len, recv_buffer, pv);
 #if 0
 					for(i=0;i<pack_len;i++)
 						printf("%c",recv_buffer[i]);
@@ -392,7 +392,7 @@ int http_get(char *hostname, unsigned short port, char *location, http_parse_cb 
 			total_length += pack_len;
             /* process data here */
             if(callback)
-                (callback)(recv_buffer, pv);
+                (callback)(pack_len, recv_buffer, pv);
 #if 0
 			for(i=0;i<pack_len;i++)
 				printf("%c",recv_buffer[i]);

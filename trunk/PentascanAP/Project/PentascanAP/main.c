@@ -21,6 +21,30 @@
 
 extern void init_serial (void);
 
+
+/* Counts the total number of times that the high frequency timer has 'ticked'.
+This value is used by the run time stats function to work out what percentage
+of CPU time each task is taking. */
+volatile unsigned long ulHighFrequencyTimerTicks = 0UL;
+/*-----------------------------------------------------------*/
+
+void vSetupHighFrequencyTimer( void )
+{
+	/* Timer zero is used to generate the interrupts, and timer 1 is used
+	to measure the jitter. */
+    SysCtlPeripheralEnable( SYSCTL_PERIPH_TIMER1 );
+    TimerConfigure( TIMER1_BASE, TIMER_CFG_32_BIT_PER );
+
+	/* Just used to measure time. */
+    TimerLoadSet(TIMER1_BASE, TIMER_A, timerMAX_32BIT_VALUE );
+    TimerEnable( TIMER1_BASE, TIMER_A );
+}
+
+void vGetHighFrequencyTimerTicks( void )
+{
+	return TimerLoadGet(TIMER1_BASE, TIMER_A);
+}
+
 /*
  * Configure the hardware for the demo.
  */
