@@ -191,9 +191,9 @@ int report_measure(){
         success++;
     mem_free(rpt);
 
-    printf("^a<%d/%d>`result ^f[%d]`\n",success,count,ret);
+    fprintf(stderr,"^a<%d/%d>`result ^f[%d]`\n",success,count,ret);
     timer=RtcGetTime();
-    printf("^f%s`",asctime(localtime(&timer)) + 11);
+    fprintf(stderr,"^f%s`",asctime(localtime(&timer)) + 11);
     return 0;
 }
 
@@ -383,6 +383,7 @@ int Cmd_ls(char *path)
     //
     if(fresult != FR_OK)
     {
+        printf("open error\n");
         return(fresult);
     }
 
@@ -1218,7 +1219,7 @@ void vMainTask( void *pvParameters )
 #endif									
 
 
-    printf("Pentascan AP\n");
+    fprintf(stderr,"Pentascan AP\n");
     xTimerStart(xPeriodicTimer,0);
     
 	for( ;; )

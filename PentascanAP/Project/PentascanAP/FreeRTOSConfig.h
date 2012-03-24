@@ -100,9 +100,10 @@ to exclude the API function. */
 #define INCLUDE_uxTaskGetStackHighWaterMark	1
 
 /* stat setting */
-#define configGENERATE_RUN_TIME_STATS		0
-#define portCONFIGURE_TIMER_FOR_RUN_TIME_STATS() vSetupHighFrequencyTimer()
-#define portGET_RUN_TIME_COUNTER_VALUE()	vGetHighFrequencyTimerTicks()
+#define configGENERATE_RUN_TIME_STATS		1
+extern volatile unsigned long ulHighFrequencyTimerTicks;
+#define portCONFIGURE_TIMER_FOR_RUN_TIME_STATS()
+#define portGET_RUN_TIME_COUNTER_VALUE()	ulHighFrequencyTimerTicks
 
 
 #define configKERNEL_INTERRUPT_PRIORITY 		( 7 << 5 )	/* Priority 7, or 255 as only the top three bits are implemented.  This is the lowest priority. */
@@ -122,9 +123,11 @@ extern void vParTestSetLED( unsigned long uxLED, signed long xValue );
 #define traceTASK_SWITCHED_OUT() vParTestSetLED( 0, pdTRUE)
 
 extern void UARTprint(char *message);
+#include <stdio.h>
 #define configASSERT( x )  do { if (!(x)) { \
   UARTprint("Assertion \"");\
   UARTprint(__FILE__);\
+  { char line_string[10]; sprintf(line_string,"Line %ld",__LINE__); UARTprint(line_string);}\
   }\
 } while(0)
 
