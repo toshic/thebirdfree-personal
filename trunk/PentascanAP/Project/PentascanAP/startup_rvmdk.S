@@ -38,7 +38,7 @@ Stack   EQU     0x00000e00
 ; <o> Heap Size (in Bytes) <0x0-0xFFFFFFFF:8>
 ;
 ;******************************************************************************
-Heap    EQU     0x0000DC00
+Heap    EQU     0x0000D000
 
 ;******************************************************************************
 ;
@@ -125,7 +125,8 @@ __Vectors
         EXTERN  Timer0IntHandler
         DCD     Timer0IntHandler            ; Timer 0A
         DCD     IntDefaultHandler           ; Timer 0B
-        DCD     IntDefaultHandler           ; Timer 1A
+        EXTERN  Timer1IntHandler
+        DCD     Timer1IntHandler           ; Timer 1A
         DCD     IntDefaultHandler           ; Timer 1B
         DCD     IntDefaultHandler           ; Timer 2A
         DCD     IntDefaultHandler           ; Timer 2B

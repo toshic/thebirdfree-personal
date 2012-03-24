@@ -3,6 +3,7 @@
 
 /* Scheduler includes. */
 #include "FreeRTOS.h"
+#include "semphr.h"
 #include "task.h"
 
 /* Hardware library includes. */
@@ -21,30 +22,6 @@
 /*-----------------------------------------------------------*/
 
 extern void init_serial (void);
-
-
-/* Counts the total number of times that the high frequency timer has 'ticked'.
-This value is used by the run time stats function to work out what percentage
-of CPU time each task is taking. */
-volatile unsigned long ulHighFrequencyTimerTicks = 0UL;
-/*-----------------------------------------------------------*/
-
-void vSetupHighFrequencyTimer( void )
-{
-	/* Timer zero is used to generate the interrupts, and timer 1 is used
-	to measure the jitter. */
-    SysCtlPeripheralEnable( SYSCTL_PERIPH_TIMER1 );
-    TimerConfigure( TIMER1_BASE, TIMER_CFG_32_BIT_PER );
-
-	/* Just used to measure time. */
-    TimerLoadSet(TIMER1_BASE, TIMER_A, 0 );
-    TimerEnable( TIMER1_BASE, TIMER_A );
-}
-
-unsigned long vGetHighFrequencyTimerTicks( void )
-{
-	return TimerLoadGet(TIMER1_BASE, TIMER_A);
-}
 
 /*
  * Configure the hardware for the demo.
@@ -70,8 +47,7 @@ static void prvSetupHardware( void )
 	
 	vParTestInitialise();
 	RtcInit();
-// use lcd	
-//	lcd_terminal_init();
+	lcd_terminal_init();
     init_serial();
 }
 
@@ -81,6 +57,15 @@ static void prvSetupHardware( void )
 void vApplicationStackOverflowHook( xTaskHandle *pxTask, signed portCHAR *pcTaskName );
 
 extern void vMainTask( void *pvParameters );
+
+
+static xSemaphoreHandle SsiMutex;
+void ssi_lock(void){
+	while( xSemaphoreTake( SsiMutex, portMAX_DELAY ) != pdPASS );
+}
+void ssi_unlock(void){
+    xSemaphoreGive(SsiMutex);
+}
 
 
 /*-----------------------------------------------------------*/
@@ -93,6 +78,7 @@ extern void vMainTask( void *pvParameters );
 int main( void )
 {
     int i;
+    SsiMutex = xSemaphoreCreateMutex();
 	prvSetupHardware();
 
     /* Main task */	

@@ -17,6 +17,11 @@
 static volatile unsigned long timeval;
 static volatile unsigned long timeoffset;
 
+/* Counts the total number of times that the high frequency timer has 'ticked'.
+This value is used by the run time stats function to work out what percentage
+of CPU time each task is taking. */
+volatile unsigned long ulHighFrequencyTimerTicks = 0UL;
+
 static const char * const g_strweekday[] = {
     "Mon","Tue","Wed","Thu","Fri","Sat","Sun"
 };
@@ -60,11 +65,24 @@ void RtcInit(void)
     IntEnable( INT_TIMER0A );
     TimerIntEnable( TIMER0_BASE, TIMER_TIMA_TIMEOUT );
 
+    /* setup timer 1 for cpu usage statistic */
+    SysCtlPeripheralEnable( SYSCTL_PERIPH_TIMER1 );
+    TimerConfigure( TIMER1_BASE, TIMER_CFG_32_BIT_PER );
+
+	/* Just used to measure time. */
+    TimerLoadSet(TIMER1_BASE, TIMER_A, configCPU_CLOCK_HZ / 10000 );    /* sys tick = 10msec, so 100usec will be set */
+	IntPrioritySet( INT_TIMER1A, configMAX_SYSCALL_INTERRUPT_PRIORITY );
+    IntEnable( INT_TIMER1A );
+    TimerIntEnable( TIMER1_BASE, TIMER_TIMA_TIMEOUT );
+
     timeval = 0;
     timeoffset = 0;
 
+    ulHighFrequencyTimerTicks = 0;
+
 	/* Enable rtc timer. */	
     TimerEnable( TIMER0_BASE, TIMER_A );
+    TimerEnable( TIMER1_BASE, TIMER_A );
 }
 
 unsigned long RtcGetTime(void)
@@ -184,6 +202,11 @@ void Timer0IntHandler( void )
 {
     timeval++;
 	TimerIntClear( TIMER0_BASE, TIMER_TIMA_TIMEOUT );
+}
+void Timer1IntHandler( void )
+{
+    ulHighFrequencyTimerTicks++;
+	TimerIntClear( TIMER1_BASE, TIMER_TIMA_TIMEOUT );
 }
 
 

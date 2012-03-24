@@ -93,9 +93,6 @@ BYTE CardType;            /* b0:MMC, b1:SDC, b2:Block addressing */
 static
 BYTE PowerFlag = 0;     /* indicates if "power" is on */
 
-static xSemaphoreHandle FsMutex;
-
-
 /*-----------------------------------------------------------------------*/
 /* Transmit a byte to MMC via SPI  (Platform dependent)                  */
 /*-----------------------------------------------------------------------*/
@@ -193,7 +190,7 @@ void send_initial_clock_train(void)
 /* is nothing to do in these functions and chk_power always returns 1.   */
 
 static
-void power_on (void)
+void disk_power_on (void)
 {
     /*
      * This doesn't really turn the power on, but initializes the
@@ -204,6 +201,8 @@ void power_on (void)
     SysCtlPeripheralEnable(SDC_SSI_SYSCTL_PERIPH);
     SysCtlPeripheralEnable(SDC_GPIO_SYSCTL_PERIPH);
     SysCtlPeripheralEnable(SDC_CS_GPIO_SYSCTL_PERIPH);
+
+    SSIDisable(SSI0_BASE);
 
     /* Configure the appropriate pins to be SSI instead of GPIO */
     GPIOPinTypeSSI(SDC_GPIO_PORT_BASE, SDC_SSI_PINS);
@@ -252,8 +251,7 @@ void set_max_speed(void)
     SSIEnable(SDC_SSI_BASE);
 }
 
-static
-void power_off (void)
+void disk_power_off (void)
 {
     PowerFlag = 0;
 }
@@ -415,19 +413,30 @@ BYTE send_cmd12 (void)
     return res;            /* Return with the response value */
 }
 
+extern void ssi_lock(void);
+extern void ssi_unlock(void);
+extern void RIT128x96x4Disable(void);
+
+static void disk_lock(int max_speed){
+    ssi_lock();
+	/* need to setup ssi again */
+	if(chk_power() == 0){
+        RIT128x96x4Disable();
+    	disk_power_on();
+        if(max_speed)
+            set_max_speed();
+    }
+}
+
+static void disk_unlock(void){
+    ssi_unlock();
+}
+
 /*--------------------------------------------------------------------------
 
    Public Functions
 
 ---------------------------------------------------------------------------*/
-void disk_lock(void){
-	while( xSemaphoreTake( FsMutex, portMAX_DELAY ) != pdPASS );
-}
-
-void disk_unlock(void){
-    xSemaphoreGive(FsMutex);
-}
-
 
 /*-----------------------------------------------------------------------*/
 /* Initialize Disk Drive                                                 */
@@ -440,15 +449,13 @@ DSTATUS disk_initialize (
     BYTE n, ty, ocr[4];
     unsigned long tick;
 
-    FsMutex = xSemaphoreCreateMutex();
-    
-    if(FsMutex == NULL) return RES_MUTEX_FAIL;
     if (drv) return STA_NOINIT;            /* Supports only single drive */
     if (Stat & STA_NODISK) return Stat;    /* No card in the socket */
 
-    disk_lock();
+    disk_lock(0);
 
-    power_on();                            /* Force socket power on */
+//  disk_lock will automatically call disk_power_on
+    disk_power_on();                            /* Force socket power on */
     send_initial_clock_train();
 
     SELECT();                /* CS = L */
@@ -488,7 +495,7 @@ DSTATUS disk_initialize (
         Stat &= ~STA_NOINIT;        /* Clear STA_NOINIT */
         set_max_speed();
     } else {            /* Initialization failed */
-        power_off();
+        disk_power_off();
     }
 
     disk_unlock();
@@ -527,7 +534,7 @@ DRESULT disk_read (
 
     if (!(CardType & 4)) sector *= 512;    /* Convert to byte address if needed */
 
-    disk_lock();
+    disk_lock(1);
     
     SELECT();            /* CS = L */
 
@@ -573,7 +580,7 @@ DRESULT disk_write (
 
     if (!(CardType & 4)) sector *= 512;    /* Convert to byte address if needed */
 
-    disk_lock();
+    disk_lock(1);
     
     SELECT();            /* CS = L */
 
@@ -628,16 +635,16 @@ DRESULT disk_ioctl (
 
     if (ctrl == CTRL_POWER) {
 
-        disk_lock();
+        disk_lock(1);
 
         switch (*ptr) {
         case 0:        /* Sub control code == 0 (POWER_OFF) */
             if (chk_power())
-                power_off();        /* Power off */
+                disk_power_off();        /* Power off */
             res = RES_OK;
             break;
         case 1:        /* Sub control code == 1 (POWER_ON) */
-            power_on();                /* Power on */
+            disk_power_on();                /* Power on */
             res = RES_OK;
             break;
         case 2:        /* Sub control code == 2 (POWER_GET) */
@@ -651,7 +658,7 @@ DRESULT disk_ioctl (
     else {
         if (Stat & STA_NOINIT) return RES_NOTRDY;
 
-        disk_lock();
+        disk_lock(1);
 
         SELECT();        /* CS = L */
 
