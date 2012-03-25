@@ -141,6 +141,7 @@ void aghfpHandleRfcommConnectCfm(AGHFP *aghfp, const CL_RFCOMM_CONNECT_CFM_T *cf
         else if (supportedProfileIsHfp(aghfp->supported_profile))
         {
             /* HFP supported - RFCOMM is up, so just wait for HF to send us some AT commends */
+   			aghfpSendSlcPreConnectCfmToApp(aghfp_connect_success, aghfp);
         }
         else
         {

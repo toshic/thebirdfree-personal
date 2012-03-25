@@ -57,6 +57,15 @@ void aghfpSendSlcConnectCfmToApp(aghfp_connect_status status, AGHFP *aghfp)
     }
 }
 
+void aghfpSendSlcPreConnectCfmToApp(aghfp_connect_status status, AGHFP *aghfp)
+{
+	MAKE_AGHFP_MESSAGE(AGHFP_SLC_PRE_CONNECT_CFM);
+	message->status = status;
+	message->aghfp = aghfp;
+    message->rfcomm_sink = aghfp->rfcomm_sink;
+	MessageSendLater(aghfp->client_task, AGHFP_SLC_PRE_CONNECT_CFM, message, D_SEC(7));
+}
+
 
 /****************************************************************************
 	Initiate the creation of a profile service level connection.

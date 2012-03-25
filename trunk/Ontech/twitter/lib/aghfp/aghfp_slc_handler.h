@@ -36,6 +36,7 @@ void aghfpHandleSlcConnectIndReject(AGHFP *aghfp, const CL_RFCOMM_CONNECT_IND_T 
 */
 void aghfpSendSlcConnectCfmToApp(aghfp_connect_status status, AGHFP *aghfp);
 
+void aghfpSendSlcPreConnectCfmToApp(aghfp_connect_status status, AGHFP *aghfp);
 
 /****************************************************************************
 	Record the supported features that the HF has just reported and send our
