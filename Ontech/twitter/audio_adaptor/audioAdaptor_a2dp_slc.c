@@ -54,9 +54,11 @@ bool a2dpSlcConnect(devInstanceTaskData *inst)
             else
             {
                 DEBUG_A2DP(("A2dpOpenSignallingAndMediaChannels, size_seids:0x%X seids[0]:0x%X\n", size_seids, seids[0]));
-/*                A2dpConnectOpen(&inst->task, &inst->bd_addr, size_seids, seids, the_app->a2dp_data.sep_entries);*/
+#if 0               
+                A2dpConnectOpen(&inst->task, &inst->bd_addr, size_seids, seids, the_app->a2dp_data.sep_entries);
+#else                
                 A2dpConnectSignallingChannel(&inst->task, &inst->bd_addr, the_app->a2dp_data.sep_entries);
-
+#endif
             }
     
             inst->a2dp_reopen = FALSE;

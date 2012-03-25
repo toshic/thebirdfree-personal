@@ -915,7 +915,20 @@ void read_remote_name(Task task)
 
 void write_local_name(Task task, const struct write_local_name *name)
 {
-    WritePsKeys(PSKEY_DEVICE_NAME,(uint16 *) (name->name.data),name->name.length);
+    unsigned int i;
+    unsigned int len = name->name.length/2 + (name->name.length % 2);
+    uint16 *name_ptr = (uint16*)PanicUnlessMalloc(len);
+
+    memset(name_ptr,0,len);
+    for(i=0;i<name->name.length;i++){
+        if(i%2){
+            name_ptr[i/2] |= (name->name.data[i])<<8;
+        }else{
+            name_ptr[i/2] = name->name.data[i];
+        }
+    }
+    WritePsKeys(PSKEY_DEVICE_NAME,name_ptr,len);
+    free(name_ptr);
 	SendOk();
 }
 
