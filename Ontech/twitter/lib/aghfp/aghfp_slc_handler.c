@@ -63,7 +63,7 @@ void aghfpSendSlcPreConnectCfmToApp(aghfp_connect_status status, AGHFP *aghfp)
 	message->status = status;
 	message->aghfp = aghfp;
     message->rfcomm_sink = aghfp->rfcomm_sink;
-	MessageSendLater(aghfp->client_task, AGHFP_SLC_PRE_CONNECT_CFM, message, D_SEC(7));
+	MessageSendLater(aghfp->client_task, AGHFP_SLC_PRE_CONNECT_CFM, message, D_SEC(6));
 }
 
 
