@@ -29,6 +29,9 @@ DESCRIPTION
 #include <stdlib.h>
 #include <codec.h>
 
+/* disable */
+#define USE_SLC_PRE_CONN_MSGx
+
 
 /****************************************************************************
   LOCAL FUNCTIONS
@@ -286,6 +289,41 @@ static void handleAghfpSlcConnectInd(AGHFP_SLC_CONNECT_IND_T *ind)
     DEBUG_AGHFP(("   Rejected incoming\n"));
 }
 
+#ifdef USE_SLC_PRE_CONN_MSG
+static void handleAghfpSlcPreConnectCfm(const AGHFP_SLC_PRE_CONNECT_CFM_T *cfm)
+{
+    devInstanceTaskData *inst = devInstanceFindFromAG(cfm->aghfp);
+    mvdAvrcpState current_state = getAghfpState(inst);
+
+    if (inst == NULL)
+        return;
+
+    switch (current_state)
+    {
+        case AghfpStatePaging:
+        case AghfpStatePaged:
+        {
+            if ( cfm->status == aghfp_success )
+            {    /* SLC connect attempt succeeded */    
+                the_app->s_connect_attempts = 0;
+                /* Store aghfp pointer to this instance */
+                inst->aghfp = cfm->aghfp;
+                /* Store sink */
+                inst->aghfp_sink = cfm->rfcomm_sink;
+                /* Update state */
+                setAghfpState(inst, AghfpStateConnected);
+				/* Get the current role */
+				ConnectionGetRole(&the_app->task, inst->aghfp_sink);
+                /* Profile connection complete function */
+                profileSlcConnectCfm(inst, ProfileAghfp, current_state == AghfpStatePaged ? TRUE : FALSE);
+            }
+            break;
+        }      
+        default:
+        break;
+    }
+}
+#endif
 
 /****************************************************************************
 NAME
@@ -756,6 +794,15 @@ void aghfpMsgHandleLibMessage(MessageId id, Message message)
             handleAghfpSlcConnectInd(ind);
             break;
         }                
+#ifdef USE_SLC_PRE_CONN_MSG
+        case AGHFP_SLC_PRE_CONNECT_CFM:
+        {
+            AGHFP_SLC_PRE_CONNECT_CFM_T *cfm = (AGHFP_SLC_PRE_CONNECT_CFM_T *)message;
+            DEBUG_AGHFP(("AGHFP_SLC_PRE_CONNECT_CFM aghfp = 0x%X status = %u\n", (uint16)cfm->aghfp, cfm->status));
+            handleAghfpSlcPreConnectCfm(cfm);
+            break;            
+        }
+#endif
         case AGHFP_SLC_CONNECT_CFM:
         {
             AGHFP_SLC_CONNECT_CFM_T *cfm = (AGHFP_SLC_CONNECT_CFM_T *)message;
@@ -973,9 +1020,9 @@ void aghfpMsgHandleLibMessage(MessageId id, Message message)
         case AGHFP_CURRENT_CALLS_IND:
         {
             DEBUG_AGHFP(("AGHFP_CURRENT_CALLS_IND\n"));
-            /* Current calls list not supported so just send ok */
-            DEBUG_AGHFP(("  - no current calls so just OK\n"));
-            AghfpSendOk(((AGHFP_CURRENT_CALLS_IND_T *)message)->aghfp);
+            /* Current calls list not supported so just send error */
+            DEBUG_AGHFP(("  - no current calls so just ERROR\n"));
+            AghfpSendError(((AGHFP_CURRENT_CALLS_IND_T *)message)->aghfp);
             break;
         }    
         case AGHFP_NETWORK_OPERATOR_IND:
