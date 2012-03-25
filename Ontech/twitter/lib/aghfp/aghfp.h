@@ -384,6 +384,7 @@ typedef enum
 	AGHFP_INIT_CFM = AGHFP_MESSAGE_BASE,
 
 	/* Service Level Connection messages */
+	AGHFP_SLC_PRE_CONNECT_CFM,
 	AGHFP_SLC_CONNECT_CFM,
 	AGHFP_SLC_CONNECT_IND,
 	AGHFP_SLC_DISCONNECT_IND,
@@ -512,6 +513,13 @@ typedef struct
 									     aghfp_init_success otherwise it will be set to indicate why the initialisation failed. */
 } AGHFP_INIT_CFM_T;
 
+
+typedef struct
+{
+	AGHFP					*aghfp;	 /*!< Pointer to aghfp profile instance that is handling the Service Level Connection. */
+	aghfp_connect_status	status;  /*!< Indicates whether or not the connection was successfully established. */
+    Sink                    rfcomm_sink; /*!< The RFCOMM sink. */
+} AGHFP_SLC_PRE_CONNECT_CFM_T;
 
 /*!	@brief This message returns the result of a call to AghfpSlcConnect.
 
