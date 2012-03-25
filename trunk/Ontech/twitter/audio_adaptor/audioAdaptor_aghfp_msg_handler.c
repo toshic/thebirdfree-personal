@@ -30,7 +30,7 @@ DESCRIPTION
 #include <codec.h>
 
 /* disable */
-#define USE_SLC_PRE_CONN_MSGx
+#define USE_SLC_PRE_CONN_MSG
 
 
 /****************************************************************************
