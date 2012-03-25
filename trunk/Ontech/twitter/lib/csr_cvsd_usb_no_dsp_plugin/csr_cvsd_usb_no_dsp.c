@@ -53,6 +53,8 @@ void CsrCvsdUsbNoDspPluginConnect ( Sink audio_sink , AUDIO_SINK_T sink_type, Ta
     SYNC_USB->codec_task = codec_task ; 
     SYNC_USB->audio_sink = audio_sink ;
 
+    StreamDisconnect(StreamPcmSource(0), StreamPcmSink(0));
+    StreamDisconnect(StreamPcmSource(1), StreamPcmSink(1));
 
 	StreamDisconnect(StreamPcmSource(0), SYNC_USB->audio_sink);
 	StreamDisconnect(StreamSourceFromSink(SYNC_USB->audio_sink), StreamPcmSink(0));
