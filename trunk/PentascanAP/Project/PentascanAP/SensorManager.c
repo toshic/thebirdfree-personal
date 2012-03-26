@@ -998,6 +998,15 @@ Cmd_log(char *argv)
     return(0);
 }
 
+int
+Cmd_lcd(char *argv)
+{
+    if(argv && *argv)
+        fprintf(stderr,"%s\n",argv);
+    return(0);
+}
+
+
 int Cmd_free(char *argv)
 {
 #ifdef MEM_USE_TRACE
@@ -1141,6 +1150,7 @@ command_table CMD_TABLE[] =
 	"task","show task status",Cmd_task,
 	"top","show cpu usage",Cmd_top,
 	"log","write log",Cmd_log,
+	"lcd","print message to lcd",Cmd_lcd,
 	"reboot","reboot system",Cmd_reboot,
 	"ifconfig","show network configuration",Cmd_ifconfig,
 	"help","show this message",Cmd_help

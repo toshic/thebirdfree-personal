@@ -345,6 +345,7 @@ static void lcd_unlock(void){
 static void
 RITWriteCommand(const unsigned char *pucBuffer, unsigned long ulCount)
 {
+    lcd_lock();
     //
     // Return if SSI port is not enabled for RIT display.
     //
@@ -388,6 +389,7 @@ RITWriteCommand(const unsigned char *pucBuffer, unsigned long ulCount)
         //
         ulCount--;
     }
+    lcd_unlock();
 }
 
 //*****************************************************************************
@@ -405,6 +407,7 @@ RITWriteCommand(const unsigned char *pucBuffer, unsigned long ulCount)
 static void
 RITWriteData(const unsigned char *pucBuffer, unsigned long ulCount)
 {
+    lcd_lock();
     //
     // Return if SSI port is not enabled for RIT display.
     //
@@ -448,6 +451,7 @@ RITWriteData(const unsigned char *pucBuffer, unsigned long ulCount)
         //
         ulCount--;
     }
+    lcd_unlock();
 }
 
 //*****************************************************************************
@@ -472,8 +476,6 @@ RIT128x96x4Clear(void)
     //
     *(unsigned long *)&g_pucBuffer[0] = 0;
     *(unsigned long *)&g_pucBuffer[4] = 0;
-
-    lcd_lock();
 
     //
     // Set the window to fill the entire display.
@@ -502,7 +504,6 @@ RIT128x96x4Clear(void)
             RITWriteData(g_pucBuffer, sizeof(g_pucBuffer));
         }
     }
-    lcd_unlock();
 }
 
 //*****************************************************************************
@@ -548,8 +549,6 @@ RIT128x96x4StringDraw(const char *pcStr, unsigned long ulX,
     ASSERT((ulX & 1) == 0);
     ASSERT(ulY < 128);
     ASSERT(ucLevel < 16);
-
-    lcd_lock();
 
     //
     // Setup a window starting at the specified column and row, ending
@@ -619,12 +618,10 @@ RIT128x96x4StringDraw(const char *pcStr, unsigned long ulX,
             //
             if(ulX == 128)
             {
-                lcd_unlock();
                 return;
             }
         }
     }
-    lcd_unlock();
 }
 
 void
@@ -642,7 +639,6 @@ RIT128x96x4Char(const char ch, unsigned long ulX,
     ASSERT(ulY < 128);
     ASSERT(ucLevel < 16);
 
-    lcd_lock();
     //
     // Setup a window starting at the specified column and row, ending
     // at the right edge of the display and 8 rows down (single character row).
@@ -706,11 +702,9 @@ RIT128x96x4Char(const char ch, unsigned long ulX,
         //
         if(ulX == 128)
         {
-            lcd_unlock();
             return;
         }
     }
-    lcd_unlock();
 }
 
 
@@ -790,7 +784,6 @@ RIT128x96x4ImageDraw(const unsigned char *pucImage, unsigned long ulX,
     ASSERT((ulY + ulHeight) <= 96);
     ASSERT((ulWidth & 1) == 0);
 
-    lcd_lock();
     //
     // Setup a window starting at the specified column and row, and ending
     // at the column + width and row+height.
@@ -821,7 +814,6 @@ RIT128x96x4ImageDraw(const unsigned char *pucImage, unsigned long ulX,
         //
         pucImage += (ulWidth / 2);
     }
-    lcd_unlock();
 }
 
 //*****************************************************************************
@@ -896,6 +888,9 @@ RIT128x96x4Disable(void)
     //
     // Disable SSI control of the FSS pin.
     //
+
+    while(SSIDataGetNonBlocking(SSI0_BASE,&ulTemp));
+
     GPIOPinTypeGPIOOutput(GPIO_PORTA_BASE, GPIO_PIN_3);
     GPIOPadConfigSet(GPIO_PORTA_BASE, GPIO_PIN_3, GPIO_STRENGTH_8MA,
                      GPIO_PIN_TYPE_STD_WPU);
@@ -955,7 +950,6 @@ RIT128x96x4Init(unsigned long ulFrequency)
     // Clear the frame buffer.
     //
     RIT128x96x4Clear();
-
     //
     // Initialize the SSD1329 controller.  Loop through the initialization
     // sequence array, sending each command "string" to the controller.
@@ -987,7 +981,6 @@ RIT128x96x4DisplayOn(void)
 {
     unsigned long ulIdx;
 
-    lcd_lock();
     //
     // Initialize the SSD1329 controller.  Loop through the initialization
     // sequence array, sending each command "string" to the controller.
@@ -1001,7 +994,6 @@ RIT128x96x4DisplayOn(void)
         RITWriteCommand(g_pucRIT128x96x4Init + ulIdx + 1,
                         g_pucRIT128x96x4Init[ulIdx] - 1);
     }
-    lcd_unlock();
 }
 
 //*****************************************************************************
@@ -1024,12 +1016,10 @@ RIT128x96x4DisplayOff(void)
         0xAE, 0xe3
     };
 
-    lcd_lock();
     //
     // Put the display to sleep.
     //
     RITWriteCommand(pucCommand1, sizeof(pucCommand1));
-    lcd_unlock();
 }
 
 void
@@ -1040,10 +1030,8 @@ RIT128X96X4Scroll(unsigned char start)
         0xA1, 0, 0xe3
     };
 
-    lcd_lock();
     pucCommand1[1]=start;
     RITWriteCommand(pucCommand1, sizeof(pucCommand1));
-    lcd_unlock();
 }
 
 //*****************************************************************************
