@@ -215,6 +215,7 @@ void disk_power_on (void)
     /* Deassert the SSI0 chip select */
     GPIOPinWrite(SDC_CS_GPIO_PORT_BASE, SDC_CS, SDC_CS);
 
+
     /* Configure the SSI0 port */
     SSIConfigSetExpClk(SDC_SSI_BASE, SysCtlClockGet(), SSI_FRF_MOTO_MODE_0,
                        SSI_MODE_MASTER, 400000, 8);
@@ -222,7 +223,7 @@ void disk_power_on (void)
 
     /* Set DI and CS high and apply more than 74 pulses to SCLK for the card */
     /* to be able to accept a native command. */
-    send_initial_clock_train();
+//    send_initial_clock_train();
 
     PowerFlag = 1;
 }
@@ -417,13 +418,13 @@ extern void ssi_lock(void);
 extern void ssi_unlock(void);
 extern void RIT128x96x4Disable(void);
 
-static void disk_lock(int max_speed){
+static void disk_lock(void){
     ssi_lock();
 	/* need to setup ssi again */
 	if(chk_power() == 0){
         RIT128x96x4Disable();
     	disk_power_on();
-        if(max_speed)
+        if(Stat & STA_MAX_SPEED)
             set_max_speed();
     }
 }
@@ -452,10 +453,11 @@ DSTATUS disk_initialize (
     if (drv) return STA_NOINIT;            /* Supports only single drive */
     if (Stat & STA_NODISK) return Stat;    /* No card in the socket */
 
-    disk_lock(0);
+    Stat &= ~STA_MAX_SPEED;
+    disk_lock();
 
 //  disk_lock will automatically call disk_power_on
-    disk_power_on();                            /* Force socket power on */
+//    disk_power_on();                            /* Force socket power on */
     send_initial_clock_train();
 
     SELECT();                /* CS = L */
@@ -494,6 +496,7 @@ DSTATUS disk_initialize (
     if (ty) {            /* Initialization succeded */
         Stat &= ~STA_NOINIT;        /* Clear STA_NOINIT */
         set_max_speed();
+        Stat |= STA_MAX_SPEED;
     } else {            /* Initialization failed */
         disk_power_off();
     }
@@ -534,7 +537,7 @@ DRESULT disk_read (
 
     if (!(CardType & 4)) sector *= 512;    /* Convert to byte address if needed */
 
-    disk_lock(1);
+    disk_lock();
     
     SELECT();            /* CS = L */
 
@@ -580,7 +583,7 @@ DRESULT disk_write (
 
     if (!(CardType & 4)) sector *= 512;    /* Convert to byte address if needed */
 
-    disk_lock(1);
+    disk_lock();
     
     SELECT();            /* CS = L */
 
@@ -635,7 +638,6 @@ DRESULT disk_ioctl (
 
     if (ctrl == CTRL_POWER) {
 
-        disk_lock(1);
 
         switch (*ptr) {
         case 0:        /* Sub control code == 0 (POWER_OFF) */
@@ -645,6 +647,8 @@ DRESULT disk_ioctl (
             break;
         case 1:        /* Sub control code == 1 (POWER_ON) */
             disk_power_on();                /* Power on */
+            send_initial_clock_train();
+            Stat &= ~STA_MAX_SPEED;
             res = RES_OK;
             break;
         case 2:        /* Sub control code == 2 (POWER_GET) */
@@ -658,7 +662,7 @@ DRESULT disk_ioctl (
     else {
         if (Stat & STA_NOINIT) return RES_NOTRDY;
 
-        disk_lock(1);
+        disk_lock();
 
         SELECT();        /* CS = L */
 
@@ -717,9 +721,9 @@ DRESULT disk_ioctl (
 
         DESELECT();            /* CS = H */
         rcvr_spi();            /* Idle (Release DO) */
+	    disk_unlock();
     }
 
-    disk_unlock();
     
     return res;
 }
