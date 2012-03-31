@@ -976,11 +976,6 @@
               <FileType>1</FileType>
               <FilePath>..\Common\FatFs\src\option\syscall.c</FilePath>
             </File>
-            <File>
-              <FileName>cc949.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Common\FatFs\src\option\cc949.c</FilePath>
-            </File>
           </Files>
         </Group>
       </Groups>
