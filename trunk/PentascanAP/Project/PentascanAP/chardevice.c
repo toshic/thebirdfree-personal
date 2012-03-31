@@ -11,8 +11,6 @@
 #include "interrupt.h"
 #include "sysctl.h"
 #include "gpio.h"
-#include "grlib.h"
-#include "rit128x96x4.h"
 #include "uart.h"
 
 typedef struct {
@@ -74,16 +72,15 @@ static void charIntHandler(char_device *dev)
     //
     UARTIntClear(dev->PortBase, ulStatus);
 
-    if(ulStatus & UART_INT_TX){
-        if(xQueueReceiveFromISR(dev->TxQueue, &ucData, &xHigherPriorityTaskWoken))
-            UARTCharPut(dev->PortBase, ucData);
-    }
-    
     if(ulStatus & UART_INT_RX){
         ucData =UARTCharGet(dev->PortBase);
         xQueueSendFromISR(dev->RxQueue, &ucData, &xHigherPriorityTaskWoken);
     }
-    
+
+    if(ulStatus & UART_INT_TX){
+        if(xQueueReceiveFromISR(dev->TxQueue, &ucData, &xHigherPriorityTaskWoken))
+            UARTCharPut(dev->PortBase, ucData);
+    }
 	portEND_SWITCHING_ISR( xHigherPriorityTaskWoken );
 }
 
@@ -98,7 +95,7 @@ static void zigbee_isr(void)
     charIntHandler(&charZigbee);
 }
 
-int zigbee_init(void)
+int zigbee_init(unsigned long baud)
 {
     int result;
 
@@ -111,33 +108,14 @@ int zigbee_init(void)
     if(result)
         return result;
         
-    //
-    // Enable the peripherals used by this example.
-    //
     SysCtlPeripheralEnable(SYSCTL_PERIPH_UART2);
     SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOG);
-
-    //
-    // Set GPIO A0 and A1 as UART pins.
-    //
     GPIOPinTypeUART(GPIO_PORTG_BASE, GPIO_PIN_0 | GPIO_PIN_1);
 
-    //
-    // Configure the UART for 115,200, 8-N-1 operation.
-    //
-    UARTConfigSetExpClk(UART2_BASE, SysCtlClockGet(), 921600,
+    UARTConfigSetExpClk(UART2_BASE, SysCtlClockGet(), baud,
                         (UART_CONFIG_WLEN_8 | UART_CONFIG_STOP_ONE |
                          UART_CONFIG_PAR_NONE));
 
-    //
-    // Set the UART to interrupt whenever the TX FIFO is almost empty or
-    // when any character is received.
-    //
-    //UARTFIFOLevelSet(UART0_BASE, UART_FIFO_TX1_8, UART_FIFO_RX4_8);
-
-    //
-    // Enable the UART.
-    //
     IntRegister(INT_UART2, zigbee_isr);
     
     UARTIntDisable(UART2_BASE, 0xFFFFFFFF);
@@ -145,8 +123,7 @@ int zigbee_init(void)
     IntEnable(INT_UART2);
     UARTEnable(UART2_BASE);
     UARTFIFODisable(UART2_BASE);
-    UARTIntEnable(UART2_BASE, UART_INT_TX);
-    UARTIntEnable(UART2_BASE, UART_INT_RX);
+    UARTIntEnable(UART2_BASE, UART_INT_TX | UART_INT_RX);
     
     return result;
 }
@@ -171,7 +148,7 @@ static void console_isr(void)
     charIntHandler(&charConsole);
 }
 
-int console_init(void)
+int console_init(unsigned long baud)
 {
     int result;
 
@@ -184,33 +161,14 @@ int console_init(void)
     if(result)
         return result;
         
-    //
-    // Enable the peripherals used by this example.
-    //
     SysCtlPeripheralEnable(SYSCTL_PERIPH_UART0);
     SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOA);
-
-    //
-    // Set GPIO A0 and A1 as UART pins.
-    //
     GPIOPinTypeUART(GPIO_PORTA_BASE, GPIO_PIN_0 | GPIO_PIN_1);
 
-    //
-    // Configure the UART for 115,200, 8-N-1 operation.
-    //
-    UARTConfigSetExpClk(UART0_BASE, SysCtlClockGet(), 921600,
+    UARTConfigSetExpClk(UART0_BASE, SysCtlClockGet(), baud,
                         (UART_CONFIG_WLEN_8 | UART_CONFIG_STOP_ONE |
                          UART_CONFIG_PAR_NONE));
 
-    //
-    // Set the UART to interrupt whenever the TX FIFO is almost empty or
-    // when any character is received.
-    //
-    //UARTFIFOLevelSet(UART0_BASE, UART_FIFO_TX1_8, UART_FIFO_RX4_8);
-
-    //
-    // Enable the UART.
-    //
     IntRegister(INT_UART0, console_isr);
     
     UARTIntDisable(UART0_BASE, 0xFFFFFFFF);
@@ -218,8 +176,7 @@ int console_init(void)
     IntEnable(INT_UART0);
     UARTEnable(UART0_BASE);
     UARTFIFODisable(UART0_BASE);
-    UARTIntEnable(UART0_BASE, UART_INT_TX);
-    UARTIntEnable(UART0_BASE, UART_INT_RX);
+    UARTIntEnable(UART0_BASE, UART_INT_TX | UART_INT_RX);
     
     return result;
 }

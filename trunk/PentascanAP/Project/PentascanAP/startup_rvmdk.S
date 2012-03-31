@@ -38,7 +38,7 @@ Stack   EQU     0x00000e00
 ; <o> Heap Size (in Bytes) <0x0-0xFFFFFFFF:8>
 ;
 ;******************************************************************************
-Heap    EQU     0x0000D000
+Heap    EQU     0x0000D800
 
 ;******************************************************************************
 ;
@@ -107,7 +107,6 @@ __Vectors
         DCD     IntDefaultHandler           ; GPIO Port C
         DCD     IntDefaultHandler           ; GPIO Port D
         DCD     IntDefaultHandler           ; GPIO Port E
-        EXTERN  UARTIntHandler
         DCD     IntDefaultHandler           ; UART0
         DCD     IntDefaultHandler           ; UART1
         DCD     IntDefaultHandler           ; SSI

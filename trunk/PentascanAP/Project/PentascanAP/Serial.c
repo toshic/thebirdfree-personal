@@ -33,6 +33,8 @@
 xSemaphoreHandle xUartTxInterruptSemaphore = NULL;
 xSemaphoreHandle xUartRxInterruptSemaphore = NULL;
 
+void UARTIntHandler(void);
+
 
 /*----------------------------------------------------------------------------
  *       init_serial:  Initialize Serial Interface
@@ -70,6 +72,7 @@ void init_serial (void) {
     //
     //UARTFIFOLevelSet(UART0_BASE, UART_FIFO_TX1_8, UART_FIFO_RX4_8);
 
+    IntRegister(INT_UART0, UARTIntHandler);
     //
     // Enable the UART.
     //

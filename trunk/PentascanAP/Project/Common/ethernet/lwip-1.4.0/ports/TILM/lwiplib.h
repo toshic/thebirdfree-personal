@@ -87,6 +87,7 @@ extern unsigned long lwIPLocalIPAddrGet(void);
 extern unsigned long lwIPLocalNetMaskGet(void);
 extern unsigned long lwIPLocalGWAddrGet(void);
 extern void lwIPLocalMACGet(unsigned char *pucMac);
+int lwIPLinkStatusGet(void);
 extern void lwIPNetworkConfigChange(unsigned long ulIPAddr,
                                     unsigned long ulNetMask,
                                     unsigned long ulGWAddr,

@@ -129,7 +129,7 @@
         <SetRegEntry>
           <Number>0</Number>
           <Key>DLGUARM</Key>
-          <Name>儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆?,	{@~%뷌1</Name>
+          <Name>儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆儆??雄5윍?</Name>
         </SetRegEntry>
         <SetRegEntry>
           <Number>0</Number>
@@ -153,7 +153,7 @@
           <Type>0</Type>
           <LineNumber>1987</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>15562</Address>
+          <Address>15714</Address>
           <ByteObject>0</ByteObject>
           <ManyObjects>0</ManyObjects>
           <SizeOfObject>0</SizeOfObject>
@@ -163,12 +163,27 @@
           <ExecCommand></ExecCommand>
           <Expression>\\RTOSDemo\../Common/FatFs/src/ff.c\1987</Expression>
         </Bp>
+        <Bp>
+          <Number>1</Number>
+          <Type>0</Type>
+          <LineNumber>1243</LineNumber>
+          <EnabledFlag>1</EnabledFlag>
+          <Address>94542</Address>
+          <ByteObject>0</ByteObject>
+          <ManyObjects>0</ManyObjects>
+          <SizeOfObject>0</SizeOfObject>
+          <BreakByAccess>0</BreakByAccess>
+          <BreakIfRCount>1</BreakIfRCount>
+          <Filename></Filename>
+          <ExecCommand></ExecCommand>
+          <Expression>\\RTOSDemo\SensorManager.c\1243</Expression>
+        </Bp>
       </Breakpoint>
       <WatchWindow1>
         <Ww>
           <count>0</count>
           <WinNumber>1</WinNumber>
-          <ItemText>res</ItemText>
+          <ItemText>c</ItemText>
         </Ww>
       </WatchWindow1>
       <MemoryWindow1>
@@ -269,10 +284,10 @@
       <FileType>2</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
-      <ColumnNumber>24</ColumnNumber>
+      <ColumnNumber>0</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>13</TopLine>
-      <CurrentLine>41</CurrentLine>
+      <TopLine>28</TopLine>
+      <CurrentLine>52</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>.\startup_rvmdk.S</PathWithFileName>
       <FilenameWithoutPath>startup_rvmdk.S</FilenameWithoutPath>
@@ -299,8 +314,8 @@
       <Focus>0</Focus>
       <ColumnNumber>0</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>86</TopLine>
-      <CurrentLine>91</CurrentLine>
+      <TopLine>63</TopLine>
+      <CurrentLine>73</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>.\Serial.c</PathWithFileName>
       <FilenameWithoutPath>Serial.c</FilenameWithoutPath>
@@ -313,8 +328,8 @@
       <Focus>0</Focus>
       <ColumnNumber>0</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>23</TopLine>
-      <CurrentLine>34</CurrentLine>
+      <TopLine>32</TopLine>
+      <CurrentLine>42</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>.\Retarget.c</PathWithFileName>
       <FilenameWithoutPath>Retarget.c</FilenameWithoutPath>
@@ -355,7 +370,7 @@
       <Focus>0</Focus>
       <ColumnNumber>0</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>1</TopLine>
+      <TopLine>5</TopLine>
       <CurrentLine>20</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>.\lcd_terminal.c</PathWithFileName>
@@ -367,13 +382,27 @@
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
-      <ColumnNumber>0</ColumnNumber>
+      <ColumnNumber>37</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>394</TopLine>
-      <CurrentLine>407</CurrentLine>
+      <TopLine>1196</TopLine>
+      <CurrentLine>1196</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>.\SensorManager.c</PathWithFileName>
       <FilenameWithoutPath>SensorManager.c</FilenameWithoutPath>
+    </File>
+    <File>
+      <GroupNumber>1</GroupNumber>
+      <FileNumber>0</FileNumber>
+      <FileType>1</FileType>
+      <tvExp>0</tvExp>
+      <Focus>0</Focus>
+      <ColumnNumber>0</ColumnNumber>
+      <tvExpOptDlg>0</tvExpOptDlg>
+      <TopLine>159</TopLine>
+      <CurrentLine>166</CurrentLine>
+      <bDave2>0</bDave2>
+      <PathWithFileName>.\chardevice.c</PathWithFileName>
+      <FilenameWithoutPath>chardevice.c</FilenameWithoutPath>
     </File>
   </Group>
 
@@ -1197,16 +1226,16 @@
       <ActiveTab>1</ActiveTab>
       <Documents>
         <Doc>
-          <Name>.\lcd_terminal.c</Name>
+          <Name>.\startup_rvmdk.S</Name>
           <ColumnNumber>0</ColumnNumber>
-          <TopLine>1</TopLine>
-          <CurrentLine>20</CurrentLine>
+          <TopLine>28</TopLine>
+          <CurrentLine>52</CurrentLine>
         </Doc>
         <Doc>
-          <Name>.\startup_rvmdk.S</Name>
-          <ColumnNumber>24</ColumnNumber>
-          <TopLine>13</TopLine>
-          <CurrentLine>41</CurrentLine>
+          <Name>.\Serial.c</Name>
+          <ColumnNumber>0</ColumnNumber>
+          <TopLine>63</TopLine>
+          <CurrentLine>73</CurrentLine>
         </Doc>
       </Documents>
     </MDIGroup>
