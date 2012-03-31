@@ -570,6 +570,11 @@ lwIPLocalMACGet(unsigned char *pucMAC)
     EthernetMACAddrGet(ETH_BASE, pucMAC);
 }
 
+int lwIPLinkStatusGet(void)
+{
+    return netif_is_link_up(&g_sNetIF);
+}
+
 //*****************************************************************************
 //
 // Completes the network configuration change.  This is directly called when

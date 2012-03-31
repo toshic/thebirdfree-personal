@@ -529,6 +529,11 @@
               <FileType>1</FileType>
               <FilePath>.\SensorManager.c</FilePath>
             </File>
+            <File>
+              <FileName>chardevice.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\chardevice.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

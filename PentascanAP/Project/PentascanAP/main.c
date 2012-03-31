@@ -50,8 +50,8 @@ static void prvSetupHardware( void )
 	RtcInit();
 	lcd_terminal_init();
 //    init_serial();
-    console_init();
-    zigbee_init();
+    console_init(921600);
+    zigbee_init(115200);
 }
 
 /*

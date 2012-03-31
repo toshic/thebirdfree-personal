@@ -34,6 +34,7 @@
 #include "httpc.h"
 #include "Rtc.h"
 #include "lcd_terminal.h"
+#include "telnet.h"
 
 // periodic timer
 static xTimerHandle xPeriodicTimer = NULL;
@@ -1101,6 +1102,12 @@ int Cmd_task(char*argv)
 	return 0;
 }
 
+int Cmd_telnet(char *argv)
+{
+    telnet_start(23);
+    return 0;
+}
+
 int Cmd_top(char*argv)
 {
 #if configGENERATE_RUN_TIME_STATS
@@ -1125,6 +1132,20 @@ int Cmd_reboot(char *argv)
 
 int Cmd_ifconfig(char *argv)
 {
+    unsigned char pucMACArray[6];
+    unsigned long addr;
+    
+    printf("Link is %s\n",lwIPLinkStatusGet() ? "UP":"DOWN");
+    lwIPLocalMACGet(pucMACArray);
+    printf("MAC address = %02X:%02X:%02X:%02X:%02X:%02X\n",pucMACArray[0],pucMACArray[1],
+            pucMACArray[2],pucMACArray[3],pucMACArray[4],pucMACArray[5]);
+    addr = lwIPLocalIPAddrGet();
+    printf("IP address = %s\n",inet_ntoa(addr));
+    addr = lwIPLocalNetMaskGet();
+    printf("IP netmask = %s\n",inet_ntoa(addr));
+    addr = lwIPLocalGWAddrGet();
+    printf("IP gateway = %s\n",inet_ntoa(addr));
+
     return 0;
 }
 
@@ -1148,6 +1169,7 @@ command_table CMD_TABLE[] =
 	"date","show current time",Cmd_date,
 	"wget","get URL",Cmd_wget,
 	"task","show task status",Cmd_task,
+	"telnet","excute telnetd",Cmd_telnet,
 	"top","show cpu usage",Cmd_top,
 	"log","write log",Cmd_log,
 	"lcd","print message to lcd",Cmd_lcd,

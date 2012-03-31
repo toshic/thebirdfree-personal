@@ -219,7 +219,7 @@
                                                     // default is 256
 //#define TCP_SND_QUEUELEN                (4 * (TCP_SND_BUF/TCP_MSS))
 //#define TCP_SNDLOWAT                    (TCP_SND_BUF/2)
-//#define TCP_LISTEN_BACKLOG              0
+#define TCP_LISTEN_BACKLOG              1
 //#define TCP_DEFAULT_LISTEN_BACKLOG      0xff
 
 //*****************************************************************************
@@ -280,7 +280,7 @@
 #define DEFAULT_RAW_RECVMBOX_SIZE       5
 #define DEFAULT_UDP_RECVMBOX_SIZE       5
 #define DEFAULT_TCP_RECVMBOX_SIZE       10
-//#define DEFAULT_ACCEPTMBOX_SIZE         0
+#define DEFAULT_ACCEPTMBOX_SIZE         10
 
 //*****************************************************************************
 //
