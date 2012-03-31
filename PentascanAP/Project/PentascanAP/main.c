@@ -85,7 +85,7 @@ int main( void )
 	prvSetupHardware();
 
     /* Main task */	
-	xTaskCreate( vMainTask, ( signed portCHAR * ) "Main", 300, NULL, tskIDLE_PRIORITY + 1, NULL );
+	xTaskCreate( vMainTask, ( signed portCHAR * ) "Main", 256, NULL, tskIDLE_PRIORITY + 1, NULL );
 
 	/* Start the scheduler. */
 	vTaskStartScheduler();
