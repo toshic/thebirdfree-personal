@@ -18,6 +18,7 @@
 
 #include "Rtc.h"
 #include "lcd_terminal.h"
+#include "chardevice.h"
 
 /*-----------------------------------------------------------*/
 
@@ -48,7 +49,9 @@ static void prvSetupHardware( void )
 	vParTestInitialise();
 	RtcInit();
 	lcd_terminal_init();
-    init_serial();
+//    init_serial();
+    console_init();
+    zigbee_init();
 }
 
 /*

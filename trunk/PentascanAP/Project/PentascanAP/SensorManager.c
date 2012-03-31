@@ -1190,7 +1190,7 @@ void parse_cmd(char *cmd)
 
 void vMainTask( void *pvParameters )
 {
-    char c;
+    int c;
 	char *cmd_buffer = mem_malloc(CMD_BUFFER_LEN);
 	int cmd_index = 0;
     FRESULT fresult;
@@ -1239,11 +1239,10 @@ void vMainTask( void *pvParameters )
 			report_measure();
 		}
 
-		if(UARTCharsAvail(UART0_BASE)){
-		    c = getchar();
+		if((c = getchar()) != -1){
 		    putchar(c);
 			if(c == '\r'){
-				cmd_buffer[cmd_index++] = c;
+				cmd_buffer[cmd_index++] = (char)c;
 				cmd_buffer[cmd_index] = '\0';
 				cmd_index = 0;
 				parse_cmd(cmd_buffer);

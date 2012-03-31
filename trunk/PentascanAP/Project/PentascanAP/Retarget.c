@@ -11,6 +11,7 @@
 #include <stdio.h>
 #include <time.h>
 #include <rt_misc.h>
+#include "chardevice.h"
 
 #pragma import(__use_no_semihosting_swi)
 extern int lcd_terminal_char(int ch); /* in LCD.c */
@@ -28,14 +29,16 @@ FILE __stdin;
 
 int fputc(int ch, FILE *f) {
     if(f == &__stdout)
-        return (sendchar(ch));
+//        return (sendchar(ch));
+        return (console_putchar(ch));
     else if( f == &__stderr)
         return (lcd_terminal_char(ch));
     return 0;
 }
 
 int fgetc(FILE *f) {
-  return (getkey());
+//  return (getkey());
+    return (console_getchar());
 }
 
 
@@ -46,7 +49,8 @@ int ferror(FILE *f) {
 
 
 void _ttywrch(int ch) {
-  sendchar (ch);
+//  sendchar (ch);
+    console_putchar(ch);
 }
 
 
