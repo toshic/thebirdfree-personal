@@ -153,8 +153,8 @@ int console_init(unsigned long baud)
     int result;
 
     charConsole.TxQueueLength = 10;
-    charConsole.RxQueueLength = 20;
-    charConsole.QueueWait = 0;
+    charConsole.RxQueueLength = 80;
+    charConsole.QueueWait = 100 * portTICK_RATE_MS;
     charConsole.PortBase = UART0_BASE;
 
     result = prepare_device(&charConsole);

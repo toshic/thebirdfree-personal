@@ -70,7 +70,7 @@ void RtcInit(void)
     TimerConfigure( TIMER1_BASE, TIMER_CFG_32_BIT_PER );
 
 	/* Just used to measure time. */
-    TimerLoadSet(TIMER1_BASE, TIMER_A, configCPU_CLOCK_HZ / 10000 );    /* sys tick = 10msec, so 100usec will be set */
+    TimerLoadSet(TIMER1_BASE, TIMER_A, configCPU_CLOCK_HZ / 10000 );    /* sys tick = 1msec, so 100usec will be set */
 	IntPrioritySet( INT_TIMER1A, configMAX_SYSCALL_INTERRUPT_PRIORITY );
     IntEnable( INT_TIMER1A );
     TimerIntEnable( TIMER1_BASE, TIMER_TIMA_TIMEOUT );

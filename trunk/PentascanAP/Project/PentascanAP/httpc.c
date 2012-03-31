@@ -92,7 +92,7 @@ static int parseUrl(char *url, char **hostname, unsigned int *port_num, char **l
 			return -1;
 		}
 		strncpy(*hostname,url,ptr-url);
-		*hostname[ptr-url]=0;
+		(*hostname)[ptr-url]=0;
 
 		/* collect port number */
 		url = ptr + 1;
@@ -137,7 +137,7 @@ static int parseUrl(char *url, char **hostname, unsigned int *port_num, char **l
 				return -1;
 			}
 			strncpy(*hostname,url,ptr-url);
-			*hostname[ptr-url]=0;
+			(*hostname)[ptr-url]=0;
 			
 			*location = mem_malloc(strlen(ptr) + 1);
 			if(!*location){

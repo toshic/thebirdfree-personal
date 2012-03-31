@@ -36,10 +36,6 @@
 #include "lcd_terminal.h"
 #include "telnet.h"
 
-// periodic timer
-static xTimerHandle xPeriodicTimer = NULL;
-static xSemaphoreHandle xSemaphoreTimer = NULL;
-
 static void StartNetwork(void)
 {
     /* Create the lwIP task if running on a processor that includes a MAC and
@@ -108,45 +104,6 @@ unsigned long checkFreeMem(void)
     
     return memsize;
 }
-
-
-#if configUSE_TIMERS
-static void TimerCallback( xTimerHandle pxExpiredTimer )
-{
-	xSemaphoreGive(xSemaphoreTimer);
-}
-static void http_test(void)
-{
-	time_t timer;
-	static int count;
-	unsigned long tick;
-
-//	  printf("[%d]http ^9%d`\n",count++,http_get("192.168.100.20",80,"/ap.html"));
-	tick = xTaskGetTickCount();
-	printf(">>");
-	printf("[%d]naver ^9%d ^f%ld`\n",count,http_get("www.naver.com",80,"/",NULL,NULL),xTaskGetTickCount() - tick);
-	tick = xTaskGetTickCount();
-//	  printf("[%d]google ^9%d ^f%ld`\n",count++,http_get("www.google.com",80,"/",NULL,NULL),xTaskGetTickCount() - tick);
-	printf("freemem = %ld\n",checkFreeMem());
-	printf("stack = ^b%d`\n",uxTaskGetStackHighWaterMark(NULL));
-	timer=RtcGetTime();
-	printf("^f%s`",asctime(localtime(&timer)) + 11);
-
-}
-#else
-static void httpTimerCallback(void *pv)
-{
-    time_t timer;
-    static int count;
-    printf("[%d]naver ^9%d\n",count,http_get("www.naver.com",80,"/",NULL,NULL));
-//    printf("[%d]google ^9%d\n",count++,http_get("www.google.com",80,"/",NULL,NULL));
-    printf("freemem = %ld\n",checkFreeMem());
-    timer=RtcGetTime();
-    printf("^f%s`",asctime(localtime(&timer)) + 11);
-
-    sys_timeout(2000, httpTimerCallback, NULL);
-}
-#endif
 
 int report_measure(){
     char *rpt;
@@ -1050,6 +1007,7 @@ int Cmd_wget(char *argv)
 {
     char *url,*file;
     FRESULT fresult;
+    unsigned long tick_before,tick_after;
 
     url = strtok(argv," \t\r\n");
     if(url == NULL)
@@ -1080,8 +1038,13 @@ int Cmd_wget(char *argv)
     	    printf("file open error\n");
     	    return 0;
     	}
+
+        tick_before = xTaskGetTickCount();
     	http_req(url,file_http,NULL);
     	f_close(&g_sFileObject);
+        tick_after = xTaskGetTickCount();
+        
+    	printf("lap %ld ticks (%ld sec)\n",tick_after - tick_before, (tick_after - tick_before) / configTICK_RATE_HZ);
     }
 
     return 0;
@@ -1210,17 +1173,18 @@ void parse_cmd(char *cmd)
 
 #define CMD_BUFFER_LEN	100
 
-void vMainTask( void *pvParameters )
-{
-    int c;
-	char *cmd_buffer = mem_malloc(CMD_BUFFER_LEN);
-	int cmd_index = 0;
-    FRESULT fresult;
+#if configUSE_TIMERS
+// periodic timer
+static xSemaphoreHandle xSemaphoreTimer = NULL;
 
-	if(cmd_buffer == NULL){
-		printf("cmd_buffer malloc fail\n");
-		return;
-	}
+static void TimerCallback( xTimerHandle pxExpiredTimer )
+{
+	xSemaphoreGive(xSemaphoreTimer);
+}
+
+void vTimerTask( void *pvParameters )
+{
+    static xTimerHandle xPeriodicTimer = NULL;
 
 	// Semaphore cannot be used before a call to xSemaphoreCreateCounting().
 	// The max value to which the semaphore can count should be 10, and the
@@ -1233,6 +1197,36 @@ void vMainTask( void *pvParameters )
 		return;
 	}
 
+    xPeriodicTimer = xTimerCreate(  ( const signed char * ) "http timer",/* Text name to facilitate debugging.  The kernel does not use this itself. */
+                                    ( 60 * configTICK_RATE_HZ ),            /* The period for the timer. */
+                                    pdTRUE,                             /* Don't auto-reload - hence a one shot timer. */
+                                    ( void * ) 0,                           /* The timer identifier.  In this case this is not used as the timer has its own callback. */
+                                    TimerCallback );                /* The callback to be called when the timer expires. */
+
+    xTimerStart(xPeriodicTimer,0);
+        
+    for( ;; )
+    {
+        /* wait 100msec */
+        if(xSemaphoreTake( xSemaphoreTimer, 100 * portTICK_RATE_MS ) == pdTRUE){
+            report_measure();
+        }
+    }
+}
+#endif									
+
+void vMainTask( void *pvParameters )
+{
+    int c;
+	char *cmd_buffer = mem_malloc(CMD_BUFFER_LEN);
+	int cmd_index = 0;
+    FRESULT fresult;
+
+	if(cmd_buffer == NULL){
+		printf("cmd_buffer malloc fail\n");
+		return;
+	}
+
     StartNetwork();
     fresult = f_mount(0, &g_sFatFs);
     if(fresult != FR_OK)
@@ -1241,26 +1235,12 @@ void vMainTask( void *pvParameters )
         return;
     }
     
-
-#if configUSE_TIMERS
-	xPeriodicTimer = xTimerCreate(	( const signed char * ) "http timer",/* Text name to facilitate debugging.  The kernel does not use this itself. */
-									( 60 * configTICK_RATE_HZ ),			/* The period for the timer. */
-									pdTRUE,								/* Don't auto-reload - hence a one shot timer. */
-									( void * ) 0,							/* The timer identifier.  In this case this is not used as the timer has its own callback. */
-									TimerCallback );				/* The callback to be called when the timer expires. */
-#endif									
-
-
     fprintf(stderr,"Pentascan AP\n");
-    xTimerStart(xPeriodicTimer,0);
+    /* start http timer */
+    xTaskCreate( vTimerTask, ( signed portCHAR * ) "http", 256, NULL, tskIDLE_PRIORITY + 2, NULL );
     
 	for( ;; )
 	{
-		/* wait 10msec */
-		if(xSemaphoreTake( xSemaphoreTimer, configTICK_RATE_HZ / 100 ) == pdTRUE){
-			report_measure();
-		}
-
 		if((c = getchar()) != -1){
 		    putchar(c);
 			if(c == '\r'){
