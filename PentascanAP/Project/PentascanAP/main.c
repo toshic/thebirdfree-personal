@@ -15,7 +15,7 @@
 #include "gpio.h"
 /* Demo app includes. */
 #include "partest.h"
-
+#include "log.h"
 #include "Rtc.h"
 #include "lcd_terminal.h"
 #include "chardevice.h"
@@ -82,6 +82,8 @@ int main( void )
     int i;
     SsiMutex = xSemaphoreCreateMutex();
 	prvSetupHardware();
+
+    syslog_start("/log/syslog.log");
 
     /* Main task */	
 	xTaskCreate( vMainTask, ( signed portCHAR * ) "Main", 256, NULL, tskIDLE_PRIORITY + 1, NULL );

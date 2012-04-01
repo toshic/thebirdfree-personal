@@ -72,15 +72,31 @@ static DIR g_sDirObject;
 static FILINFO g_sFileInfo;
 static FIL g_sFileObject;
 
-void mountSd(void)
+int mountSd(void)
 {
     FRESULT fresult;
     fresult = f_mount(0, &g_sFatFs);
     if(fresult != FR_OK)
-    {
         printf("f_mount error: %d\n", fresult);
-        return;
-    }
+    return fresult;
+}
+
+void print_http(unsigned long size,char *content,void *pv)
+{
+    FILE *file = (FILE *)pv;
+	unsigned long i;
+	for(i=0;i<size;i++)
+		fputc(content[i],file);
+}
+
+void file_http(unsigned long size,char *content,void *pv)
+{
+    FRESULT fresult;
+    FIL *pFileObject = (FIL *)pv;
+    unsigned int usBytesWritten;
+
+    fresult = f_write(pFileObject, content, size,
+		&usBytesWritten);
 }
 
 
@@ -733,7 +749,6 @@ static int Cmd_log(FILE *file,char *argv)
     unsigned int usBytesWritten;
 	char *filename,*string;
 	char ts_string[22];
-	unsigned long timestamp = get_fattime();
     time_t tm = RtcGetTime();
     struct tm * timeinfo;
 
@@ -876,24 +891,6 @@ static int Cmd_date(FILE *file,char *argv)
 	return 0;
 }
 
-static void print_http(unsigned long size,char *content,void *pv)
-{
-    FILE *file = (FILE *)pv;
-	unsigned long i;
-	for(i=0;i<size;i++)
-		fputc(content[i],file);
-}
-
-static void file_http(unsigned long size,char *content,void *pv)
-{
-    FRESULT fresult;
-    unsigned int usBytesWritten;
-
-    fresult = f_write(&g_sFileObject, content, size,
-		&usBytesWritten);
-}
-
-
 static int Cmd_wget(FILE *file,char *argv)
 {
     char *url,*filename;
@@ -931,7 +928,7 @@ static int Cmd_wget(FILE *file,char *argv)
     	}
 
         tick_before = xTaskGetTickCount();
-    	http_req(url,file_http,NULL);
+    	http_req(url,file_http,(void*)&g_sFileObject);
     	f_close(&g_sFileObject);
         tick_after = xTaskGetTickCount();
         

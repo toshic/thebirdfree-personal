@@ -20,11 +20,13 @@
 #include "lwiplib.h"
 
 /* http client header */
+#include "ff.h"
 #include "httpc.h"
 #include "Rtc.h"
 #include "lcd_terminal.h"
 #include "telnet.h"
 #include "console.h"
+#include "log.h"
 
 static void StartNetwork(void)
 {
@@ -82,8 +84,13 @@ int report_measure(){
     char *rpt;
     char node_string[100];
     time_t timer;
+    struct tm * timeinfo;
     int i, ret;
     static int count, success;
+    FRESULT fresult;
+    FIL FileObject;
+    char pcFilename[10];
+    unsigned long tick_before,tick_after;
     
 
 	struct {
@@ -117,15 +124,26 @@ int report_measure(){
 				sensor[i].co2,sensor[i].retry,sensor[i].sound);
         strcat(rpt,node_string);
     }
+    timer=RtcGetTime();
+    timeinfo = localtime(&timer);
+    sprintf(pcFilename,"/%02d%02d%02d%02d",timeinfo->tm_mday,timeinfo->tm_hour,timeinfo->tm_min,timeinfo->tm_sec);
     count++;
-    if( (ret = http_get("pentascan.dyndns.org",2222,rpt,NULL,NULL)) == 200)
+    fresult = f_open(&FileObject, pcFilename, FA_WRITE | FA_CREATE_ALWAYS);
+    tick_before = xTaskGetTickCount();
+    if( (ret = http_get("pentascan.dyndns.org",2222,rpt,fresult ? NULL:file_http,(void*)&FileObject)) == 200)
         success++;
+    tick_after = xTaskGetTickCount();
+    if(fresult)
+        f_close(&FileObject);
     mem_free(rpt);
+
+    syslog(LOG_LEVEL_INFO,"measure result = %d,(%d/%d), time elapsed %d msec",ret,success,count,tick_after - tick_before);
 
     fprintf(stderr,"^a<%d/%d>`result ^f[%d]`\n",success,count,ret);
     timer=RtcGetTime();
     fprintf(stderr,"^f%s`",asctime(localtime(&timer)) + 11);
     return 0;
+
 }
 
 
@@ -161,6 +179,7 @@ void vTimerTask( void *pvParameters )
 
     xTimerStart(xPeriodicTimer,0);
         
+    syslog(LOG_LEVEL_INFO,"Starting periodic Http loop");
     for( ;; )
     {
         /* wait 100msec */
@@ -187,13 +206,16 @@ void vMainTask( void *pvParameters )
 	}
 	cmd_buffer->file = &__uartout;
 
+//    syslog(LOG_LEVEL_INFO,"Starting Network");
     StartNetwork();
-    mountSd();
+    if(mountSd())
+        syslog(LOG_LEVEL_WARNING,"SD card not available");
+    syslog(LOG_LEVEL_INFO,"Starting Telnet");
     telnet_start(23);
     
     fprintf(stderr,"Pentascan AP\n");
     /* start http timer */
-    xTaskCreate( vTimerTask, ( signed portCHAR * ) "http", 300, NULL, tskIDLE_PRIORITY + 2, NULL );
+    xTaskCreate( vTimerTask, ( signed portCHAR * ) "http", 400, NULL, tskIDLE_PRIORITY + 2, NULL );
     
 	for( ;; )
 	{

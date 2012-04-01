@@ -105,8 +105,10 @@ int zigbee_init(unsigned long baud)
     charZigbee.PortBase = UART2_BASE;
 
     result = prepare_device(&charZigbee);
-    if(result)
+    if(result){
+        printf("Zigbee queue creation fail\n");
         return result;
+    }
         
     SysCtlPeripheralEnable(SYSCTL_PERIPH_UART2);
     SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOG);
@@ -158,8 +160,10 @@ int console_init(unsigned long baud)
     charConsole.PortBase = UART0_BASE;
 
     result = prepare_device(&charConsole);
-    if(result)
+    if(result){
+        printf("Console queue creation fail\n");
         return result;
+    }
         
     SysCtlPeripheralEnable(SYSCTL_PERIPH_UART0);
     SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOA);
