@@ -2,29 +2,92 @@
 #include <string.h>
 #include <stdlib.h>
 #include "Lwiplib.h"
-#include "lwip/netdb.h"
+
+#include "console.h"
+
+#define MAX_TELNET_SESSION  2
+#define TELNET_RCV_BUFFER_LENGTH    1024
+
+struct __FILE { int handle; /* Add whatever you need here */ };
+
+static FILE g_telnet_handle[MAX_TELNET_SESSION];
+
+void telnet_putchar_all(char ch)
+{
+    int i;
+    for(i=0;i<MAX_TELNET_SESSION;i++){
+        if(g_telnet_handle[i].handle)
+            send(g_telnet_handle[i].handle, &ch, 1, 0);
+    }    
+}
+
+int telnet_putchar(FILE *file, char ch)
+{
+    int i;
+    if(file->handle)
+        send(file->handle, &ch, 1, 0);
+
+    return ch;
+}
+
+FILE *telnet_add_tty(int socket)
+{
+    int i;
+    for(i=0;i<MAX_TELNET_SESSION;i++){
+        if(g_telnet_handle[i].handle == 0){
+            g_telnet_handle[i].handle = socket;
+            return &g_telnet_handle[i];
+        }
+    }
+    return NULL;
+}
+
+static void telnet_del_tty(int socket)
+{
+    int i;
+    for(i=0;i<MAX_TELNET_SESSION;i++){
+        if(g_telnet_handle[i].handle == socket)
+            g_telnet_handle[i].handle = 0;
+    }
+}
 
 static void telnet_proc( void *pvParameters )
 {
     int client_socket = (int)pvParameters;
-    char *buffer = mem_malloc(1024);
-    int nbytes;
+    char *buffer = mem_malloc(TELNET_RCV_BUFFER_LENGTH);
+    line_buffer *cmd_buffer;
+    int i, nbytes;
 
     if(buffer == NULL){
-        printf("malloc fail\n");
+        printf("buffer malloc fail\n");
         close(client_socket);
+        vTaskDelete( NULL );
         return;
     }
+
+    cmd_buffer = console_buffer_get(100);
+    if(cmd_buffer == NULL){
+        printf("cmd buffer malloc fail\n");
+        mem_free(buffer);
+        close(client_socket);
+        vTaskDelete( NULL );
+        return;
+    }
+
+    cmd_buffer->file = telnet_add_tty(client_socket);
     do{
-        nbytes = recv(client_socket, buffer, sizeof(buffer),0);
-        if (nbytes>0) 
-            lwip_send(client_socket, buffer, nbytes, 0);
+        nbytes = recv(client_socket, buffer, TELNET_RCV_BUFFER_LENGTH,0);
+        for(i=0;i<nbytes;i++){
+            console_parse(cmd_buffer,buffer[i]);
+        }
     }while(nbytes>0);
     
     mem_free(buffer);
+    mem_free(cmd_buffer);
+    telnet_del_tty(client_socket);
     close(client_socket);
-    
     vTaskDelete( NULL );
+    return;
 }
 
 static void telnetd(void *pvParameters)
@@ -54,7 +117,7 @@ static void telnetd(void *pvParameters)
         return;
     }
 
-    if ( listen(listen_socket, 2) != 0 ){
+    if ( listen(listen_socket, MAX_TELNET_SESSION) != 0 ){
         printf("socket listen fail\n");
         close(listen_socket);
         return;
@@ -70,7 +133,7 @@ static void telnetd(void *pvParameters)
         clientfd = accept(listen_socket, (struct sockaddr*)&client_addr, (socklen_t *)&addrlen);
         if (clientfd>0){
             sprintf(child_name,"tty%02d",i++);
-            xTaskCreate( telnet_proc, ( signed portCHAR * ) child_name, 128, (void*)clientfd, tskIDLE_PRIORITY + 1, NULL );
+            xTaskCreate( telnet_proc, ( signed portCHAR * ) child_name, 256, (void*)clientfd, tskIDLE_PRIORITY + 1, NULL );
         }
     } 
     lwip_close(listen_socket);

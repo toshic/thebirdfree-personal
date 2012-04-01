@@ -12,6 +12,7 @@
 #include <time.h>
 #include <rt_misc.h>
 #include "chardevice.h"
+#include "telnet.h"
 
 #pragma import(__use_no_semihosting_swi)
 extern int lcd_terminal_char(int ch); /* in LCD.c */
@@ -26,14 +27,24 @@ FILE __stdout;
 FILE __stderr;
 FILE __stdin;
 
+FILE __uartout;
+FILE __uartin;
+
+FILE __zigbeeout;
+FILE __zigbeein;
 
 int fputc(int ch, FILE *f) {
-    if(f == &__stdout)
+    if(f == &__stdout){
 //        return (sendchar(ch));
+        telnet_putchar_all(ch);
         return (console_putchar(ch));
-    else if( f == &__stderr)
+    }else if( f == &__stderr){
+        telnet_putchar_all(ch);
         return (lcd_terminal_char(ch));
-    return 0;
+    }else if( f == &__uartout){
+        return (console_putchar(ch));
+    }else
+        return telnet_putchar(f,ch);
 }
 
 int fgetc(FILE *f) {
@@ -50,6 +61,7 @@ int ferror(FILE *f) {
 
 void _ttywrch(int ch) {
 //  sendchar (ch);
+    telnet_putchar_all(ch);
     console_putchar(ch);
 }
 

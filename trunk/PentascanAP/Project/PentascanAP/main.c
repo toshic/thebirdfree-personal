@@ -49,7 +49,6 @@ static void prvSetupHardware( void )
 	vParTestInitialise();
 	RtcInit();
 	lcd_terminal_init();
-//    init_serial();
     console_init(921600);
     zigbee_init(115200);
 }
