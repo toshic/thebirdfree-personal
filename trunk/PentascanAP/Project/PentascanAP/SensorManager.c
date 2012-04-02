@@ -130,10 +130,14 @@ int report_measure(){
     count++;
     fresult = f_open(&FileObject, pcFilename, FA_WRITE | FA_CREATE_ALWAYS);
     tick_before = xTaskGetTickCount();
-    if( (ret = http_get("pentascan.dyndns.org",2222,rpt,fresult ? NULL:file_http,(void*)&FileObject)) == 200)
-        success++;
+    if(fresult == FR_OK)
+        ret = http_get("pentascan.dyndns.org",2222,rpt,file_http,(void*)&FileObject);
+    else
+        ret = http_get("pentascan.dyndns.org",2222,rpt,NULL,NULL);
     tick_after = xTaskGetTickCount();
-    if(fresult)
+    if(ret == 200)
+        success++;
+    if(fresult == FR_OK)
         f_close(&FileObject);
     mem_free(rpt);
 
