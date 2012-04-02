@@ -17,6 +17,7 @@
 /* http client header */
 #include "ff.h"
 #include "httpc.h"
+#include "ntp.h"
 #include "Rtc.h"
 #include "lcd_terminal.h"
 #include "telnet.h"
@@ -969,6 +970,11 @@ static int Cmd_top(FILE *file,char*argv)
 #endif    
     return 0;
 }
+static int Cmd_ntp(FILE *file,char *argv)
+{
+    sntp_request(argv);
+    return 0;
+}
 
 static int Cmd_reboot(FILE *file,char *argv)
 {
@@ -1017,6 +1023,7 @@ command_table CMD_TABLE[] =
 	"top","show cpu usage",Cmd_top,
 	"log","write log",Cmd_log,
 	"lcd","print message to lcd",Cmd_lcd,
+	"ntp","sync time with ntp server",Cmd_ntp,
 	"reboot","reboot system",Cmd_reboot,
 	"ifconfig","show network configuration",Cmd_ifconfig,
 	"help","show this message",Cmd_help

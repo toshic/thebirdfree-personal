@@ -192,7 +192,8 @@
 //#define DNS_DOES_NAME_CHECK             1
 //#define DNS_USES_STATIC_BUF             1
 //#define DNS_MSG_SIZE                    512
-
+#define DNS_MAX_RETRIES         3
+#define DNS_TMR_INTERVAL        500
 //*****************************************************************************
 //
 // ---------- UDP options ----------
@@ -299,7 +300,7 @@
 //#define LWIP_COMPAT_SOCKETS             1
 //#define LWIP_POSIX_SOCKETS_IO_NAMES     1
 //#define LWIP_TCP_KEEPALIVE              0
-//#define LWIP_SO_RCVTIMEO                0
+#define LWIP_SO_RCVTIMEO                1
 //#define LWIP_SO_RCVBUF                  0
 //#define SO_REUSE                        0
 
