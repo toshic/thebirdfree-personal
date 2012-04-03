@@ -86,7 +86,7 @@ int main( void )
     syslog_start("/log/syslog.log");
 
     /* Main task */	
-	xTaskCreate( vMainTask, ( signed portCHAR * ) "Main", 256, NULL, tskIDLE_PRIORITY + 1, NULL );
+	xTaskCreate( vMainTask, ( signed portCHAR * ) "Main", 200, NULL, tskIDLE_PRIORITY + 1, NULL );
 
 	/* Start the scheduler. */
 	vTaskStartScheduler();

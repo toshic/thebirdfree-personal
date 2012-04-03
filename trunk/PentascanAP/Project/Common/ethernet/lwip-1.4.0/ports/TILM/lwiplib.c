@@ -306,7 +306,7 @@ lwIPPrivateInit(void *pvArg)
     // If using a RTOS, create the Ethernet interrupt task.
     //
     xTaskCreate(lwIPInterruptTask, (signed portCHAR *)"eth_int",
-                256, 0, tskIDLE_PRIORITY + 3, 0);
+                128, 0, tskIDLE_PRIORITY + 3, 0);
 
     //
     // Setup the network address values.

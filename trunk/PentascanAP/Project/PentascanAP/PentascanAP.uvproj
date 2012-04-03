@@ -549,6 +549,11 @@
               <FileType>1</FileType>
               <FilePath>.\log.c</FilePath>
             </File>
+            <File>
+              <FileName>ntp.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\ntp.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

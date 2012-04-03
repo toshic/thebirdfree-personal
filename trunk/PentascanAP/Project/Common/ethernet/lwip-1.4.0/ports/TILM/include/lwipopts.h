@@ -66,8 +66,6 @@
 //#define MEM_USE_POOLS                   0
 //#define MEMP_USE_CUSTOM_POOLS           0
 #define MEMP_MEM_MALLOC             1
-// jhpark added
-//#define MEM_USE_TRACE               1
 //*****************************************************************************
 //
 // ---------- Internal Memory Pool Sizes ----------
@@ -266,7 +264,7 @@
 //
 //*****************************************************************************
 #define TCPIP_THREAD_NAME              "lwip"
-#define TCPIP_THREAD_STACKSIZE          256
+#define TCPIP_THREAD_STACKSIZE          168
 #define TCPIP_THREAD_PRIO               tskIDLE_PRIORITY + 4
 #define TCPIP_MBOX_SIZE                 10
 //#define SLIPIF_THREAD_NAME             "slipif_loop"
