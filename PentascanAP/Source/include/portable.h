@@ -352,11 +352,18 @@ extern "C" {
 /*
  * Map to the memory management routines required for the port.
  */
+
+#if( configUSE_MEMALLOCTRACE == 1 )
+void *malloc_hook(size_t size, const char *file, unsigned long line) PRIVILEGED_FUNCTION;
+void free_hook(void *pv) PRIVILEGED_FUNCTION;
+#define pvPortMalloc(x) malloc_hook(x,__FILE__,__LINE__)
+#define vPortFree free_hook
+#else
 void *pvPortMalloc( size_t xSize ) PRIVILEGED_FUNCTION;
 void vPortFree( void *pv ) PRIVILEGED_FUNCTION;
+#endif
 void vPortInitialiseBlocks( void ) PRIVILEGED_FUNCTION;
 size_t xPortGetFreeHeapSize( void ) PRIVILEGED_FUNCTION;
-
 /*
  * Setup the hardware ready for the scheduler to take control.  This generally
  * sets up a tick interrupt and sets timers for the correct tick frequency.

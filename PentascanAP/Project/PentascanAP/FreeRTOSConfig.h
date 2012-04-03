@@ -82,6 +82,8 @@
 #define configUSE_RECURSIVE_MUTEXES		1
 #define configCHECK_FOR_STACK_OVERFLOW	1
 #define configUSE_COUNTING_SEMAPHORES   1
+/* mem alloc trace */
+#define configUSE_MEMALLOCTRACE         0
 
 #define configMAX_PRIORITIES		( ( unsigned portBASE_TYPE ) 5 )
 #define configMAX_CO_ROUTINE_PRIORITIES ( 2 )
@@ -111,8 +113,8 @@ extern volatile unsigned long ulHighFrequencyTimerTicks;
 
 #define configUSE_TIMERS				1
 #define configTIMER_TASK_PRIORITY		( tskIDLE_PRIORITY + 2)
-#define configTIMER_QUEUE_LENGTH		32
-#define configTIMER_TASK_STACK_DEPTH	( 128 )
+#define configTIMER_QUEUE_LENGTH		8
+#define configTIMER_TASK_STACK_DEPTH	( configMINIMAL_STACK_SIZE )
 
 extern int uart_ready;
 //#define traceTASK_SWITCHED_IN()   if(uart_ready) printf(">%s in\n",pxCurrentTCB->pcTaskName)

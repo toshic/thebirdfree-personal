@@ -873,13 +873,13 @@ static unsigned long checkFreeMem(void)
 
 static int Cmd_free(FILE *file,char *argv)
 {
-#ifdef MEM_USE_TRACE
-	char free_mem[80];
-	show_free(free_mem);
-	fprintf(file,free_mem);	
-#else
 	unsigned long free = checkFreeMem();
 	fprintf(file,"Free mem = %d\n",free);
+#if( configUSE_MEMALLOCTRACE == 1)
+    /*  char free_mem[80];
+        show_free(free_mem);
+        fprintf(file,free_mem); */
+        show_alloctable();
 #endif
     return 0;
 }
