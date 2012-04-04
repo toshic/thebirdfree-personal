@@ -80,19 +80,20 @@ static void StartNetwork(void)
     }
 }
 
+extern FILE __lcdout;
+
 int report_measure(){
     char *rpt;
-    char node_string[100];
+    char *node_string = mem_malloc(100);
     time_t timer;
     struct tm * timeinfo;
     int i, ret;
     static int count, success;
     FRESULT fresult;
-    FIL FileObject;
+    FIL *FileObject = mem_malloc(sizeof(FIL));
     char pcFilename[10];
     unsigned long tick_before,tick_after;
     
-
 	struct {
 		unsigned char addr;
 		int temp;
@@ -124,28 +125,31 @@ int report_measure(){
 				sensor[i].co2,sensor[i].retry,sensor[i].sound);
         strcat(rpt,node_string);
     }
+
+    mem_free(node_string);
     timer=RtcGetTime();
     timeinfo = localtime(&timer);
     sprintf(pcFilename,"/%02d%02d%02d%02d",timeinfo->tm_mday,timeinfo->tm_hour,timeinfo->tm_min,timeinfo->tm_sec);
     count++;
-    fresult = f_open(&FileObject, pcFilename, FA_WRITE | FA_CREATE_ALWAYS);
+    fresult = f_open(FileObject, pcFilename, FA_WRITE | FA_CREATE_ALWAYS);
     tick_before = xTaskGetTickCount();
     if(fresult == FR_OK)
-        ret = http_get("pentascan.dyndns.org",2222,rpt,file_http,(void*)&FileObject);
+        ret = http_get("pentascan.dyndns.org",2222,rpt,file_http,(void*)FileObject);
     else
         ret = http_get("pentascan.dyndns.org",2222,rpt,NULL,NULL);
     tick_after = xTaskGetTickCount();
     if(ret == 200)
         success++;
     if(fresult == FR_OK)
-        f_close(&FileObject);
+        f_close(FileObject);
+    mem_free(FileObject);
     mem_free(rpt);
 
     syslog(LOG_LEVEL_INFO,"measure result = %d,(%d/%d), time elapsed %d msec",ret,success,count,tick_after - tick_before);
 
-    fprintf(stderr,"^a<%d/%d>`result ^f[%d]`\n",success,count,ret);
+    fprintf(&__lcdout,"^a<%d/%d>`result ^f[%d]`\n",success,count,ret);
     timer=RtcGetTime();
-    fprintf(stderr,"^f%s`",asctime(localtime(&timer)) + 11);
+    fprintf(&__lcdout,"^f%s`",asctime(localtime(&timer)) + 11);
     return 0;
 
 }
@@ -217,9 +221,9 @@ void vMainTask( void *pvParameters )
     syslog(LOG_LEVEL_INFO,"Starting Telnet");
     telnet_start(23);
     
-    fprintf(stderr,"Pentascan AP\n");
+    fprintf(&__lcdout,"Pentascan AP\n");
     /* start http timer */
-    xTaskCreate( vTimerTask, ( signed portCHAR * ) "http", 400, NULL, tskIDLE_PRIORITY + 2, NULL );
+    xTaskCreate( vTimerTask, ( signed portCHAR * ) "http", 256, NULL, tskIDLE_PRIORITY + 2, NULL );
     
 	for( ;; )
 	{

@@ -16,16 +16,13 @@
 
 #pragma import(__use_no_semihosting_swi)
 extern int lcd_terminal_char(int ch); /* in LCD.c */
-extern int  sendchar(int ch);  /* in Serial.c */
-extern int  getkey(void);      /* in Serial.c */
-extern long timeval;           /* in Time.c   */
-
-
 
 struct __FILE { int handle; /* Add whatever you need here */ };
 FILE __stdout;
 FILE __stderr;
 FILE __stdin;
+
+FILE __lcdout;
 
 FILE __uartout;
 FILE __uartin;
@@ -35,11 +32,12 @@ FILE __zigbeein;
 
 int fputc(int ch, FILE *f) {
     if(f == &__stdout){
-//        return (sendchar(ch));
         telnet_putchar_all(ch);
         return (console_putchar(ch));
     }else if( f == &__stderr){
         telnet_putchar_all(ch);
+        return (console_puterr(ch));
+    }else if( f == &__lcdout){
         return (lcd_terminal_char(ch));
     }else if( f == &__uartout){
         return (console_putchar(ch));

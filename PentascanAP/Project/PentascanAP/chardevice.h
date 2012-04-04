@@ -5,4 +5,5 @@ void zigbee_putchar(char ch);
 int console_init(unsigned long baud);
 int console_getchar(void);
 int console_putchar(char ch);
+int console_puterr(char ch);
 
