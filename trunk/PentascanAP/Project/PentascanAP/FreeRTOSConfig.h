@@ -107,7 +107,6 @@ extern volatile unsigned long ulHighFrequencyTimerTicks;
 #define portCONFIGURE_TIMER_FOR_RUN_TIME_STATS()
 #define portGET_RUN_TIME_COUNTER_VALUE()	ulHighFrequencyTimerTicks
 
-
 #define configKERNEL_INTERRUPT_PRIORITY 		( 7 << 5 )	/* Priority 7, or 255 as only the top three bits are implemented.  This is the lowest priority. */
 #define configMAX_SYSCALL_INTERRUPT_PRIORITY 	( 5 << 5 )  /* Priority 5, or 160 as only the top three bits are implemented. */
 
@@ -116,13 +115,12 @@ extern volatile unsigned long ulHighFrequencyTimerTicks;
 #define configTIMER_QUEUE_LENGTH		8
 #define configTIMER_TASK_STACK_DEPTH	( configMINIMAL_STACK_SIZE )
 
-extern int uart_ready;
-//#define traceTASK_SWITCHED_IN()   if(uart_ready) printf(">%s in\n",pxCurrentTCB->pcTaskName)
-//#define traceTASK_SWITCHED_OUT()   if(uart_ready) printf("<%s out\n",pxCurrentTCB->pcTaskName)
 extern void vParTestSetLED( unsigned long uxLED, signed long xValue );
-
 #define traceTASK_SWITCHED_IN() vParTestSetLED( 0, pdFALSE)
 #define traceTASK_SWITCHED_OUT() vParTestSetLED( 0, pdTRUE)
+
+#define traceQUEUE_CREATE_FAILED( ucQueueType ) fprintf(stderr,"Queue Create Fail %d : %s Line %d\n",ucQueueType,__FILE__,__LINE__)
+#define traceQUEUE_SEND_FAILED( pxQueue )       fprintf(stderr,"Queue Send Fail %p(%d,%d) : %s Line %d\n",pxQueue,pxQueue->ucQueueNumber,pxQueue->ucQueueType,__FILE__,__LINE__)
 
 extern void UARTprint(char *message);
 #include <stdio.h>

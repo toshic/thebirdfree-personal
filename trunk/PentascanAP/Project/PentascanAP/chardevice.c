@@ -196,3 +196,9 @@ int console_putchar(char ch)
     return ch;
 }
 
+int console_puterr(char ch)
+{
+    UARTCharPut(charConsole.PortBase, ch);
+    return ch;
+}
+

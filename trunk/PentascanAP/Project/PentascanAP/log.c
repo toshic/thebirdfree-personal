@@ -47,76 +47,81 @@ void syslog(log_level level,char *format,...)
 	log_message *log;
 	va_list args;
 
-//	while( xSemaphoreTake( LogMutex, portMAX_DELAY ) != pdPASS );
+	while( xSemaphoreTake( LogMutex, portMAX_DELAY ) != pdPASS );
 
 	va_start(args,format);
 	vsprintf (va_buffer,format, args);
 	va_end (args);
 
-	printf("(%d)%s\n",sizeof(log_message) + strlen(va_buffer),va_buffer);
-return;	
 	log = mem_malloc(sizeof(log_message) + strlen(va_buffer));
+	if(log == NULL){
+	    fprintf(stderr,"syslog malloc Fail\n");
+	    printf(va_buffer);
+        xSemaphoreGive(LogMutex);
+	    return;
+	}
+	
 	log->level = level;
 	log->time_stamp = RtcGetTime();
 	strcpy(log->log_string,va_buffer);
-	printf("(%d)%s\n",strlen(log->log_string),log->log_string);
 
 	// send message queue to server task
-	xQueueSend(LogQueue, (void*)log, 0);
-	printf("xQueueSend OK\n");
+	xQueueSend(LogQueue, (void*)&log, 0);
 
-//	xSemaphoreGive(LogMutex);
+	xSemaphoreGive(LogMutex);
 }
 
 static void filelog(char *path,char *ts,char *string)
 {
     FRESULT fresult;
-    FIL FileObject;
+    FIL *FileObject = mem_malloc(sizeof(FIL));
     unsigned int usBytesWritten;
 
-    fresult = f_open(&FileObject, path, FA_WRITE | FA_OPEN_ALWAYS);
+    fresult = f_open(FileObject, path, FA_WRITE | FA_OPEN_ALWAYS);
     if(fresult != FR_OK)
         goto file_error;
 
     // seek to end of file
-    fresult = f_lseek(&FileObject, f_size(&FileObject));
+    fresult = f_lseek(FileObject, f_size(FileObject));
     if(fresult != FR_OK)
     {
-        f_close(&FileObject);
+        f_close(FileObject);
         goto file_error;
     }
 
-    fresult = f_write(&FileObject, ts, strlen(ts),
+    fresult = f_write(FileObject, ts, strlen(ts),
                      &usBytesWritten);
     if(fresult != FR_OK || strlen(ts) != usBytesWritten)
     {
-        f_close(&FileObject);
+        f_close(FileObject);
         goto file_error;
     }
 
-    fresult = f_write(&FileObject, string, strlen(string),
+    fresult = f_write(FileObject, string, strlen(string),
                      &usBytesWritten);
     if(fresult != FR_OK || strlen(string) != usBytesWritten)
     {
-        f_close(&FileObject);
+        f_close(FileObject);
         goto file_error;
     }
 
-    fresult = f_write(&FileObject, "\n", strlen("\n"),
+    fresult = f_write(FileObject, "\n", strlen("\n"),
                      &usBytesWritten);
     if(fresult != FR_OK || strlen("\n") != usBytesWritten)
     {
-        f_close(&FileObject);
+        f_close(FileObject);
         goto file_error;
     }
 
-    f_close(&FileObject);
+    f_close(FileObject);
+    mem_free(FileObject);
     return;
     
 file_error:
     printf("filelog fail\n");
     printf(string);
     printf("--------------------------\n");
+    mem_free(FileObject);
     return;
 }
 
@@ -124,7 +129,7 @@ void syslogd(void *pv)
 {
     log_message *log;
     char *path;
-    char timestamp[60];
+    char *timestamp = mem_malloc(60);
     struct tm * timeinfo;
     
     LogQueue = xQueueCreate( 20, sizeof(log_message *) );
@@ -140,7 +145,6 @@ void syslogd(void *pv)
         vTaskDelete( NULL );
         return;
     }
-	xSemaphoreGive(LogMutex);
     
     va_buffer = mem_malloc(1024);
     if(va_buffer == NULL){
@@ -157,8 +161,7 @@ void syslogd(void *pv)
     strcpy(path,(char*)pv);
 
     for(;;){
-        xQueueReceive(LogQueue, log, portMAX_DELAY);
-        printf("log : %s",log->log_string);
+        xQueueReceive(LogQueue, &log, portMAX_DELAY);
         timeinfo = localtime(&(log->time_stamp));
         sprintf(timestamp,"<syslog - %04d/%02d/%02d %02d:%02d:%02d %s>\n",timeinfo->tm_year + 1900, timeinfo->tm_mon+ 1 , timeinfo->tm_mday,
                 timeinfo->tm_hour, timeinfo->tm_min, timeinfo->tm_sec,log_level_string[log->level]);
