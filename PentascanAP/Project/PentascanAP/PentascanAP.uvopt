@@ -128,6 +128,10 @@
       <TargetDriverDllRegistry>
         <SetRegEntry>
           <Number>0</Number>
+          <Key>DLGUARM</Key>
+        </SetRegEntry>
+        <SetRegEntry>
+          <Number>0</Number>
           <Key>DLGTARM</Key>
           <Name>(1010=725,143,1091,689,0)(1007=105,136,282,400,0)(1008=90,120,456,345,0)(1009=483,150,717,687,0)(110=490,388,1107,813,0)(100=-1,-1,-1,-1,0)(101=-1,-1,-1,-1,0)(102=-1,-1,-1,-1,0)(103=-1,-1,-1,-1,0)(104=-1,-1,-1,-1,0)(105=-1,-1,-1,-1,0)(106=-1,-1,-1,-1,0)(161=-1,-1,-1,-1,0)(162=-1,-1,-1,-1,0)(163=-1,-1,-1,-1,0)(164=-1,-1,-1,-1,0)(150=-1,-1,-1,-1,0)(151=-1,-1,-1,-1,0)(152=-1,-1,-1,-1,0)(1011=-1,-1,-1,-1,0)(1012=90,120,315,410,0)(1013=-1,-1,-1,-1,0)(171=-1,-1,-1,-1,0)(172=-1,-1,-1,-1,0)(173=-1,-1,-1,-1,0)(1014=-1,-1,-1,-1,0)(1016=-1,-1,-1,-1,0)(136=-1,-1,-1,-1,0)</Name>
         </SetRegEntry>
@@ -146,9 +150,9 @@
         <Bp>
           <Number>0</Number>
           <Type>0</Type>
-          <LineNumber>59</LineNumber>
+          <LineNumber>160</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>66870</Address>
+          <Address>81912</Address>
           <ByteObject>0</ByteObject>
           <ManyObjects>0</ManyObjects>
           <SizeOfObject>0</SizeOfObject>
@@ -156,56 +160,9 @@
           <BreakIfRCount>1</BreakIfRCount>
           <Filename></Filename>
           <ExecCommand></ExecCommand>
-          <Expression>\\RTOSDemo\httpc.c\59</Expression>
-        </Bp>
-        <Bp>
-          <Number>1</Number>
-          <Type>0</Type>
-          <LineNumber>134</LineNumber>
-          <EnabledFlag>1</EnabledFlag>
-          <Address>67208</Address>
-          <ByteObject>0</ByteObject>
-          <ManyObjects>0</ManyObjects>
-          <SizeOfObject>0</SizeOfObject>
-          <BreakByAccess>0</BreakByAccess>
-          <BreakIfRCount>1</BreakIfRCount>
-          <Filename></Filename>
-          <ExecCommand></ExecCommand>
-          <Expression>\\RTOSDemo\httpc.c\134</Expression>
-        </Bp>
-        <Bp>
-          <Number>2</Number>
-          <Type>0</Type>
-          <LineNumber>131</LineNumber>
-          <EnabledFlag>1</EnabledFlag>
-          <Address>76824</Address>
-          <ByteObject>0</ByteObject>
-          <ManyObjects>0</ManyObjects>
-          <SizeOfObject>0</SizeOfObject>
-          <BreakByAccess>0</BreakByAccess>
-          <BreakIfRCount>1</BreakIfRCount>
-          <Filename></Filename>
-          <ExecCommand></ExecCommand>
-          <Expression>\\RTOSDemo\SensorManager.c\131</Expression>
+          <Expression>\\RTOSDemo\log.c\160</Expression>
         </Bp>
       </Breakpoint>
-      <WatchWindow1>
-        <Ww>
-          <count>0</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>pv</ItemText>
-        </Ww>
-        <Ww>
-          <count>1</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>*pv</ItemText>
-        </Ww>
-        <Ww>
-          <count>2</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>&amp;FileObject</ItemText>
-        </Ww>
-      </WatchWindow1>
       <MemoryWindow1>
         <Mm>
           <WinNumber>1</WinNumber>
@@ -217,14 +174,14 @@
         <Mm>
           <WinNumber>2</WinNumber>
           <SubType>8</SubType>
-          <ItemText>log</ItemText>
+          <ItemText>format</ItemText>
         </Mm>
       </MemoryWindow2>
       <MemoryWindow3>
         <Mm>
           <WinNumber>3</WinNumber>
           <SubType>8</SubType>
-          <ItemText>url</ItemText>
+          <ItemText>pvItemToQueue</ItemText>
         </Mm>
       </MemoryWindow3>
       <MemoryWindow4>
@@ -278,7 +235,7 @@
       <Focus>0</Focus>
       <ColumnNumber>0</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>76</TopLine>
+      <TopLine>80</TopLine>
       <CurrentLine>86</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>.\main.c</PathWithFileName>
@@ -306,7 +263,7 @@
       <Focus>0</Focus>
       <ColumnNumber>17</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>28</TopLine>
+      <TopLine>41</TopLine>
       <CurrentLine>54</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>.\startup_rvmdk.S</PathWithFileName>
@@ -348,8 +305,8 @@
       <Focus>0</Focus>
       <ColumnNumber>0</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>42</TopLine>
-      <CurrentLine>57</CurrentLine>
+      <TopLine>21</TopLine>
+      <CurrentLine>38</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>.\Retarget.c</PathWithFileName>
       <FilenameWithoutPath>Retarget.c</FilenameWithoutPath>
@@ -404,8 +361,8 @@
       <Focus>0</Focus>
       <ColumnNumber>0</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>116</TopLine>
-      <CurrentLine>131</CurrentLine>
+      <TopLine>139</TopLine>
+      <CurrentLine>149</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>.\SensorManager.c</PathWithFileName>
       <FilenameWithoutPath>SensorManager.c</FilenameWithoutPath>
@@ -418,8 +375,8 @@
       <Focus>0</Focus>
       <ColumnNumber>0</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>0</TopLine>
-      <CurrentLine>0</CurrentLine>
+      <TopLine>1</TopLine>
+      <CurrentLine>1</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>.\chardevice.c</PathWithFileName>
       <FilenameWithoutPath>chardevice.c</FilenameWithoutPath>
@@ -430,10 +387,10 @@
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
-      <ColumnNumber>50</ColumnNumber>
+      <ColumnNumber>0</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>137</TopLine>
-      <CurrentLine>152</CurrentLine>
+      <TopLine>2</TopLine>
+      <CurrentLine>22</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>.\telnet.c</PathWithFileName>
       <FilenameWithoutPath>telnet.c</FilenameWithoutPath>
@@ -458,10 +415,10 @@
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
-      <ColumnNumber>9</ColumnNumber>
+      <ColumnNumber>0</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>51</TopLine>
-      <CurrentLine>52</CurrentLine>
+      <TopLine>1</TopLine>
+      <CurrentLine>1</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>.\log.c</PathWithFileName>
       <FilenameWithoutPath>log.c</FilenameWithoutPath>
@@ -570,10 +527,10 @@
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
-      <ColumnNumber>0</ColumnNumber>
+      <ColumnNumber>51</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>607</TopLine>
-      <CurrentLine>614</CurrentLine>
+      <TopLine>961</TopLine>
+      <CurrentLine>961</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\Source\queue.c</PathWithFileName>
       <FilenameWithoutPath>queue.c</FilenameWithoutPath>
@@ -600,7 +557,7 @@
       <Focus>0</Focus>
       <ColumnNumber>0</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>274</TopLine>
+      <TopLine>290</TopLine>
       <CurrentLine>305</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\Source\portable\MemMang\heap_3.c</PathWithFileName>
@@ -624,7 +581,7 @@
 
   <Group>
     <GroupName>lwIP_Source</GroupName>
-    <tvExp>1</tvExp>
+    <tvExp>0</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <File>
@@ -1294,166 +1251,54 @@
     </File>
   </Group>
 
-  <AlienFiles>
-    <PathWithFilename>D:\Work\PentascanAP\Project\PentascanAP\ntp.h</PathWithFilename>
-    <TopLine>1</TopLine>
-    <CurrentLine>1</CurrentLine>
-    <Constant>0</Constant>
-    <WindowPosition>
-      <length>0</length>
-      <flags>0</flags>
-      <showCmd>0</showCmd>
-      <MinPosition>
-        <xPos>0</xPos>
-        <yPos>0</yPos>
-      </MinPosition>
-      <MaxPosition>
-        <xPos>0</xPos>
-        <yPos>0</yPos>
-      </MaxPosition>
-      <NormalPosition>
-        <Top>0</Top>
-        <Left>0</Left>
-        <Right>0</Right>
-        <Bottom>0</Bottom>
-      </NormalPosition>
-    </WindowPosition>
-  </AlienFiles>
-
-  <AlienFiles>
-    <PathWithFilename>d:\Keil\ARM\RV31\INC\stdio.h</PathWithFilename>
-    <TopLine>81</TopLine>
-    <CurrentLine>87</CurrentLine>
-    <Constant>0</Constant>
-    <WindowPosition>
-      <length>0</length>
-      <flags>0</flags>
-      <showCmd>0</showCmd>
-      <MinPosition>
-        <xPos>0</xPos>
-        <yPos>0</yPos>
-      </MinPosition>
-      <MaxPosition>
-        <xPos>0</xPos>
-        <yPos>0</yPos>
-      </MaxPosition>
-      <NormalPosition>
-        <Top>0</Top>
-        <Left>0</Left>
-        <Right>0</Right>
-        <Bottom>0</Bottom>
-      </NormalPosition>
-    </WindowPosition>
-  </AlienFiles>
-
   <MDIGroups>
     <Orientation>1</Orientation>
     <ActiveMDIGroup>0</ActiveMDIGroup>
     <MDIGroup>
       <Size>100</Size>
-      <ActiveTab>1</ActiveTab>
+      <ActiveTab>6</ActiveTab>
       <Documents>
         <Doc>
-          <Name>..\..\Source\portable\MemMang\heap_3.c</Name>
+          <Name>.\SensorManager.c</Name>
           <ColumnNumber>0</ColumnNumber>
-          <TopLine>274</TopLine>
-          <CurrentLine>305</CurrentLine>
-        </Doc>
-        <Doc>
-          <Name>.\startup_rvmdk.S</Name>
-          <ColumnNumber>17</ColumnNumber>
-          <TopLine>28</TopLine>
-          <CurrentLine>54</CurrentLine>
-        </Doc>
-        <Doc>
-          <Name>.\httpc.c</Name>
-          <ColumnNumber>62</ColumnNumber>
-          <TopLine>390</TopLine>
-          <CurrentLine>398</CurrentLine>
-        </Doc>
-        <Doc>
-          <Name>..\..\Source\tasks.c</Name>
-          <ColumnNumber>0</ColumnNumber>
-          <TopLine>1873</TopLine>
-          <CurrentLine>1888</CurrentLine>
-        </Doc>
-        <Doc>
-          <Name>.\telnet.c</Name>
-          <ColumnNumber>50</ColumnNumber>
-          <TopLine>137</TopLine>
-          <CurrentLine>152</CurrentLine>
-        </Doc>
-        <Doc>
-          <Name>.\console.c</Name>
-          <ColumnNumber>0</ColumnNumber>
-          <TopLine>84</TopLine>
-          <CurrentLine>99</CurrentLine>
+          <TopLine>139</TopLine>
+          <CurrentLine>149</CurrentLine>
         </Doc>
         <Doc>
           <Name>.\Retarget.c</Name>
           <ColumnNumber>0</ColumnNumber>
-          <TopLine>42</TopLine>
-          <CurrentLine>57</CurrentLine>
+          <TopLine>21</TopLine>
+          <CurrentLine>38</CurrentLine>
         </Doc>
         <Doc>
-          <Name>d:\Keil\ARM\RV31\INC\stdio.h</Name>
-          <ColumnNumber>18</ColumnNumber>
-          <TopLine>81</TopLine>
-          <CurrentLine>87</CurrentLine>
-        </Doc>
-        <Doc>
-          <Name>.\SensorManager.c</Name>
+          <Name>.\telnet.c</Name>
           <ColumnNumber>0</ColumnNumber>
-          <TopLine>116</TopLine>
-          <CurrentLine>131</CurrentLine>
+          <TopLine>2</TopLine>
+          <CurrentLine>22</CurrentLine>
         </Doc>
         <Doc>
-          <Name>.\log.c</Name>
-          <ColumnNumber>9</ColumnNumber>
-          <TopLine>51</TopLine>
-          <CurrentLine>52</CurrentLine>
-        </Doc>
-        <Doc>
-          <Name>.\main.c</Name>
+          <Name>.\chardevice.c</Name>
           <ColumnNumber>0</ColumnNumber>
-          <TopLine>76</TopLine>
-          <CurrentLine>86</CurrentLine>
-        </Doc>
-        <Doc>
-          <Name>..\..\Source\queue.c</Name>
-          <ColumnNumber>0</ColumnNumber>
-          <TopLine>607</TopLine>
-          <CurrentLine>614</CurrentLine>
-        </Doc>
-        <Doc>
-          <Name>.\ntp.c</Name>
-          <ColumnNumber>0</ColumnNumber>
-          <TopLine>45</TopLine>
-          <CurrentLine>60</CurrentLine>
-        </Doc>
-        <Doc>
-          <Name>ntp.h</Name>
-          <ColumnNumber>34</ColumnNumber>
           <TopLine>1</TopLine>
           <CurrentLine>1</CurrentLine>
         </Doc>
         <Doc>
-          <Name>..\Common\ethernet\lwip-1.4.0\ports\TILM\lwiplib.c</Name>
+          <Name>.\main.c</Name>
           <ColumnNumber>0</ColumnNumber>
-          <TopLine>16</TopLine>
-          <CurrentLine>31</CurrentLine>
+          <TopLine>80</TopLine>
+          <CurrentLine>86</CurrentLine>
         </Doc>
         <Doc>
-          <Name>..\Common\ethernet\lwip-1.4.0\src\api\api_msg.c</Name>
+          <Name>.\log.c</Name>
           <ColumnNumber>0</ColumnNumber>
-          <TopLine>1051</TopLine>
-          <CurrentLine>1066</CurrentLine>
+          <TopLine>1</TopLine>
+          <CurrentLine>1</CurrentLine>
         </Doc>
         <Doc>
-          <Name>..\Common\FatFs\src\ff.c</Name>
-          <ColumnNumber>0</ColumnNumber>
-          <TopLine>2349</TopLine>
-          <CurrentLine>2364</CurrentLine>
+          <Name>..\..\Source\queue.c</Name>
+          <ColumnNumber>51</ColumnNumber>
+          <TopLine>961</TopLine>
+          <CurrentLine>961</CurrentLine>
         </Doc>
       </Documents>
     </MDIGroup>

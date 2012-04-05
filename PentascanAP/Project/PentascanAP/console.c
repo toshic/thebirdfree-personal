@@ -981,6 +981,13 @@ static int Cmd_reboot(FILE *file,char *argv)
     return 0;
 }
 
+static int Cmd_expat(FILE *file,char *argv)
+{
+    extern int expat_main(char *pcFilename);
+    expat_main(argv);
+    return 0;
+}
+
 static int Cmd_ifconfig(FILE *file,char *argv)
 {
     unsigned char pucMACArray[6];
@@ -1024,6 +1031,7 @@ command_table CMD_TABLE[] =
 	"log","write log",Cmd_log,
 	"lcd","print message to lcd",Cmd_lcd,
 	"ntp","sync time with ntp server",Cmd_ntp,
+	"expat","Test expat XML parser",Cmd_expat,
 	"reboot","reboot system",Cmd_reboot,
 	"ifconfig","show network configuration",Cmd_ifconfig,
 	"help","show this message",Cmd_help

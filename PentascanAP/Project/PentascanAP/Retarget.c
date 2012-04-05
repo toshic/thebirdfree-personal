@@ -11,10 +11,11 @@
 #include <stdio.h>
 #include <time.h>
 #include <rt_misc.h>
+#include "rtc.h"
 #include "chardevice.h"
 #include "telnet.h"
 
-#pragma import(__use_no_semihosting_swi)
+//#pragma import(__use_no_semihosting_swi)
 extern int lcd_terminal_char(int ch); /* in LCD.c */
 
 struct __FILE { int handle; /* Add whatever you need here */ };
@@ -61,6 +62,15 @@ void _ttywrch(int ch) {
 //  sendchar (ch);
     telnet_putchar_all(ch);
     console_putchar(ch);
+}
+
+time_t time(time_t *time)
+{
+    if(time){
+        *time = RtcGetTime();
+        return *time;
+    }else
+        return RtcGetTime();        
 }
 
 
