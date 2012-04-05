@@ -129,7 +129,7 @@ int report_measure(){
     mem_free(node_string);
     timer=RtcGetTime();
     timeinfo = localtime(&timer);
-    sprintf(pcFilename,"/%02d%02d%02d%02d",timeinfo->tm_mday,timeinfo->tm_hour,timeinfo->tm_min,timeinfo->tm_sec);
+    sprintf(pcFilename,"/response/%02d%02d%02d%02d",timeinfo->tm_mday,timeinfo->tm_hour,timeinfo->tm_min,timeinfo->tm_sec);
     count++;
     fresult = f_open(FileObject, pcFilename, FA_WRITE | FA_CREATE_ALWAYS);
     tick_before = xTaskGetTickCount();
