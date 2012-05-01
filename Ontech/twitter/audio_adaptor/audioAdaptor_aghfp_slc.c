@@ -25,9 +25,12 @@ DESCRIPTION
 */
 void aghfpSlcInitHf (void)
 {
+    uint16 supported_feature = aghfp_incoming_call_reject;
     if ( (the_app->aghfp == NULL))
     {
-        AghfpInit(&the_app->task, aghfp_handsfree_15_profile, aghfp_incoming_call_reject); 
+        if(the_app->support_inbandring)
+            supported_feature |= aghfp_inband_ring;
+            AghfpInit(&the_app->task, aghfp_handsfree_15_profile, supported_feature); 
     }
 }
 

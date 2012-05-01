@@ -6,7 +6,7 @@
 #include <sink.h>
 #include <stdlib.h>
 
-#define MAX_DEBUG_STRING	100
+#define MAX_DEBUG_STRING	60
 
 #define STR_NO_MEM    "UartSend Malloc Fail\n"
 

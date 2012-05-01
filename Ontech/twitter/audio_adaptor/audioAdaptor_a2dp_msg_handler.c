@@ -1909,6 +1909,8 @@ void a2dpMsgHandleInstanceMessage(devInstanceTaskData *theInst, MessageId id, Me
         case A2DP_SIGNALLING_CHANNEL_CONNECT_CFM:
         {
 			SendEvent(EVT_A2DP_SIGNAL_CONNECT_CFM,((A2DP_SIGNALLING_CHANNEL_CONNECT_CFM_T *)message)->status);
+			the_app->conn_status.a2dp_con = ((A2DP_SIGNALLING_CHANNEL_CONNECT_CFM_T *)message)->status ? 0:1;
+			
             DEBUG_A2DP(("A2DP_SIGNALLING_CHANNEL_CONNECT_CFM  status:[%u] inst:[0x%x]\n", ((A2DP_SIGNALLING_CHANNEL_CONNECT_CFM_T *)message)->status, (uint16)theInst));
             handleA2DPSignallingConnectCfm(theInst, (A2DP_SIGNALLING_CHANNEL_CONNECT_CFM_T *) message);
             return;
@@ -1916,6 +1918,10 @@ void a2dpMsgHandleInstanceMessage(devInstanceTaskData *theInst, MessageId id, Me
         case A2DP_SIGNALLING_CHANNEL_DISCONNECT_IND:
         {
 			SendEvent(EVT_A2DP_SIGNAL_DISCONNECT_IND,((A2DP_SIGNALLING_CHANNEL_DISCONNECT_IND_T *)message)->status);
+			the_app->conn_status.a2dp_con = 0;
+			the_app->conn_status.a2dp_play = 0;
+			the_app->conn_status.a2dp_open = 0;
+			
             DEBUG_A2DP(("\nA2DP_SIGNALLING_CHANNEL_DISCONNECT_IND  status:[%u] inst:[0x%x]\n", ((A2DP_SIGNALLING_CHANNEL_DISCONNECT_IND_T *)message)->status, (uint16)theInst));
             handleA2DPSignallingChannelDisconnectInd(theInst, (A2DP_SIGNALLING_CHANNEL_DISCONNECT_IND_T*)message);
             return;
@@ -1923,6 +1929,8 @@ void a2dpMsgHandleInstanceMessage(devInstanceTaskData *theInst, MessageId id, Me
         case A2DP_OPEN_IND:
         {
 			SendEvent(EVT_A2DP_OPEN_IND,0);
+			the_app->conn_status.a2dp_open = 1;
+			
             DEBUG_A2DP(("A2DP_OPEN_IND inst:[0x%x]\n", (uint16)theInst));
             handleA2DPOpenInd(theInst,  (A2DP_OPEN_IND_T *) message);
             return;
@@ -1930,6 +1938,8 @@ void a2dpMsgHandleInstanceMessage(devInstanceTaskData *theInst, MessageId id, Me
         case A2DP_OPEN_CFM:
         {
 			SendEvent(EVT_A2DP_OPEN_CFM,((A2DP_OPEN_CFM_T *)message)->status);
+			the_app->conn_status.a2dp_open = ((A2DP_OPEN_CFM_T *)message)->status ? 0:1;
+			
             DEBUG_A2DP(("A2DP_OPEN_CFM status:[%u] inst:[0x%x]\n", ((A2DP_OPEN_CFM_T *)message)->status, (uint16)theInst));
             handleA2DPOpenCfm(theInst, (A2DP_OPEN_CFM_T *)message);
             return;
@@ -1937,7 +1947,10 @@ void a2dpMsgHandleInstanceMessage(devInstanceTaskData *theInst, MessageId id, Me
         case A2DP_CONNECT_OPEN_CFM:
         {
 			SendEvent(EVT_A2DP_SIGNAL_CONNECT_CFM,0);
+			the_app->conn_status.a2dp_con = 1;
 			SendEvent(EVT_A2DP_OPEN_CFM,((A2DP_CONNECT_OPEN_CFM_T *)message)->status);
+			the_app->conn_status.a2dp_open = ((A2DP_CONNECT_OPEN_CFM_T *)message)->status ? 0:1;
+
             DEBUG_A2DP(("A2DP_CONNECT_OPEN_CFM status[%u] inst:[0x%x]\n", ((A2DP_CONNECT_OPEN_CFM_T *)message)->status, (uint16)theInst));
             handleA2DPConnectOpenCfm(theInst, (A2DP_CONNECT_OPEN_CFM_T*)message);
             return;
@@ -1945,6 +1958,7 @@ void a2dpMsgHandleInstanceMessage(devInstanceTaskData *theInst, MessageId id, Me
         case A2DP_START_IND:
         {
 			SendEvent(EVT_A2DP_START_IND,0);
+			the_app->conn_status.a2dp_play = 1;
             DEBUG_A2DP(("A2DP_START_IND inst:[0x%x]\n", (uint16)theInst));
             handleA2DPStartInd(theInst, (A2DP_START_IND_T*)message);
             return;
@@ -1952,6 +1966,8 @@ void a2dpMsgHandleInstanceMessage(devInstanceTaskData *theInst, MessageId id, Me
         case A2DP_START_CFM:
         {
 			SendEvent(EVT_A2DP_START_CFM,((A2DP_START_CFM_T *)message)->status);
+			the_app->conn_status.a2dp_play = ((A2DP_START_CFM_T *)message)->status ? 0:1;
+			
             DEBUG_A2DP(("A2DP_START_CFM status[%u] inst:[0x%x]\n", ((A2DP_START_CFM_T *)message)->status, (uint16)theInst));
             handleA2DPStartCfm(theInst, (A2DP_START_CFM_T*)message);
             return;
@@ -1959,6 +1975,8 @@ void a2dpMsgHandleInstanceMessage(devInstanceTaskData *theInst, MessageId id, Me
         case A2DP_SUSPEND_IND:
         {
 			SendEvent(EVT_A2DP_SUSPEND_IND,0);
+			the_app->conn_status.a2dp_play = 0;
+			
             DEBUG_A2DP(("A2DP_SUSPEND_IND inst:[0x%x]\n", (uint16)theInst));
             handleA2DPSuspendInd(theInst, (A2DP_SUSPEND_IND_T*)message);
             return;
@@ -1966,6 +1984,8 @@ void a2dpMsgHandleInstanceMessage(devInstanceTaskData *theInst, MessageId id, Me
         case A2DP_SUSPEND_CFM:
         {
 			SendEvent(EVT_A2DP_SUSPEND_CFM,((A2DP_SUSPEND_CFM_T *)message)->status);
+			the_app->conn_status.a2dp_play = ((A2DP_SUSPEND_CFM_T *)message)->status ? 1:0
+			
             DEBUG_A2DP(("A2DP_SUSPEND_CFM status[%u] inst:[0x%x]\n", ((A2DP_SUSPEND_CFM_T *)message)->status, (uint16)theInst));
             handleA2DPSuspendCfm(theInst, (A2DP_SUSPEND_CFM_T*)message);
             return;

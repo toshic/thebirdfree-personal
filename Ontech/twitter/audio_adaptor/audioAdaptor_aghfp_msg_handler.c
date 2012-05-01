@@ -29,10 +29,6 @@ DESCRIPTION
 #include <stdlib.h>
 #include <codec.h>
 
-/* disable */
-#define USE_SLC_PRE_CONN_MSG
-
-
 /****************************************************************************
   LOCAL FUNCTIONS
 */
@@ -68,6 +64,7 @@ static void connectAudio(Sink audio_sink)
         audio_codec_type codec = audio_codec_none;
 
 		SendEvent(EVT_AUDIO_CONNECT_CFM,0);
+		the_app->conn_status.sco_con = 1;
     
         if(!the_app->bidirect_faststream)
         {
@@ -112,6 +109,7 @@ static void disconnectAudio (devInstanceTaskData *inst)
     if (inst->audio_sink)
     {
 		SendEvent(EVT_AUDIO_DISCONNECT_IND,0);
+		the_app->conn_status.sco_con = 0;
 		
         if (the_app->active_encoder == EncoderSco)
         {
@@ -494,11 +492,11 @@ static void handleAghfpCallMgrCreateInd(AGHFP *aghfp, Sink audio_sink, uint16 id
     {
         case AghfpStateCallSetup:
         {
-/*            if (inst->audio_sink == 0)
+            if (inst->audio_sink == 0)
             {
                 inst->audio_sink = audio_sink;
                 connectAudio(inst->audio_sink);
-            }*/
+            }
             break;
         }    
         default:
@@ -807,6 +805,8 @@ void aghfpMsgHandleLibMessage(MessageId id, Message message)
         {
             AGHFP_SLC_CONNECT_CFM_T *cfm = (AGHFP_SLC_CONNECT_CFM_T *)message;
 			SendEvent(EVT_SLC_CONNECT_CFM,cfm->status);
+			the_app->conn_status.hfp_con = cfm->status ? 0:1;
+			
             DEBUG_AGHFP(("AGHFP_SLC_CONNECT_CFM aghfp = 0x%X status = %u\n", (uint16)cfm->aghfp, cfm->status));
             handleAghfpSlcConnectCfm(cfm);
             break;            
@@ -815,6 +815,8 @@ void aghfpMsgHandleLibMessage(MessageId id, Message message)
         {
             AGHFP_SLC_DISCONNECT_IND_T *ind = (AGHFP_SLC_DISCONNECT_IND_T *)message;
 			SendEvent(EVT_SLC_DISCONNECT_IND,ind->status);
+			the_app->conn_status.hfp_con = 0;
+			
             DEBUG_AGHFP(("AGHFP_SLC_DISCONNECT_IND aghfp = 0x%X status = %d\n", (uint16)ind->aghfp, (uint16)ind->status));
             handleAghfpSlcDisconnectInd(ind);
             break;
@@ -857,6 +859,8 @@ void aghfpMsgHandleLibMessage(MessageId id, Message message)
         case AGHFP_AUDIO_CONNECT_CFM:
         {
 			SendEvent(EVT_AUDIO_CONNECT_CFM,((AGHFP_AUDIO_CONNECT_CFM_T *)message)->status);
+			the_app->conn_status.sco_con = ((AGHFP_AUDIO_CONNECT_CFM_T *)message)->status ? 0:1;
+			
             DEBUG_AGHFP(("AGHFP_AUDIO_CONNECT_CFM status = %u\n", ((AGHFP_AUDIO_CONNECT_CFM_T *)message)->status));
             handleAghfpAudioConnectCfm((AGHFP_AUDIO_CONNECT_CFM_T *)message);
             break;
@@ -864,6 +868,8 @@ void aghfpMsgHandleLibMessage(MessageId id, Message message)
         case AGHFP_AUDIO_DISCONNECT_IND:
         {
 			SendEvent(EVT_AUDIO_DISCONNECT_IND,((AGHFP_AUDIO_DISCONNECT_IND_T *)message)->status);
+			the_app->conn_status.sco_con = ((AGHFP_AUDIO_DISCONNECT_IND_T *)message)->status ? 1:0;
+			
             DEBUG_AGHFP(("AGHFP_AUDIO_DISCONNECT_IND\n"));
             handleAghfpAudioDisconnectInd((AGHFP_AUDIO_DISCONNECT_IND_T *)message);
             break;
@@ -1120,6 +1126,7 @@ void aghfpMsgHandleLibMessage(MessageId id, Message message)
 		{
             DEBUG_AGHFP(("AGHFP_READ_MESSAGE_IND\n"));
 			SendEvent(EVT_SMS_READY,0);
+			the_app->conn_status.sms_ready = 1;
 			break;
 		}
 		case AGHFP_SEND_MESSAGE_IND:

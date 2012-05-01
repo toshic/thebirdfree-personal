@@ -40,7 +40,7 @@ void aghfpCallCreate (devInstanceTaskData *inst, aghfp_call_type call_type)
         case AghfpStateAudioStreaming:        
         {
             setAghfpState(inst, AghfpStateCallSetup);
-			if(call_type != aghfp_call_type_incoming && inst->audio_sink==0)
+			if((the_app->support_inbandring || call_type != aghfp_call_type_incoming) && inst->audio_sink==0)
             {    /* Need to set up new audio connection with call */
                 AghfpCallCreateAudio(inst->aghfp, call_type, TRUE, AUDIO_PACKET_TYPES, NULL);
             }

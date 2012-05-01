@@ -33,6 +33,26 @@ DESCRIPTION
 
 #include "state.h"
 
+/* enable/disable feature */
+#define USE_SLC_PRE_CONN_MSG
+#define WAIT_A2DP_CONNECTx
+#define A2DP_CONNECT_AND_OPENx
+
+/*
+    case 1: original
+                USE_SLC_PRE_CONN_MSGx
+                WAIT_A2DP_CONNECTx
+                A2DP_CONNECT_AND_OPEN
+    case 2: slow
+                USE_SLC_PRE_CONN_MSGx
+                WAIT_A2DP_CONNECT
+                A2DP_CONNECT_AND_OPEN
+    case 3 : a2dp first
+                USE_SLC_PRE_CONN_MSG
+                WAIT_A2DP_CONNECTx
+                A2DP_CONNECT_AND_OPENx
+*/
+
 /* ------------------------------------------------------------------------ */
 /* Debug print defines */ 
 
@@ -692,6 +712,19 @@ typedef struct
 	unsigned int sentBusiness:1;
 } phonebookvCardGenData;
 
+typedef struct
+{
+    unsigned hfp_con:1;
+    unsigned sco_con:1;
+    unsigned a2dp_con:1;
+    unsigned a2dp_open:1;
+    unsigned a2dp_play:1;
+    unsigned avrcp_con:1;
+    unsigned pbap_con:1;
+    unsigned sms_ready:1;
+    unsigned pbap_count:8;
+}profile_status;
+
 
 typedef struct
 {
@@ -711,6 +744,8 @@ typedef struct
     power_type      *power;                         /*!< Pointer to headset power configuration */
     
     devInstanceTaskData *dev_inst[MAX_NUM_DEV_CONNECTIONS];
+
+    profile_status  conn_status;
 
 	char			pin[8];
     bdaddr          search_bdaddr;
@@ -775,6 +810,8 @@ typedef struct
     mvdProfiles      connecting_profile:4;     /* Profile being connected by local device */
     unsigned         a2dp_active_seid:8;
 	unsigned		 waiting_msg:1;
+
+	unsigned         support_inbandring:1;
 /* PBAP */
 
 	pbap_states appState;

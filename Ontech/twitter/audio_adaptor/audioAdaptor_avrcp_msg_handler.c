@@ -442,6 +442,8 @@ void avrcpMsgHandleInstanceMessage(devInstanceTaskData *theInst, MessageId id, M
         case AVRCP_CONNECT_CFM:
         {
 			SendEvent(EVT_AVRCP_SIGNAL_CONNECT_CFM,((AVRCP_CONNECT_CFM_T *)message)->status);
+			the_app->conn_status.avrcp_con = ((AVRCP_CONNECT_CFM_T *)message)->status ? 0:1;
+			
             DEBUG_AVRCP(("AVRCP_CONNECT_CFM status = %u inst:[0x%x]\n", ((AVRCP_CONNECT_CFM_T *)message)->status, (uint16)theInst));
             handleAvrcpConnectCfm(theInst, (AVRCP_CONNECT_CFM_T *)message);
             return;
@@ -449,6 +451,8 @@ void avrcpMsgHandleInstanceMessage(devInstanceTaskData *theInst, MessageId id, M
         case AVRCP_DISCONNECT_IND:
         {
 			SendEvent(EVT_AVRCP_SIGNAL_DISCONNECT_IND,((AVRCP_DISCONNECT_IND_T *)message)->status);
+			the_app->conn_status.avrcp_con = 0;
+			
             DEBUG_AVRCP(("AVRCP_DISCONNECT_IND status = %u inst:[0x%x]\n",((AVRCP_DISCONNECT_IND_T *)message)->status, (uint16)theInst));
             handleAvrcpDisconnectInd(theInst, (AVRCP_DISCONNECT_IND_T *)message);
             return;

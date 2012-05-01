@@ -25,6 +25,8 @@
 { AT + VGM = %d:volume \r } : set_volume_microphone
 { AT + MRST \r } : master_reset
 { AT + VIN = ? \r } : vin_request
+{ AT + IBR = %d:enable \r } : inband_ring_enable
+{ AT + STAT = ? \r } : query_status
 
 
 

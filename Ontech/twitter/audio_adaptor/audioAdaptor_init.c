@@ -286,6 +286,10 @@ DESCRIPTION
 */
 void initProfile (void)
 {
+    uint16 inband = 0;
+    PsRetrieve(0,&inband,1);
+    if(inband)
+        the_app->support_inbandring = TRUE;
      aghfpSlcInitHf();
 }
 
