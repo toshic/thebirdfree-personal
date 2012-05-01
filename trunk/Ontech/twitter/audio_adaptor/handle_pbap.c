@@ -180,6 +180,8 @@ static void handlePbapConnectInd(PBAPS_CONNECT_IND_T *pMsg)
 static void handlePbapConnectCfm(PBAPS_CONNECT_CFM_T *pMsg)
 {
 	SendEvent(EVT_PBAP_CONNECT_CFM,pMsg->status);
+	the_app->conn_status.pbap_con = pMsg->status ? 0:1;
+    the_app->conn_status.pbap_count = 0;
 
 	DEBUG_PBAP(("PBAPS_CONNECT_CFM\n"));
 	
@@ -200,6 +202,7 @@ static void handlePbapConnectCfm(PBAPS_CONNECT_CFM_T *pMsg)
 static void handlePbapDisconnectInd(PBAPS_DISCONNECT_IND_T *pMsg)
 {
 	SendEvent(EVT_PBAP_DISCONNECT_IND,0);
+	the_app->conn_status.pbap_con = 0;
 
 	DEBUG_PBAP(("PBAPS_DISCONNECT_IND\n"));
 	setState(&the_app->appState, PbapStateAppIdle);
@@ -481,8 +484,10 @@ static void handlePbapGetPhonebookNextInd(PBAPS_GET_PHONEBOOK_NEXT_IND_T *pMsg)
 
 static void handlePbapGetPhonebookCompleteInd(PBAPS_GET_PHONEBOOK_COMPLETE_IND_T *pMsg)
 {
-	if(the_app->appState == PbapStatePullPhonebook)
+	if(the_app->appState == PbapStatePullPhonebook){
 		SendEvent(EVT_PBAP_PULL_PHONEBOOK_COMPLETE,the_app->srchData.count);/*pMsg->status);*/
+		the_app->conn_status.pbap_count += the_app->srchData.count;
+	}
 
 	DEBUG_PBAP(("PBAPS_GET_PHONEBOOK_COMPLETE_IND\n"));
 	if ((the_app->appState == PbapStatePullPhonebook) || (the_app->appState == PbapStatePullPhonebookSize))

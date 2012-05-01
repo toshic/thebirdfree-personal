@@ -162,15 +162,6 @@ void sppDevInit(void)
 	
     /* Initialise the spp profile lib, stating that this is device B */ 
     SppInitLazy(&the_app->task, &the_app->task, &init);
-
-    recv_pkt = (packet_frame *) malloc(sizeof(packet_frame) + 239); /* 460 */
-#ifdef LONG_MSG    
-    payload_long = (uint16 *) malloc(90); /* 180 */
-    if(recv_pkt == 0 || payload_long == 0)
-#else
-    if(recv_pkt == 0)
-#endif    
-        DEBUG(("malloc fail\n"));
 }
 
 typedef enum {
@@ -661,6 +652,18 @@ void handleSppMessage(MessageId id, Message message)
 
 			if(cfm->status == spp_connect_success)
 			{
+			    if(!recv_pkt){
+                    recv_pkt = (packet_frame *) malloc(sizeof(packet_frame) + 239); /* 460 */
+#ifdef LONG_MSG    
+                    if(!payload_long){
+                        payload_long = (uint16 *) malloc(90); /* 180 */
+                    if(recv_pkt == 0 || payload_long == 0)
+#else
+                    if(recv_pkt == 0)
+#endif    
+                        DEBUG(("malloc fail\n"));
+                }
+
 			    spp = cfm->spp;
 				spp_sink = cfm->sink;
 		        MessageSinkTask(spp_sink, &the_app->task); 
@@ -681,6 +684,13 @@ void handleSppMessage(MessageId id, Message message)
 		    DEBUG(("SPP Disconnect\n"));
 			spp_sink = 0;
 			spp = 0;
+
+            if(!recv_pkt)
+                free(recv_pkt);
+#ifdef LONG_MSG    
+            if(!payload_long)
+                free(payload_long);
+#endif    
 			break;
 		default:
 			break;

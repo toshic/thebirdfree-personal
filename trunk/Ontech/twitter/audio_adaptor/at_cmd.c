@@ -219,176 +219,202 @@ static const Arc arcs[] = {
   { ' ', 3 },
   { 'A', 4 },
   { 'C', 5 },
-  { 'M', 6 },
-  { 'R', 7 },
-  { 'S', 8 },
-  { 'V', 9 },
-  { 'W', 10 },
-  { 'C', 11 },
-  { 'D', 12 },
-  { 'I', 13 },
-  { 'M', 14 },
-  { 'C', 15 },
-  { 'D', 16 },
-  { 'P', 17 },
-  { 'R', 18 },
-  { 'S', 19 },
-  { 'D', 20 },
-  { 'C', 21 },
+  { 'I', 6 },
+  { 'M', 7 },
+  { 'R', 8 },
+  { 'S', 9 },
+  { 'V', 10 },
+  { 'W', 11 },
+  { 'C', 12 },
+  { 'D', 13 },
+  { 'I', 14 },
+  { 'M', 15 },
+  { 'B', 16 },
+  { 'C', 17 },
+  { 'D', 18 },
+  { 'P', 19 },
+  { 'R', 20 },
+  { 'S', 21 },
   { 'D', 22 },
-  { 'P', 23 },
-  { 'G', 24 },
-  { 'I', 25 },
-  { 'R', 26 },
-  { 'O', 27 },
-  { 'S', 28 },
-  { 'N', 29 },
-  { 'T', 30 },
-  { 'O', 31 },
-  { 'S', 32 },
-  { 'L', 33 },
-  { 'S', 34 },
-  { 'P', 35 },
-  { 'B', 36 },
-  { 'N', 37 },
+  { 'C', 23 },
+  { 'D', 24 },
+  { 'P', 25 },
+  { 'T', 26 },
+  { 'G', 27 },
+  { 'I', 28 },
+  { 'R', 29 },
+  { 'O', 30 },
+  { 'S', 31 },
+  { 'N', 32 },
+  { 'T', 33 },
+  { 'R', 34 },
+  { 'O', 35 },
+  { 'S', 36 },
+  { 'L', 37 },
   { 'S', 38 },
-  { 'O', 39 },
-  { 'S', 40 },
-  { 'B', 41 },
-  { 'I', 42 },
-  { 'M', 43 },
+  { 'P', 39 },
+  { 'B', 40 },
+  { 'N', 41 },
+  { 'S', 42 },
+  { 'O', 43 },
   { 'S', 44 },
-  { 'N', 45 },
-  { 'N', 46 },
-  { 'N', 47 },
-  { 'C', 48 },
-  { 'C', 49 },
-  { 'I', 50 },
+  { 'B', 45 },
+  { 'I', 46 },
+  { 'A', 47 },
+  { 'M', 48 },
+  { 'S', 49 },
+  { 'N', 50 },
   { 'N', 51 },
-  { 'C', 52 },
-  { 'Y', 53 },
-  { 'T', 54 },
-  { 'D', 55 },
-  { 'D', 56 },
-  { 'M', 57 },
-  { 'S', 58 },
-  { 'N', 59 },
-  { 'C', 60 },
-  { 'N', 61 },
-  { 'N', 62 },
-  { '\t', 43 },
-  { ' ', 43 },
+  { 'N', 52 },
+  { 'C', 53 },
+  { 'C', 54 },
+  { 'I', 55 },
+  { '\t', 34 },
+  { ' ', 34 },
   { ':', -1 },
   { '=', -1 },
-  { '\t', 44 },
-  { ' ', 44 },
+  { 'N', 56 },
+  { 'C', 57 },
+  { 'Y', 58 },
+  { 'T', 59 },
+  { 'D', 60 },
+  { 'D', 61 },
+  { 'M', 62 },
+  { 'S', 63 },
+  { 'N', 64 },
+  { 'C', 65 },
+  { 'N', 66 },
+  { 'N', 67 },
+  { 'T', 68 },
+  { '\t', 48 },
+  { ' ', 48 },
   { ':', -2 },
   { '=', -2 },
-  { '\t', 45 },
-  { ' ', 45 },
-  { ':', 63 },
-  { '=', 63 },
-  { 'M', 64 },
-  { '\t', 47 },
-  { '\n', -3 },
-  { '\r', -3 },
-  { ' ', 47 },
-  { '\t', 48 },
-  { '\n', -4 },
-  { '\r', -4 },
-  { ' ', 48 },
   { '\t', 49 },
   { ' ', 49 },
-  { ':', -5 },
-  { '=', -5 },
+  { ':', -3 },
+  { '=', -3 },
   { '\t', 50 },
   { ' ', 50 },
-  { ':', -6 },
-  { '=', -6 },
-  { '\t', 51 },
-  { '\n', -7 },
-  { '\r', -7 },
-  { ' ', 51 },
-  { ':', -8 },
-  { '=', -8 },
+  { ':', 69 },
+  { '=', 69 },
+  { 'M', 70 },
   { '\t', 52 },
-  { '\n', -9 },
-  { '\r', -9 },
+  { '\n', -4 },
+  { '\r', -4 },
   { ' ', 52 },
   { '\t', 53 },
-  { '\n', -10 },
-  { '\r', -10 },
+  { '\n', -5 },
+  { '\r', -5 },
   { ' ', 53 },
   { '\t', 54 },
-  { '\n', -11 },
-  { '\r', -11 },
   { ' ', 54 },
+  { ':', -6 },
+  { '=', -6 },
   { '\t', 55 },
-  { '\n', -12 },
-  { '\r', -12 },
   { ' ', 55 },
+  { ':', -7 },
+  { '=', -7 },
   { '\t', 56 },
-  { '\n', -13 },
-  { '\r', -13 },
+  { '\n', -8 },
+  { '\r', -8 },
   { ' ', 56 },
+  { ':', -9 },
+  { '=', -9 },
   { '\t', 57 },
-  { '\n', -14 },
-  { '\r', -14 },
+  { '\n', -10 },
+  { '\r', -10 },
   { ' ', 57 },
   { '\t', 58 },
-  { '\n', -15 },
-  { '\r', -15 },
+  { '\n', -11 },
+  { '\r', -11 },
   { ' ', 58 },
   { '\t', 59 },
+  { '\n', -12 },
+  { '\r', -12 },
   { ' ', 59 },
-  { ':', -16 },
-  { '=', -16 },
   { '\t', 60 },
-  { '\n', -17 },
-  { '\r', -17 },
+  { '\n', -13 },
+  { '\r', -13 },
   { ' ', 60 },
   { '\t', 61 },
+  { '\n', -14 },
+  { '\r', -14 },
   { ' ', 61 },
-  { ':', -18 },
-  { '=', -18 },
   { '\t', 62 },
+  { '\n', -15 },
+  { '\r', -15 },
   { ' ', 62 },
-  { ':', -19 },
-  { '=', -19 },
   { '\t', 63 },
-  { '\n', -20 },
-  { '\r', -20 },
+  { '\n', -16 },
+  { '\r', -16 },
   { ' ', 63 },
-  { '?', 65 },
   { '\t', 64 },
   { ' ', 64 },
-  { ':', -21 },
-  { '=', -21 },
+  { ':', -17 },
+  { '=', -17 },
+  { '\t', 65 },
+  { '\n', -18 },
+  { '\r', -18 },
+  { ' ', 65 },
   { '\t', 66 },
-  { '\n', -20 },
-  { '\r', -20 },
   { ' ', 66 },
-  { '?', 65 },
-  { '\t', 66 },
-  { '\n', -20 },
-  { '\r', -20 },
-  { ' ', 66 },
+  { ':', -19 },
+  { '=', -19 },
+  { '\t', 67 },
+  { ' ', 67 },
+  { ':', -20 },
+  { '=', -20 },
+  { '\t', 68 },
+  { ' ', 68 },
+  { ':', 71 },
+  { '=', 71 },
+  { '\t', 69 },
+  { '\n', -21 },
+  { '\r', -21 },
+  { ' ', 69 },
+  { '?', 72 },
+  { '\t', 70 },
+  { ' ', 70 },
+  { ':', -22 },
+  { '=', -22 },
+  { '\t', 71 },
+  { '\n', -23 },
+  { '\r', -23 },
+  { ' ', 71 },
+  { '?', 73 },
+  { '\t', 74 },
+  { '\n', -21 },
+  { '\r', -21 },
+  { ' ', 74 },
+  { '?', 72 },
+  { '\t', 75 },
+  { '\n', -23 },
+  { '\r', -23 },
+  { ' ', 75 },
+  { '?', 73 },
+  { '\t', 74 },
+  { '\n', -21 },
+  { '\r', -21 },
+  { ' ', 74 },
+  { '\t', 75 },
+  { '\n', -23 },
+  { '\r', -23 },
+  { ' ', 75 },
 };
 
-static const Arc *const states[68] = {
+static const Arc *const states[77] = {
   &arcs[0],
   &arcs[3],
   &arcs[4],
   &arcs[7],
-  &arcs[16],
-  &arcs[18],
-  &arcs[20],
-  &arcs[25],
-  &arcs[26],
-  &arcs[29],
-  &arcs[31],
+  &arcs[17],
+  &arcs[19],
+  &arcs[21],
+  &arcs[22],
+  &arcs[27],
+  &arcs[28],
   &arcs[32],
-  &arcs[33],
   &arcs[34],
   &arcs[35],
   &arcs[36],
@@ -397,15 +423,15 @@ static const Arc *const states[68] = {
   &arcs[39],
   &arcs[40],
   &arcs[41],
+  &arcs[42],
+  &arcs[43],
   &arcs[44],
   &arcs[45],
-  &arcs[46],
   &arcs[48],
+  &arcs[49],
   &arcs[50],
-  &arcs[51],
   &arcs[52],
   &arcs[53],
-  &arcs[54],
   &arcs[55],
   &arcs[56],
   &arcs[57],
@@ -413,37 +439,48 @@ static const Arc *const states[68] = {
   &arcs[59],
   &arcs[60],
   &arcs[61],
-  &arcs[62],
-  &arcs[63],
-  &arcs[64],
   &arcs[65],
   &arcs[66],
   &arcs[67],
   &arcs[68],
+  &arcs[69],
+  &arcs[70],
+  &arcs[71],
   &arcs[72],
+  &arcs[73],
+  &arcs[74],
+  &arcs[75],
   &arcs[76],
-  &arcs[80],
-  &arcs[81],
-  &arcs[85],
-  &arcs[89],
-  &arcs[93],
-  &arcs[97],
+  &arcs[77],
+  &arcs[78],
+  &arcs[82],
+  &arcs[86],
+  &arcs[90],
+  &arcs[91],
+  &arcs[95],
+  &arcs[99],
   &arcs[103],
   &arcs[107],
-  &arcs[111],
-  &arcs[115],
-  &arcs[119],
-  &arcs[123],
-  &arcs[127],
-  &arcs[131],
-  &arcs[135],
-  &arcs[139],
-  &arcs[143],
-  &arcs[147],
-  &arcs[152],
-  &arcs[156],
+  &arcs[113],
+  &arcs[117],
+  &arcs[121],
+  &arcs[125],
+  &arcs[129],
+  &arcs[133],
+  &arcs[137],
+  &arcs[141],
+  &arcs[145],
+  &arcs[149],
+  &arcs[153],
+  &arcs[157],
   &arcs[161],
-  &arcs[165],
+  &arcs[166],
+  &arcs[170],
+  &arcs[175],
+  &arcs[180],
+  &arcs[185],
+  &arcs[189],
+  &arcs[193],
 };
 
 static uint16 matchLiteral(ptr s, ptr e, Task task)
@@ -485,6 +522,7 @@ static ptr parseData(ptr s, ptr e, Task task)
     else
     {
       union {
+        struct inband_ring_enable inband_ring_enable;
         struct set_volume_microphone set_volume_microphone;
         struct set_volume_speaker set_volume_speaker;
         struct virtual_incoming_call virtual_incoming_call;
@@ -516,6 +554,20 @@ static ptr parseData(ptr s, ptr e, Task task)
       switch(-state)
       {
         case 1:
+          if(match1(skip1(UtilGetNumber(skip1(t, e), e, &uu->inband_ring_enable.enable), e), e))
+          {
+#ifndef TEST_HARNESS
+            inband_ring_enable(task, &uu->inband_ring_enable);
+#endif
+#ifdef TEST_HARNESS
+            printf("Called inband_ring_enable");
+            printf(" enable=%d", uu->inband_ring_enable.enable);
+            putchar('\n');
+#endif
+            continue;
+          }
+          break;
+        case 2:
           if(match1(skip1(UtilGetNumber(skip1(t, e), e, &uu->set_volume_microphone.volume), e), e))
           {
 #ifndef TEST_HARNESS
@@ -529,7 +581,7 @@ static ptr parseData(ptr s, ptr e, Task task)
             continue;
           }
           break;
-        case 2:
+        case 3:
           if(match1(skip1(UtilGetNumber(skip1(t, e), e, &uu->set_volume_speaker.volume), e), e))
           {
 #ifndef TEST_HARNESS
@@ -543,7 +595,7 @@ static ptr parseData(ptr s, ptr e, Task task)
             continue;
           }
           break;
-        case 3:
+        case 4:
           if(t)
           {
 #ifndef TEST_HARNESS
@@ -556,7 +608,7 @@ static ptr parseData(ptr s, ptr e, Task task)
             continue;
           }
           break;
-        case 4:
+        case 5:
           if(t)
           {
 #ifndef TEST_HARNESS
@@ -569,7 +621,7 @@ static ptr parseData(ptr s, ptr e, Task task)
             continue;
           }
           break;
-        case 5:
+        case 6:
           if(match1(skip1(getString(skip1(t, e), e, &uu->virtual_incoming_call.callerid), e), e))
           {
 #ifndef TEST_HARNESS
@@ -583,7 +635,7 @@ static ptr parseData(ptr s, ptr e, Task task)
             continue;
           }
           break;
-        case 6:
+        case 7:
           if(match1(skip1(getWildString(skip1(skipOnce1(skip1(getString(skip1(t, e), e, &uu->sms_new_message_ind.sender), e), e), e), e, &uu->sms_new_message_ind.text), e), e))
           {
 #ifndef TEST_HARNESS
@@ -598,7 +650,7 @@ static ptr parseData(ptr s, ptr e, Task task)
             continue;
           }
           break;
-        case 7:
+        case 8:
           if(t)
           {
 #ifndef TEST_HARNESS
@@ -611,7 +663,7 @@ static ptr parseData(ptr s, ptr e, Task task)
             continue;
           }
           break;
-        case 8:
+        case 9:
           if(match1(skip1(getString(skip1(t, e), e, &uu->a2dp_signal_connect_req.bdaddr), e), e))
           {
 #ifndef TEST_HARNESS
@@ -625,7 +677,7 @@ static ptr parseData(ptr s, ptr e, Task task)
             continue;
           }
           break;
-        case 9:
+        case 10:
           if(t)
           {
 #ifndef TEST_HARNESS
@@ -638,7 +690,7 @@ static ptr parseData(ptr s, ptr e, Task task)
             continue;
           }
           break;
-        case 10:
+        case 11:
           if(t)
           {
 #ifndef TEST_HARNESS
@@ -651,7 +703,7 @@ static ptr parseData(ptr s, ptr e, Task task)
             continue;
           }
           break;
-        case 11:
+        case 12:
           if(t)
           {
 #ifndef TEST_HARNESS
@@ -664,7 +716,7 @@ static ptr parseData(ptr s, ptr e, Task task)
             continue;
           }
           break;
-        case 12:
+        case 13:
           if(t)
           {
 #ifndef TEST_HARNESS
@@ -677,7 +729,7 @@ static ptr parseData(ptr s, ptr e, Task task)
             continue;
           }
           break;
-        case 13:
+        case 14:
           if(t)
           {
 #ifndef TEST_HARNESS
@@ -690,7 +742,7 @@ static ptr parseData(ptr s, ptr e, Task task)
             continue;
           }
           break;
-        case 14:
+        case 15:
           if(t)
           {
 #ifndef TEST_HARNESS
@@ -703,7 +755,7 @@ static ptr parseData(ptr s, ptr e, Task task)
             continue;
           }
           break;
-        case 15:
+        case 16:
           if(t)
           {
 #ifndef TEST_HARNESS
@@ -716,7 +768,7 @@ static ptr parseData(ptr s, ptr e, Task task)
             continue;
           }
           break;
-        case 16:
+        case 17:
           if(match1(skip1(getString(skip1(t, e), e, &uu->slc_connect_req.bdaddr), e), e))
           {
 #ifndef TEST_HARNESS
@@ -730,7 +782,7 @@ static ptr parseData(ptr s, ptr e, Task task)
             continue;
           }
           break;
-        case 17:
+        case 18:
           if(t)
           {
 #ifndef TEST_HARNESS
@@ -743,7 +795,7 @@ static ptr parseData(ptr s, ptr e, Task task)
             continue;
           }
           break;
-        case 18:
+        case 19:
           if(match1(skip1(UtilGetNumber(skip1(t, e), e, &uu->set_phonebook_index.index), e), e))
           {
 #ifndef TEST_HARNESS
@@ -757,7 +809,7 @@ static ptr parseData(ptr s, ptr e, Task task)
             continue;
           }
           break;
-        case 19:
+        case 20:
           if(match1(skip1(getString(skip1(t, e), e, &uu->write_pin.pin), e), e))
           {
 #ifndef TEST_HARNESS
@@ -771,7 +823,7 @@ static ptr parseData(ptr s, ptr e, Task task)
             continue;
           }
           break;
-        case 20:
+        case 21:
           if(t)
           {
 #ifndef TEST_HARNESS
@@ -784,7 +836,7 @@ static ptr parseData(ptr s, ptr e, Task task)
             continue;
           }
           break;
-        case 21:
+        case 22:
           if(match1(skip1(getWildString(skip1(t, e), e, &uu->write_local_name.name), e), e))
           {
 #ifndef TEST_HARNESS
@@ -793,6 +845,19 @@ static ptr parseData(ptr s, ptr e, Task task)
 #ifdef TEST_HARNESS
             printf("Called write_local_name");
             printString("name", &uu->write_local_name.name);
+            putchar('\n');
+#endif
+            continue;
+          }
+          break;
+        case 23:
+          if(t)
+          {
+#ifndef TEST_HARNESS
+            query_status(task);
+#endif
+#ifdef TEST_HARNESS
+            printf("Called query_status");
             putchar('\n');
 #endif
             continue;
@@ -1073,6 +1138,19 @@ void vin_request(Task task)
     SppVinInfoPrint();
 }
 
+void inband_ring_enable(Task task, const struct inband_ring_enable *inband)
+{
+    WritePsKey(PSKEY_USR0,inband->enable);
+	SendOk();
+}
+
+void query_status(Task task)
+{
+    uint16 *pv = (uint16 *)&the_app->conn_status;
+	SendEventHex(EVT_CONN_STATUS,*pv);
+}
+
+
 void handleUnrecognisedCmd(const uint8 *data, uint16 length, Task task)
 {
 	DEBUG_AGHFP(("Unhandled UART command\n"));
@@ -1119,12 +1197,18 @@ static const char * const gEventString[] =
 	"PBAP_PULL_PHONEBOOK_REQ",
 	"+PBS",
 	"+PBC",
-	"+SMS"
+	"+SMS",
+	"+STS"
 };
 
 void SendEvent(evt_string_id id,uint16 status)
 {
 	UartPrintf("\r\n%s=%d\r\n",gEventString[id],status);
+}
+
+void SendEventHex(evt_string_id id,uint16 status)
+{
+	UartPrintf("\r\n%s=%x\r\n",gEventString[id],status);
 }
 
 void SendData(uint8* data,uint16 length)

@@ -478,11 +478,11 @@ void profileSlcConnectCfm (devInstanceTaskData *inst, mvdProfiles profile, bool 
         }
         else
         {   /* Kick off connection of next profile */
-#if 1
-            profileSlcConnectReq();
-#else       /* this condition is only for test remote reaction */  
+#ifdef WAIT_A2DP_CONNECT        /* this condition is only for test remote reaction */  
             MessageCancelAll(&inst->task, APP_LATE_CONNECT_TIMER);
             MessageSendLater(&inst->task, APP_LATE_CONNECT_TIMER, 0, D_SEC(5));
+#else
+            profileSlcConnectReq();
 #endif            
         }
     }

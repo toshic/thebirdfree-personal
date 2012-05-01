@@ -57,7 +57,8 @@ typedef enum
 	EVT_PBAP_PULL_PHONEBOOK_REQ,
 	EVT_PBAP_PULL_PHONEBOOK_START,
 	EVT_PBAP_PULL_PHONEBOOK_COMPLETE,
-	EVT_SMS_READY
+	EVT_SMS_READY,
+	EVT_CONN_STATUS
 }evt_string_id;
 
 
@@ -67,6 +68,10 @@ struct sequence
   uint16 length;
 };
 
+struct inband_ring_enable
+{
+  uint16 enable;
+};
 struct set_volume_microphone
 {
   uint16 volume;
@@ -104,6 +109,7 @@ struct write_local_name
 {
   struct sequence name;
 };
+void inband_ring_enable(Task , const struct inband_ring_enable *);
 void set_volume_microphone(Task , const struct set_volume_microphone *);
 void set_volume_speaker(Task , const struct set_volume_speaker *);
 void audio_connect_req(Task );
@@ -125,8 +131,10 @@ void set_phonebook_index(Task , const struct set_phonebook_index *);
 void write_pin(Task , const struct write_pin *);
 void vin_request(Task );
 void write_local_name(Task , const struct write_local_name *);
+void query_status(Task );
 
 void SendEvent(evt_string_id id,uint16 status);
+void SendEventHex(evt_string_id id,uint16 status);
 void SendData(uint8* data,uint16 length);
 void SendHex(uint8* data,uint16 length);
 #endif
