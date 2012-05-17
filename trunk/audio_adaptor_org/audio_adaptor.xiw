@@ -1,0 +1,4 @@
+<workspace>
+ <project path="audio_adaptor.xip" />
+ <project path="../../kalimba/apps/audio_adaptor/sbc_encoder.xip" />
+</workspace>

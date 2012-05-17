@@ -1,0 +1,97 @@
+//define some special led pins
+
+led 0 BLUE
+led 1 RED
+
+
+//define some patterns to be used
+
+pattern LEDS_OFF RPT
+    RED BLUE OFF 0
+    
+pattern RED_ON RPT
+    RED ON 0
+
+pattern BLUE_ONE_SEC_ON_RPT    RPT
+    BLUE ON  1000
+    BLUE OFF 200    
+
+pattern RED_ON_BLUE_ONE_SEC_ON_RPT    RPT
+    RED BLUE ON  1000
+    BLUE OFF 200   
+
+pattern RED_ONE_SEC_ON_RPT    RPT
+    RED ON  1000
+    RED OFF 200    
+
+pattern BLUE_SHORT_ON_RPT  RPT
+    BLUE ON  100
+    BLUE OFF 2400
+    
+pattern RED_SHORT_ON_RPT  RPT
+    RED ON  100
+    RED OFF 2400
+    
+pattern RED_ON_BLUE_SHORT_RPT RPT
+    RED  BLUE ON  100
+    BLUE OFF  2400
+    
+pattern BLUE_TWO_FLASHES_RPT RPT
+    BLUE ON  100
+    BLUE OFF 100
+    BLUE ON  100
+    BLUE OFF 2400
+    
+pattern RED_TWO_FLASHES_RPT RPT
+    RED ON  100
+    RED OFF 100
+    RED ON  100
+    RED OFF 2400
+
+pattern RED_BLUE_ALT_RPT_FAST    RPT
+    RED  ON  100
+    RED  OFF 100
+    BLUE ON  100
+    BLUE OFF 100  
+    
+pattern RED_BLUE_ALT_RPT    RPT
+    RED  ON  1000
+    RED  OFF 1000
+    BLUE ON  1000
+    BLUE OFF 1000 
+    
+pattern RED_REP_BLUE_ALT_RPT    RPT
+    RED  ON  100
+    RED  OFF 100
+    RED  ON  100
+    RED  OFF 100
+    RED  ON  100
+    RED  OFF 500
+    BLUE ON  1000
+    BLUE OFF 1000 
+
+pattern RED_BLUE_BOTH_RPT_FAST 
+    RED BLUE ON 100
+    RED BLUE OFF 100
+    RED BLUE ON 100
+    RED BLUE OFF 100
+    RED BLUE ON 100
+    RED BLUE OFF 100
+    RED BLUE ON 100
+    RED BLUE OFF 100
+    
+pattern RED_BLUE_BOTH_RPT RPT
+    RED BLUE ON 1000
+    RED BLUE OFF 1000
+
+pattern RED_BLUE_BOTH_RPT_THREE RPT
+    RED BLUE ON 100
+    RED BLUE OFF 100
+    RED BLUE ON 100
+    RED BLUE OFF 100
+    RED BLUE ON 100
+    RED BLUE OFF 1500
+
+pattern LEDS_EVENT_POWER_ON
+    RED BLUE ON 1000
+    RED BLUE OFF 100

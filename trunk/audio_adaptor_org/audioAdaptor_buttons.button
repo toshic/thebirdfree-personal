@@ -1,0 +1,162 @@
+// Copyright (C) Cambridge Silicon Radio Ltd. 2009
+// Part of Audio-Adaptor-SDK 2009.R1
+
+//button usage for DEV_PC_1645 USB
+#ifdef DEV_PC_1645_USB
+
+pio 0 MFB
+chg_raw
+vreg VREG
+
+#ifdef DEMO_MODE
+pio 14 FWD
+pio 15 BACK
+pio 10 AUX1
+#endif
+
+charger_debounce 4 15
+
+debounce 2 20
+
+message BUTTON_DEVICE_CONNECT_REQ
+    MFB release
+    
+message BUTTON_DEVICE_DISCOVER_REQ
+    MFB held_release 2000 
+
+message BUTTONS_CLEAR_PDL_REQ
+    MFB held 10000
+
+message BUTTON_PWR_OFF_REQ
+    VREG held 4000
+    
+message BUTTON_PWR_RELEASE
+    VREG release
+     
+message BUTTON_CONNECT_SECOND_DEVICE_REQ
+    MFB double 800
+    
+   #ifdef DEMO_MODE	
+    message BUTTON_MODE_FASTSTREAM
+            FWD held_release 60
+
+    message BUTTON_MODE_SBC
+            BACK held_release 60
+
+    message BUTTON_MODE_MP3
+            AUX1 held_release 60
+    #endif
+     
+#endif
+
+
+//button usage for DEV_PC_1645 Analogue
+#ifdef DEV_PC_1645_ANALOGUE
+
+pio 0 MFB
+chg_raw
+vreg VREG
+
+#ifdef DEMO_MODE
+pio 14 FWD
+pio 15 BACK
+pio 10 AUX1
+#endif
+
+charger_debounce 4 15
+
+debounce 2 20
+
+message BUTTON_DEVICE_CONNECT_REQ
+    MFB release
+    
+message BUTTON_DEVICE_DISCOVER_REQ
+    MFB held_release 2000 
+
+message BUTTONS_CLEAR_PDL_REQ
+    MFB held 10000
+
+message BUTTON_PWR_OFF_REQ
+    VREG held 4000
+    
+message BUTTON_PWR_RELEASE
+    VREG release
+     
+message BUTTON_CONNECT_SECOND_DEVICE_REQ
+    MFB double 800
+    
+    #ifdef DEMO_MODE	
+    message BUTTON_MODE_FASTSTREAM
+            FWD held_release 60
+
+    message BUTTON_MODE_SBC
+            BACK held_release 60
+
+    message BUTTON_MODE_MP3
+            AUX1 held_release 60
+    #endif
+     
+#endif
+
+
+//button usage for RED_PC_141
+#ifdef RED_PC_141 
+
+pio 2 MFB
+chg_raw
+vreg VREG
+
+charger_debounce 4 15
+
+debounce 2 20
+
+message BUTTON_DEVICE_CONNECT_REQ
+    MFB release
+    
+message BUTTON_DEVICE_DISCOVER_REQ
+    MFB held_release 2000 
+
+message BUTTONS_CLEAR_PDL_REQ
+    MFB held 10000
+
+message BUTTON_PWR_OFF_REQ
+    VREG held 4000
+    
+message BUTTON_PWR_RELEASE
+    VREG release
+     
+message BUTTON_CONNECT_SECOND_DEVICE_REQ
+    MFB double 800
+     
+#endif
+
+//button usage for RED_PC_142
+#ifdef RED_PC_142 
+
+chg_raw
+vreg VREG
+
+charger_debounce 4 15
+
+debounce 2 20
+
+message BUTTON_DEVICE_CONNECT_REQ
+    VREG release
+    
+message BUTTON_DEVICE_DISCOVER_REQ
+    VREG held_release 2000 
+
+message BUTTONS_CLEAR_PDL_REQ
+    VREG held 10000
+
+message BUTTON_PWR_OFF_REQ
+    VREG held 4000
+    
+message BUTTON_PWR_RELEASE
+    VREG release
+     
+message BUTTON_CONNECT_SECOND_DEVICE_REQ
+    VREG double 800
+     
+#endif
+

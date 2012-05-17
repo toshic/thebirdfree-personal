@@ -1,0 +1,96 @@
+// PSKEY_LOCAL_SUPPORTED_FEATURES
+&00ef -
+
+// PSKEY_ONCHIP_HCI_CLIENT
+&03cc = 0001
+
+// PSKEY_HOST_INTERFACE
+&01f9 = 0000
+
+// PSKEY_VM_DISABLE
+&025d = 0000
+
+// -------------------------------------------------------------------
+//  -------   User defined configuration PS Key   --------------------
+
+// PSKEY_USR0 (Profiles supported by analogue dongle (a2dp only))
+&028a = 0004
+
+// PSKEY_USR2
+&028c -   
+
+// PSKEY_USR7 (Paired device list)
+//&0291 -
+
+// PSKEY_USR11 (Audio codec enabled )
+// PSKEY_CODEC_ENABLED  
+// bit 0: mp3; bit 1: faststream 
+&0295 = 0000
+
+// PSKEY_USR12 (Audio input source type: 0: USB, 1: Analogue)
+// PSKEY_SOURCE_TYPE 
+&0296 = 0001
+
+// PSKEY_USR13 
+// PSKEY_BATTERY_CONFIG 
+&0297 = 0000 a596 b4b9 1e00 000a
+
+// PSKEY_USR14 
+// PSKEY_MP3_CODEC_CONFIGURATION
+
+// For MP3, the bitrate table is:
+//         index 1         =  0   1    2    3    4    5   6     7    8    9   10   11   12   13   14
+// bitrate_table1(kbits/s) = [0, 32,  40,  48,  56,  64,  80,  96, 112, 128, 160, 192, 224, 256, 320];
+// bitrate_table2(kbits/s) = [0,  8,  16,  24,  32,  40,  48,  56,  64,  80,  96, 112, 128, 144, 160];
+
+// For SBC, the bitpool value is between 2 to 250.
+
+//     index 2             =  0    1      2    3    4      5  
+// sample_rate(mp3)        = [48   44.1   32   24   22.05  16 ]
+// sample_rate(sbc)        = [48   44.1   32   16 ] 
+// sample_rate(faststream) = [48   44.1   16 ] 
+
+// channel mode index      =  0              1        2             3
+// channel mode            =  joint_stereo   stereo   dual_channel  mono        
+
+// 0-7 bitrate_index(mp3)/ bitpool (SBC) (00:disable); 
+// 8-11: sample_rate_index(0xf:disable); 12: isVBRsupported; 13-15: channel mode
+&0298 = 1109 
+
+// PSKEY_USR15 
+// PSKEY_SBC_CODEC_CONFIGURATION
+&0299 = 0132 
+
+// PSKEY_USR16 
+// PSKEY_FASTSTREAM_CODEC_CONFIGURATION
+&029a = 0100 
+
+// PSKEY_USR41
+//&02b3 -
+
+// PSKEY_USR42
+//&02b4 -
+
+// PSKEY_USR43
+//&02b5 -
+
+// PSKEY_USR44
+//&02b6 -
+
+// PSKEY_USR45
+//&02b7 -
+
+// PSKEY_USR46
+//&02b8 -
+
+// PSKEY_USR47
+//&02b9 -
+
+// PSKEY_USR48
+//&02ba -
+
+// PSKEY_USR49
+//&02bb -
+
+
+
