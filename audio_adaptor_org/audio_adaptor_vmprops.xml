@@ -1,0 +1,74 @@
+<custom>
+	<property type="list" key="codec" format="define" name="Codec configure mode" defaultvalue="0">
+       <option internalval="USER_CONFIGURE_CODEC">User Configured Codec</option>
+       <option internalval="LIBRARY_CONFIGURE_CODEC">Library Default Configuration</option>
+       <description>
+           <![CDATA[
+           Determines whether user or a2dp library configures the codec
+           ]]>
+       </description>
+   </property>
+ 
+    <property type="list" key="mode" format="define" name="Development hardware" defaultvalue="0">
+       <option internalval="DEV_PC_1645_USB">CSR DEV-PC-1645 (USB mode)</option>
+	   <option internalval="DEV_PC_1645_ANALOGUE">CSR DEV-PC-1645 (Analogue mode)</option>
+       <option internalval="RED_PC_141">CSR RED-PC-141 (USB mode)</option>
+       <option internalval="RED_PC_142">CSR RED-PC-142 (Analogue mode)</option>
+       <description>
+           <![CDATA[
+           Determines which hardware the dongle will be run on
+           ]]>
+       </description>
+   </property>
+   
+   <property type="list" key="mp3" format="define" name="Mp3 support" defaultvalue="0">
+       <option internalval="xINCLUDE_MP3_ENCODER_PLUGIN">No</option>
+       <option internalval="INCLUDE_MP3_ENCODER_PLUGIN">Yes</option>
+       <description>
+           <![CDATA[
+           Determines if Mp3 encoder is supported
+           ]]>
+       </description>
+   </property>
+   
+   <property type="list" key="adc" format="define" name="External ADC" defaultvalue="0">
+       <option internalval="xENABLE_EXTERNAL_ADC">No</option>
+       <option internalval="ENABLE_EXTERNAL_ADC">Yes</option>
+       <description>
+           <![CDATA[
+           Determines if an external ADC is used
+           ]]>
+       </description>
+   </property>
+   
+   <property type="list" key="wolfson" format="define" name="Wolfson codec" defaultvalue="0">
+       <option internalval="xWOLFSON_CODEC_WM8731">No</option>
+       <option internalval="WOLFSON_CODEC_WM8731">Yes</option>
+       <description>
+           <![CDATA[
+           Determines if the Wolfson WM8731 codec is used
+           ]]>
+       </description>
+   </property>
+   
+   <property type="list" key="dualstream" format="define" name="DualStream" defaultvalue="0">
+       <option internalval="xDUAL_STREAM">No</option>
+       <option internalval="DUAL_STREAM">Yes (Analogue mode only)</option>
+       <description>
+           <![CDATA[
+           Determines if DualStream is enabled. DualStream will only work for Analogue mode and not USB.
+           ]]>
+       </description>
+   </property>>
+   
+   <property type="list" key="debug" format="define" name="Enable debug" defaultvalue="0">
+       <option internalval="xENABLE_DEBUG">No</option>
+       <option internalval="ENABLE_DEBUG">Yes</option>
+       <description>
+           <![CDATA[
+           Enables debug print output.
+           ]]>
+       </description>
+   </property>>
+   
+</custom>

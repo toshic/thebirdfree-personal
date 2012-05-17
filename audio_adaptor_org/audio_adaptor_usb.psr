@@ -1,0 +1,156 @@
+
+// PSKEY_USB_PRODUCT_STRING = "CSR Audio Adaptor"
+&02c2 = 0043 0053 0052 0020 0041 0075 0064 0069 006f 0020 0041 0064 0061 0070 0074 006f 0072
+
+// PSKEY_LOCAL_SUPPORTED_FEATURES
+&00ef -
+
+// This is restricted to BC5-MM only - necessary for DFU support
+&F002 = 0000 0000 0000 0200
+
+// PSKEY_HOST_INTERFACE
+&01f9 = 0002
+
+// PSKEY_USB_MAX_POWER
+&02c6 = 30
+
+// PSKEY_VM_DISABLE
+&025d = 0001
+
+// PSKEY_USB_DEVICE_CLASS_CODES (set to default)
+&02bd -
+
+// PSKEY_USB_VENDOR_ID (set to default)
+&02be -
+
+// PSKEY_USB_PRODUCT_ID (set to default)
+&02bf = FFFF
+
+// PSKEY_USB_ALLOW_DEEP_SLEEP 
+&02fc = 0001
+
+// PSKEY_USB_VM_CONTROL
+&03c0 = 0000
+
+// PSKEY_ONCHIP_HCI_CLIENT
+&03cc = 0001
+
+// PSKEY_USB_ATTRIBTUES_POWER
+&03f2 = 0000
+
+// PSKEY_INITIAL_BOOTMODE
+&03cd = 0001
+
+// --------MODE0-------------------------------------------------------- 
+// BOOTMODE_KEY_LIST_0: Overwrite :
+//                                HOST_INTRFACE  (1F9)
+//                                VM_DISABLE     (25D)
+//                                USB_VM_CONTROL (3C0)
+//                                USB PRODUCT ID (01be)  
+
+//PSKEY_BOOTMODE_KEY_LIST_0
+&04B0 = 03C0 0139 03CC 0087
+
+// BOOTMODE_KEY_TABLE_0+0: PSKEY_USB_VM_CONTROL = FALSE
+&04b8 = 0000
+// BOOTMODE_KEY_TABLE_0+1: PSKEY_DFU_ENABLE = TRUE
+&04b9 = 0001
+// BOOTMODE_KEY_TABLE_0+2: PSKEY_ONCHIP_HCI_CLIENT = FALSE
+&04ba = 0000
+// BOOTMODE_KEY_TABLE_0+3: PSKEY_USB_VM_NUM_DESCRIPTORS = 0  (VM not running)
+&04bb = 0000
+
+// BOOTMODE_KEY_LIST_1
+&04b1 = 025d 02bd 02bf 03c0 03cc
+// BOOTMODE_KEY_TABLE_1+0: PSKEY_VM_DISABLE (025d)
+&04f8 = 0000
+// BOOTMODE_KEY_TABLE_1+0: PSKEY_USB_DEVICE_CLASS_CODES (02bd)
+&04f9 = 0000 0000 0000
+// BOOTMODE_KEY_TABLE_1+1: PSKEY_USB_PRODUCT_ID (02bf)
+&04fa = 1020
+// BOOTMODE_KEY_TABLE_1+2: PSKEY_USB_VM_CONTROL (03c0)
+&04fb = 0001
+// BOOTMODE_KEY_TABLE_1+3: PSKEY_ONCHIP_HCI_CLIENT (03cc)
+&04fc = 0001
+
+
+// -------------------------------------------------------------------
+//  -------   User defined configuration PS Key   --------------------
+
+// PSKEY_USR0 (Profiles supported by dongle)
+&028a = 000e
+
+// PSKEY_USR2
+&028c -
+
+// PSKEY_USR7 (Paired device list)
+//&0291 -
+
+// PSKEY_USR11 (Audio codec enabled )
+// PSKEY_CODEC_ENABLED  
+// bit 0: mp3; bit 1: faststream 
+&0295 = 0000
+
+// PSKEY_USR12 (Audio input source type: 0: USB, 1: Analogue)
+// PSKEY_SOURCE_TYPE 
+&0296 = 0000
+
+// PSKEY_USR14 
+// PSKEY_MP3_CODEC_CONFIGURATION
+
+// For MP3, the bitrate table is:
+//         index 1         =  0   1    2    3    4    5   6     7    8    9   10   11   12   13   14
+// bitrate_table1(kbits/s) = [0, 32,  40,  48,  56,  64,  80,  96, 112, 128, 160, 192, 224, 256, 320];
+// bitrate_table2(kbits/s) = [0,  8,  16,  24,  32,  40,  48,  56,  64,  80,  96, 112, 128, 144, 160];
+
+// For SBC, the bitpool value is between 2 to 250.
+
+//     index 2             =  0    1      2    3    4      5  
+// sample_rate(mp3)        = [48   44.1   32   24   22.05  16 ]
+// sample_rate(sbc)        = [48   44.1   32   16 ] 
+// sample_rate(faststream) = [48   44.1   16 ] 
+
+// channel mode index      =  0              1        2             3
+// channel mode            =  joint_stereo   stereo   dual_channel  mono        
+
+// 0-7 bitrate_index(mp3)/ bitpool (SBC) (00:disable); 
+// 8-11: sample_rate_index(0xf:disable); 12: isVBRsupported; 13-15: channel mode
+&0298 = 1009 
+
+// PSKEY_USR15 
+// PSKEY_SBC_CODEC_CONFIGURATION
+&0299 = 0032 
+
+// PSKEY_USR16 
+// PSKEY_FASTSTREAM_CODEC_CONFIGURATION
+&029a = 0000 
+
+// PSKEY_USR41
+//&02b3 -
+
+// PSKEY_USR42
+//&02b4 -
+
+// PSKEY_USR43
+//&02b5 -
+
+// PSKEY_USR44
+//&02b6 -
+
+// PSKEY_USR45
+//&02b7 -
+
+// PSKEY_USR46
+//&02b8 -
+
+// PSKEY_USR47
+//&02b9 -
+
+// PSKEY_USR48
+//&02ba -
+
+// PSKEY_USR49
+//&02bb -
+
+
+

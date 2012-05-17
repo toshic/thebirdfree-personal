@@ -1,0 +1,60 @@
+// PSKEY_DEVICE_NAME = "CSR Audio Adaptor"
+&0108 = 5343 2052 7541 6964 206f 6441 7061 6f74 0072
+
+// PSKEY_MAX_SCOS
+&000e = 0001
+
+//PSKEY_CODEC_IN_GAIN
+&01b8 = 0006
+
+// PSKEY_CODEC_PIO
+&01b9 = 11
+
+//PSKEY_MIC_BIAS_PIN_VOLTAGE
+&01e8 = 000B
+ 
+//PSKEY_MIC_BIAS_PIN_CURRENT
+&01e9 = 0007 
+
+//PSKEY_CLOCK_REQUEST_ENABLE
+&0246 = 0000
+
+// PSKEY_PCM_MIN_CPU_CLOCK (16Mhz)
+&024d = 0000
+
+
+
+// -------------------------------------------------------------------
+//  -------   User defined configuration PS Key   --------------------
+
+// PSKEY_USR1 (Pin codes for remote device in BCD)
+&028b = 0000 1234 1111 8888 
+
+// PSKEY_USR3 (Skype & Multimedia control HID keycode configuration)
+//      Play Pause PlayPause Stop Prev Next Answer HangUp
+&028d = 9010 9020  8001      8008 8004 8002 044B   044E
+
+// PSKEY_USR4 (App event to HID command mapping)
+//      Shrt Long MicA MicI SpkA SpkI A2LL A2LR A2LD A2St A2Su HfLL HfLR HfLD HfAC HfAD HfCO HfCC ATA  CHUP ATD  BLDN BVRA AvLL AvLR AvLD Play Pause Stop Prev Next
+&028e = 0000 0000 0440 0000 0000 0000 0000 0000 0770 0000 0000 0000 0000 0222 0004 0000 0000 0000 0110 0222 0110 0110 0110 0000 0000 0000 0550 0050  0770 0990 0880
+
+// PSKEY_USR5 
+&028f -
+
+// PSKEY_USR6 
+&0290 -
+
+// PSKEY_USR8 (HID Sequence)
+//      Issues MM Pause command to 3 different applications the attempts to return focus to original app.
+//      IS=2 HAlt RS=1,0 Tab  RE   Alt  Pause IE   HAlt-Tab (Alt)Tab Alt-Tab
+//&0292 = 4002 2400 6100   002B 7000 0400 9020  5000 242B     002B     042B 
+//      Alt-Tab Pause Alt-Tab
+&0292 = 042B    9020  042B
+
+// PSKEY_USR9 (Audio Streaming Timeout)
+// Timeout specified in seconds
+&0293 = 001E  // 30secs
+
+// PSKEY_USR10 (Software version number - where single word in format "xxyz" represents version xx.y.z)
+&0294 = 0310 0001	// Version RC3.1, Product MVX
+
