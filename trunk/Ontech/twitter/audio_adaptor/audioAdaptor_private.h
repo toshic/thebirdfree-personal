@@ -812,6 +812,10 @@ typedef struct
 	unsigned		 waiting_msg:1;
 
 	unsigned         support_inbandring:1;
+
+/* incoming/outgoing number */
+	uint16			  size_remote_number;
+	uint8			  *remote_number;
 /* PBAP */
 
 	pbap_states appState;
