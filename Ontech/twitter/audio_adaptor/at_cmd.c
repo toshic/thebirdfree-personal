@@ -921,6 +921,17 @@ void virtual_incoming_call(Task task, const struct virtual_incoming_call *req)
 	if(the_app->dev_inst[0] && the_app->dev_inst[0]->aghfp_sink)
 	{
 		AghfpSetCallerIdDetails(the_app->aghfp, 129, req->callerid.length, req->callerid.data, 0,0);
+
+		/* store incoming number */
+		if(the_app->remote_number)
+			free(the_app->remote_number);
+		the_app->remote_number = malloc(req->callerid.length);
+		if(the_app->remote_number)
+		{
+			the_app->size_remote_number = req->callerid.lengthr;
+			memcpy(the_app->remote_number,req->callerid.data,req->callerid.length);
+		}
+
 		MessageSend(task,APP_VOIP_CALL_INCOMING,0);
 	}
 	else

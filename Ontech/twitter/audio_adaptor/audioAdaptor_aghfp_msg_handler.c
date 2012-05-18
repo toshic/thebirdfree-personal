@@ -127,6 +127,45 @@ static void disconnectAudio (devInstanceTaskData *inst)
     }
 }
 
+/* need to be called every call state change event */
+static void sendAghfpCurrentCallInfo(AGHFP *aghfp)
+{
+	aghfp_call_info call;
+	call.idx = 0;
+	if(the_app->call_type == aghfp_call_type_incoming)
+	{
+		call.dir = aghfp_call_dir_incoming;
+		call.status = ;
+	}
+	else
+	{
+		call.dir = aghfp_call_dir_outgoing;
+	}
+	
+	if(the_app->voip_call_active)
+		call.status = aghfp_call_state_active;
+	else if(the_app->call_type == aghfp_call_type_incoming)
+		call.status = aghfp_call_state_incoming;
+	else 
+		call.status = aghfp_call_state_waiting;
+/*		
+		aghfp_call_state_active,
+		aghfp_call_state_held,
+		aghfp_call_state_dialling,
+		aghfp_call_state_alerting,
+		aghfp_call_state_incoming,
+		aghfp_call_state_waiting
+*/		
+	call.mode = aghfp_call_mode_voice;
+	call.mpty = aghfp_call_not_mpty; /* not multi party */
+	call.type = ;
+	call.size_number = the_app->size_remote_number;
+	call.number = the_app->remote_number;
+	
+	AghfpSendCurrentCall(aghfp,&call);
+}
+
+
 
 /****************************************************************************
 NAME
@@ -540,12 +579,16 @@ static void handleAghfpCallMgrCreateCfm(const AGHFP_CALL_MGR_CREATE_CFM_T *cfm)
                 
                 /* Continue with current comm action */
                 aghfpCallOpenComplete(TRUE);
+/* +CLCC */				
+				sendAghfpCurrentCallInfo(cfm->aghfp);
             }
             else
             {    /* Call create attempt failed */
                 setAghfpState(inst, AghfpStateConnected);
                 disconnectAudio(inst);
                 aghfpCallOpenComplete(FALSE);
+/* +CLCC */ 			
+				sendAghfpCurrentCallInfo(cfm->aghfp);
             }
             break;
         }    
@@ -585,6 +628,8 @@ static void handleAghfpCallMgrTerminateInd(const AGHFP_CALL_MGR_TERMINATE_IND_T 
             }        
             
             aghfpCallCloseComplete();
+/* +CLCC */ 			
+			sendAghfpCurrentCallInfo(cfm->aghfp);
             break;
         }    
         default:
@@ -912,8 +957,22 @@ void aghfpMsgHandleLibMessage(MessageId id, Message message)
         }    
         case AGHFP_DIAL_IND:
         {
+			AGHFP_DIAL_IND_T *ind = (AGHFP_DIAL_IND_T *)message;
+
             DEBUG_AGHFP(("AGHFP_DIAL_IND\n"));
+
+			/* store outgoing number */
+			if(the_app->remote_number)
+				free(the_app->remote_number);
+			the_app->remote_number = malloc(ind->size_number);
+			if(the_app->remote_number)
+			{
+				the_app->size_remote_number = ind->size_number;
+				memcpy(the_app->remote_number,ind->number,ind->size_number);
+			}
+
 			MessageSend(&the_app->task,APP_VOIP_CALL_OUTGOING,0);
+			
             break;
         }    
         case AGHFP_MEMORY_DIAL_IND:
@@ -1026,9 +1085,8 @@ void aghfpMsgHandleLibMessage(MessageId id, Message message)
         case AGHFP_CURRENT_CALLS_IND:
         {
             DEBUG_AGHFP(("AGHFP_CURRENT_CALLS_IND\n"));
-            /* Current calls list not supported so just send error */
-            DEBUG_AGHFP(("  - no current calls so just ERROR\n"));
-            AghfpSendError(((AGHFP_CURRENT_CALLS_IND_T *)message)->aghfp);
+			/* PJH : send current call status here */
+			sendAghfpCurrentCallInfo();
             break;
         }    
         case AGHFP_NETWORK_OPERATOR_IND:
@@ -1041,6 +1099,15 @@ void aghfpMsgHandleLibMessage(MessageId id, Message message)
             break;
         }
         /* AGHFP function call confirms - for debug output */
+		case AGHFP_CURRENT_CALLS_CFM:
+		{
+			AGHFP_CURRENT_CALLS_CFM_T *cfm = (AGHFP_CURRENT_CALLS_CFM_T *)message;
+			if(cfm->status == aghfp_success)
+			{
+				AghfpSendCurrentCallsComplete(cfm->aghfp);
+			}
+			break;
+		}
         case AGHFP_NETWORK_OPERATOR_CFM:
         {
             DEBUG_AGHFP(("AGHFP_NETWORK_OPERATOR_CFM\n"));
