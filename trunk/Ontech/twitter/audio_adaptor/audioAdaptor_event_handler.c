@@ -866,6 +866,7 @@ static void handleAppInitCfm(void)
 			
 			setAppState(AppStateIdle);
 			UartPrintf("\r\nReady\r\n");
+            scanMakeConnectable();
              break;
         }            
         default:

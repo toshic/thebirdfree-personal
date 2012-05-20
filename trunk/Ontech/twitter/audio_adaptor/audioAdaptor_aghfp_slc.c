@@ -25,7 +25,7 @@ DESCRIPTION
 */
 void aghfpSlcInitHf (void)
 {
-    uint16 supported_feature = aghfp_incoming_call_reject;
+    uint16 supported_feature = aghfp_incoming_call_reject | aghfp_enhanced_call_status | aghfp_enhanced_call_control | aghfp_extended_error_codes;
     if ( (the_app->aghfp == NULL))
     {
         if(the_app->support_inbandring)

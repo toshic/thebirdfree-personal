@@ -483,15 +483,16 @@ void clMsgHandleLibMessage(MessageId id, Message message)
             DEBUG_CL(("CL_SM_IO_CAPABILITY_REQUEST_IND\n"));
             {
                 CL_SM_IO_CAPABILITY_REQ_IND_T *prim = (CL_SM_IO_CAPABILITY_REQ_IND_T *)message;
-                ConnectionSmIoCapabilityResponse(&prim->bd_addr, cl_sm_io_cap_no_input_no_output, FALSE, TRUE, FALSE, NULL, NULL);
+                ConnectionSmIoCapabilityResponse(&prim->bd_addr, cl_sm_io_cap_display_yes_no, FALSE, TRUE, FALSE, NULL, NULL);
             }
             break;
         }
         case CL_SM_USER_CONFIRMATION_REQ_IND:
         {
             DEBUG_CL(("CL_SM_USER_CONFIRMATION_REQ_IND\n"));
-            /* Shouldn't get this so if we do reject it! */
-            ConnectionSmUserConfirmationResponse(&((CL_SM_USER_CONFIRMATION_REQ_IND_T*)message)->bd_addr, FALSE);
+            ConnectionSmUserConfirmationResponse(&((CL_SM_USER_CONFIRMATION_REQ_IND_T*)message)->bd_addr, TRUE);
+            /* infor ssp numeric_value */
+            UartPrintf("\r\n+SSP=%ld\r\n",((CL_SM_USER_CONFIRMATION_REQ_IND_T *)message)->numeric_value);
             break;
         }
         case CL_SM_AUTHORISE_IND:
