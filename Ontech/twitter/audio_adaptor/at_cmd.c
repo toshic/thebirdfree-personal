@@ -928,7 +928,7 @@ void virtual_incoming_call(Task task, const struct virtual_incoming_call *req)
 		the_app->remote_number = malloc(req->callerid.length);
 		if(the_app->remote_number)
 		{
-			the_app->size_remote_number = req->callerid.lengthr;
+			the_app->size_remote_number = req->callerid.length;
 			memcpy(the_app->remote_number,req->callerid.data,req->callerid.length);
 		}
 

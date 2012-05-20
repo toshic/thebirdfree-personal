@@ -34,9 +34,9 @@ DESCRIPTION
 #include "state.h"
 
 /* enable/disable feature */
-#define USE_SLC_PRE_CONN_MSG
+#define USE_SLC_PRE_CONN_MSGx
 #define WAIT_A2DP_CONNECTx
-#define A2DP_CONNECT_AND_OPENx
+#define A2DP_CONNECT_AND_OPEN
 
 /*
     case 1: original
