@@ -25,6 +25,10 @@ struct sequence
   uint16 length;
 };
 
+struct inband_ring_enable
+{
+  uint16 enable;
+};
 struct set_volume_microphone
 {
   uint16 volume;
@@ -46,6 +50,10 @@ struct a2dp_signal_connect_req
 {
   struct sequence bdaddr;
 };
+struct set_scan_mode
+{
+  uint16 mode;
+};
 struct slc_connect_req
 {
   struct sequence bdaddr;
@@ -62,6 +70,7 @@ struct write_local_name
 {
   struct sequence name;
 };
+void inband_ring_enable(Task , const struct inband_ring_enable *);
 void set_volume_microphone(Task , const struct set_volume_microphone *);
 void set_volume_speaker(Task , const struct set_volume_speaker *);
 void audio_connect_req(Task );
@@ -77,11 +86,13 @@ void a2dp_suspend_req(Task );
 void read_local_bdaddr(Task );
 void read_remote_name(Task );
 void read_remote_rssi(Task );
+void set_scan_mode(Task , const struct set_scan_mode *);
 void slc_connect_req(Task , const struct slc_connect_req *);
 void slc_disconnect_req(Task );
 void set_phonebook_index(Task , const struct set_phonebook_index *);
 void write_pin(Task , const struct write_pin *);
 void vin_request(Task );
 void write_local_name(Task , const struct write_local_name *);
+void query_status(Task );
 
 #endif

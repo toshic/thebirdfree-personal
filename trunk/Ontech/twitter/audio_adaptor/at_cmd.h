@@ -93,6 +93,10 @@ struct a2dp_signal_connect_req
 {
   struct sequence bdaddr;
 };
+struct set_scan_mode
+{
+  uint16 mode;
+};
 struct slc_connect_req
 {
   struct sequence bdaddr;
@@ -125,6 +129,7 @@ void a2dp_suspend_req(Task );
 void read_local_bdaddr(Task );
 void read_remote_name(Task );
 void read_remote_rssi(Task );
+void set_scan_mode(Task , const struct set_scan_mode *);
 void slc_connect_req(Task , const struct slc_connect_req *);
 void slc_disconnect_req(Task );
 void set_phonebook_index(Task , const struct set_phonebook_index *);
