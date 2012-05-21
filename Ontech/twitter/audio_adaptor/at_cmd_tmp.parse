@@ -27,6 +27,7 @@
 { AT + VIN = ? \r } : vin_request
 { AT + IBR = %d:enable \r } : inband_ring_enable
 { AT + STAT = ? \r } : query_status
+{ AT + SCAN = %d:mode \r } : set_scan_mode
 
 
 

@@ -256,154 +256,160 @@ static const Arc arcs[] = {
   { 'B', 40 },
   { 'N', 41 },
   { 'S', 42 },
-  { 'O', 43 },
-  { 'S', 44 },
-  { 'B', 45 },
-  { 'I', 46 },
-  { 'A', 47 },
-  { 'M', 48 },
-  { 'S', 49 },
-  { 'N', 50 },
+  { 'A', 43 },
+  { 'O', 44 },
+  { 'S', 45 },
+  { 'B', 46 },
+  { 'I', 47 },
+  { 'A', 48 },
+  { 'M', 49 },
+  { 'S', 50 },
   { 'N', 51 },
   { 'N', 52 },
-  { 'C', 53 },
+  { 'N', 53 },
   { 'C', 54 },
-  { 'I', 55 },
+  { 'C', 55 },
+  { 'I', 56 },
   { '\t', 34 },
   { ' ', 34 },
   { ':', -1 },
   { '=', -1 },
-  { 'N', 56 },
-  { 'C', 57 },
-  { 'Y', 58 },
-  { 'T', 59 },
-  { 'D', 60 },
+  { 'N', 57 },
+  { 'C', 58 },
+  { 'Y', 59 },
+  { 'T', 60 },
   { 'D', 61 },
-  { 'M', 62 },
-  { 'S', 63 },
-  { 'N', 64 },
-  { 'C', 65 },
+  { 'D', 62 },
+  { 'M', 63 },
+  { 'S', 64 },
+  { 'N', 65 },
   { 'N', 66 },
-  { 'N', 67 },
-  { 'T', 68 },
-  { '\t', 48 },
-  { ' ', 48 },
-  { ':', -2 },
-  { '=', -2 },
+  { 'C', 67 },
+  { 'N', 68 },
+  { 'N', 69 },
+  { 'T', 70 },
   { '\t', 49 },
   { ' ', 49 },
-  { ':', -3 },
-  { '=', -3 },
+  { ':', -2 },
+  { '=', -2 },
   { '\t', 50 },
   { ' ', 50 },
-  { ':', 69 },
-  { '=', 69 },
-  { 'M', 70 },
-  { '\t', 52 },
-  { '\n', -4 },
-  { '\r', -4 },
-  { ' ', 52 },
-  { '\t', 53 },
-  { '\n', -5 },
-  { '\r', -5 },
-  { ' ', 53 },
-  { '\t', 54 },
-  { ' ', 54 },
-  { ':', -6 },
-  { '=', -6 },
-  { '\t', 55 },
-  { ' ', 55 },
-  { ':', -7 },
-  { '=', -7 },
-  { '\t', 56 },
-  { '\n', -8 },
-  { '\r', -8 },
-  { ' ', 56 },
-  { ':', -9 },
-  { '=', -9 },
-  { '\t', 57 },
-  { '\n', -10 },
-  { '\r', -10 },
-  { ' ', 57 },
-  { '\t', 58 },
-  { '\n', -11 },
-  { '\r', -11 },
-  { ' ', 58 },
-  { '\t', 59 },
-  { '\n', -12 },
-  { '\r', -12 },
-  { ' ', 59 },
-  { '\t', 60 },
-  { '\n', -13 },
-  { '\r', -13 },
-  { ' ', 60 },
-  { '\t', 61 },
-  { '\n', -14 },
-  { '\r', -14 },
-  { ' ', 61 },
-  { '\t', 62 },
-  { '\n', -15 },
-  { '\r', -15 },
-  { ' ', 62 },
-  { '\t', 63 },
-  { '\n', -16 },
-  { '\r', -16 },
-  { ' ', 63 },
-  { '\t', 64 },
-  { ' ', 64 },
-  { ':', -17 },
-  { '=', -17 },
-  { '\t', 65 },
-  { '\n', -18 },
-  { '\r', -18 },
-  { ' ', 65 },
-  { '\t', 66 },
-  { ' ', 66 },
-  { ':', -19 },
-  { '=', -19 },
-  { '\t', 67 },
-  { ' ', 67 },
-  { ':', -20 },
-  { '=', -20 },
-  { '\t', 68 },
-  { ' ', 68 },
+  { ':', -3 },
+  { '=', -3 },
+  { '\t', 51 },
+  { ' ', 51 },
   { ':', 71 },
   { '=', 71 },
+  { 'M', 72 },
+  { '\t', 53 },
+  { '\n', -4 },
+  { '\r', -4 },
+  { ' ', 53 },
+  { '\t', 54 },
+  { '\n', -5 },
+  { '\r', -5 },
+  { ' ', 54 },
+  { '\t', 55 },
+  { ' ', 55 },
+  { ':', -6 },
+  { '=', -6 },
+  { '\t', 56 },
+  { ' ', 56 },
+  { ':', -7 },
+  { '=', -7 },
+  { '\t', 57 },
+  { '\n', -8 },
+  { '\r', -8 },
+  { ' ', 57 },
+  { ':', -9 },
+  { '=', -9 },
+  { '\t', 58 },
+  { '\n', -10 },
+  { '\r', -10 },
+  { ' ', 58 },
+  { '\t', 59 },
+  { '\n', -11 },
+  { '\r', -11 },
+  { ' ', 59 },
+  { '\t', 60 },
+  { '\n', -12 },
+  { '\r', -12 },
+  { ' ', 60 },
+  { '\t', 61 },
+  { '\n', -13 },
+  { '\r', -13 },
+  { ' ', 61 },
+  { '\t', 62 },
+  { '\n', -14 },
+  { '\r', -14 },
+  { ' ', 62 },
+  { '\t', 63 },
+  { '\n', -15 },
+  { '\r', -15 },
+  { ' ', 63 },
+  { '\t', 64 },
+  { '\n', -16 },
+  { '\r', -16 },
+  { ' ', 64 },
+  { '\t', 65 },
+  { ' ', 65 },
+  { ':', -17 },
+  { '=', -17 },
+  { '\t', 66 },
+  { ' ', 66 },
+  { ':', -18 },
+  { '=', -18 },
+  { '\t', 67 },
+  { '\n', -19 },
+  { '\r', -19 },
+  { ' ', 67 },
+  { '\t', 68 },
+  { ' ', 68 },
+  { ':', -20 },
+  { '=', -20 },
   { '\t', 69 },
-  { '\n', -21 },
-  { '\r', -21 },
   { ' ', 69 },
-  { '?', 72 },
+  { ':', -21 },
+  { '=', -21 },
   { '\t', 70 },
   { ' ', 70 },
-  { ':', -22 },
-  { '=', -22 },
+  { ':', 73 },
+  { '=', 73 },
   { '\t', 71 },
-  { '\n', -23 },
-  { '\r', -23 },
+  { '\n', -22 },
+  { '\r', -22 },
   { ' ', 71 },
-  { '?', 73 },
-  { '\t', 74 },
-  { '\n', -21 },
-  { '\r', -21 },
-  { ' ', 74 },
-  { '?', 72 },
-  { '\t', 75 },
-  { '\n', -23 },
-  { '\r', -23 },
-  { ' ', 75 },
-  { '?', 73 },
-  { '\t', 74 },
-  { '\n', -21 },
-  { '\r', -21 },
-  { ' ', 74 },
-  { '\t', 75 },
-  { '\n', -23 },
-  { '\r', -23 },
-  { ' ', 75 },
+  { '?', 74 },
+  { '\t', 72 },
+  { ' ', 72 },
+  { ':', -23 },
+  { '=', -23 },
+  { '\t', 73 },
+  { '\n', -24 },
+  { '\r', -24 },
+  { ' ', 73 },
+  { '?', 75 },
+  { '\t', 76 },
+  { '\n', -22 },
+  { '\r', -22 },
+  { ' ', 76 },
+  { '?', 74 },
+  { '\t', 77 },
+  { '\n', -24 },
+  { '\r', -24 },
+  { ' ', 77 },
+  { '?', 75 },
+  { '\t', 76 },
+  { '\n', -22 },
+  { '\r', -22 },
+  { ' ', 76 },
+  { '\t', 77 },
+  { '\n', -24 },
+  { '\r', -24 },
+  { ' ', 77 },
 };
 
-static const Arc *const states[77] = {
+static const Arc *const states[79] = {
   &arcs[0],
   &arcs[3],
   &arcs[4],
@@ -428,18 +434,17 @@ static const Arc *const states[77] = {
   &arcs[44],
   &arcs[45],
   &arcs[48],
-  &arcs[49],
   &arcs[50],
-  &arcs[52],
+  &arcs[51],
   &arcs[53],
-  &arcs[55],
+  &arcs[54],
   &arcs[56],
   &arcs[57],
   &arcs[58],
   &arcs[59],
   &arcs[60],
   &arcs[61],
-  &arcs[65],
+  &arcs[62],
   &arcs[66],
   &arcs[67],
   &arcs[68],
@@ -453,34 +458,37 @@ static const Arc *const states[77] = {
   &arcs[76],
   &arcs[77],
   &arcs[78],
-  &arcs[82],
-  &arcs[86],
-  &arcs[90],
-  &arcs[91],
-  &arcs[95],
-  &arcs[99],
-  &arcs[103],
-  &arcs[107],
-  &arcs[113],
-  &arcs[117],
-  &arcs[121],
-  &arcs[125],
-  &arcs[129],
-  &arcs[133],
-  &arcs[137],
-  &arcs[141],
-  &arcs[145],
-  &arcs[149],
-  &arcs[153],
-  &arcs[157],
-  &arcs[161],
-  &arcs[166],
-  &arcs[170],
-  &arcs[175],
-  &arcs[180],
-  &arcs[185],
-  &arcs[189],
-  &arcs[193],
+  &arcs[79],
+  &arcs[80],
+  &arcs[84],
+  &arcs[88],
+  &arcs[92],
+  &arcs[93],
+  &arcs[97],
+  &arcs[101],
+  &arcs[105],
+  &arcs[109],
+  &arcs[115],
+  &arcs[119],
+  &arcs[123],
+  &arcs[127],
+  &arcs[131],
+  &arcs[135],
+  &arcs[139],
+  &arcs[143],
+  &arcs[147],
+  &arcs[151],
+  &arcs[155],
+  &arcs[159],
+  &arcs[163],
+  &arcs[167],
+  &arcs[172],
+  &arcs[176],
+  &arcs[181],
+  &arcs[186],
+  &arcs[191],
+  &arcs[195],
+  &arcs[199],
 };
 
 static uint16 matchLiteral(ptr s, ptr e, Task task)
@@ -528,6 +536,7 @@ static ptr parseData(ptr s, ptr e, Task task)
         struct virtual_incoming_call virtual_incoming_call;
         struct sms_new_message_ind sms_new_message_ind;
         struct a2dp_signal_connect_req a2dp_signal_connect_req;
+        struct set_scan_mode set_scan_mode;
         struct slc_connect_req slc_connect_req;
         struct set_phonebook_index set_phonebook_index;
         struct write_pin write_pin;
@@ -769,6 +778,20 @@ static ptr parseData(ptr s, ptr e, Task task)
           }
           break;
         case 17:
+          if(match1(skip1(UtilGetNumber(skip1(t, e), e, &uu->set_scan_mode.mode), e), e))
+          {
+#ifndef TEST_HARNESS
+            set_scan_mode(task, &uu->set_scan_mode);
+#endif
+#ifdef TEST_HARNESS
+            printf("Called set_scan_mode");
+            printf(" mode=%d", uu->set_scan_mode.mode);
+            putchar('\n');
+#endif
+            continue;
+          }
+          break;
+        case 18:
           if(match1(skip1(getString(skip1(t, e), e, &uu->slc_connect_req.bdaddr), e), e))
           {
 #ifndef TEST_HARNESS
@@ -782,7 +805,7 @@ static ptr parseData(ptr s, ptr e, Task task)
             continue;
           }
           break;
-        case 18:
+        case 19:
           if(t)
           {
 #ifndef TEST_HARNESS
@@ -795,7 +818,7 @@ static ptr parseData(ptr s, ptr e, Task task)
             continue;
           }
           break;
-        case 19:
+        case 20:
           if(match1(skip1(UtilGetNumber(skip1(t, e), e, &uu->set_phonebook_index.index), e), e))
           {
 #ifndef TEST_HARNESS
@@ -809,7 +832,7 @@ static ptr parseData(ptr s, ptr e, Task task)
             continue;
           }
           break;
-        case 20:
+        case 21:
           if(match1(skip1(getString(skip1(t, e), e, &uu->write_pin.pin), e), e))
           {
 #ifndef TEST_HARNESS
@@ -823,7 +846,7 @@ static ptr parseData(ptr s, ptr e, Task task)
             continue;
           }
           break;
-        case 21:
+        case 22:
           if(t)
           {
 #ifndef TEST_HARNESS
@@ -836,7 +859,7 @@ static ptr parseData(ptr s, ptr e, Task task)
             continue;
           }
           break;
-        case 22:
+        case 23:
           if(match1(skip1(getWildString(skip1(t, e), e, &uu->write_local_name.name), e), e))
           {
 #ifndef TEST_HARNESS
@@ -850,7 +873,7 @@ static ptr parseData(ptr s, ptr e, Task task)
             continue;
           }
           break;
-        case 23:
+        case 24:
           if(t)
           {
 #ifndef TEST_HARNESS
@@ -1161,6 +1184,16 @@ void query_status(Task task)
 	SendEventHex(EVT_CONN_STATUS,*pv);
 }
 
+void set_scan_mode(Task task, const struct set_scan_mode *mode)
+{
+    if(mode->mode < 4)
+    {
+        ConnectionWriteScanEnable(mode->mode);
+        SendOk();
+    }else
+        SendError();
+    
+}
 
 void handleUnrecognisedCmd(const uint8 *data, uint16 length, Task task)
 {
