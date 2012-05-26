@@ -4,7 +4,7 @@
 # SDK_LIBS is usually passed in from hostbuild, but if not then build them all
 SDK_LIBS ?= $(filter-out $(patsubst %/,%,$(sort $(dir $(wildcard */BROKEN)))),$(patsubst %/,%,$(sort $(dir $(wildcard */*.h)))))
 
-dirs = a2dp audio audio_plugin_if avrcp bdaddr codec connection csr_a2dp_decoder_common_plugin csr_common_no_dsp_plugin csr_cvc_common_plugin csr_tone_plugin hfp print region service kalimba_standard_messages sdp_parse avrcp14
+dirs = a2dp audio audio_plugin_if avrcp bdaddr codec connection csr_a2dp_decoder_common_plugin csr_common_no_dsp_plugin csr_cvc_common_plugin csr_tone_plugin hfp print region service kalimba_standard_messages sdp_parse avrcp14 hid
 
 # It's all high-level magic from here on in
 # Pay no attention to the man behind the curtain.
