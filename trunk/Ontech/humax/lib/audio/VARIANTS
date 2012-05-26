@@ -1,0 +1,9 @@
+
+VARIANTS :=  debug tts
+
+# Include DEBUG
+CFLAGS_debug := -DDEBUG_PRINT_ENABLED
+
+#Include TTS support
+CFLAGS_debug := -DTTS
+

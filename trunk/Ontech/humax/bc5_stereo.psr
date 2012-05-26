@@ -1,0 +1,69 @@
+// Set Chip version to BC5MM
+&F002 = 0000 0000 0000 0200 
+
+// PSKEY_LOCAL_SUPPORTED_FEATURES
+&00ef -
+
+// PSKEY_MAX_SCOS
+&000e = 0001
+// PSKEY_PCM_MIN_CPU_CLOCK (16Mhz)
+&024D = 0000
+
+// PSKEY_DEVICE_NAME = "BC5 Stereo Headset"
+&0108 = 4342 2035 7453 7265 6f65 4820 6165 7364 7465
+
+// PSKEY_FIXED_PIN
+&035b = 0030 0030 0030 0030
+
+//PSKEY_CODEC_IN_GAIN
+&01b8 = 000f
+
+//PSKEY_CODEC_PIO
+&01b9 -
+
+//PSKEY_MIC_BIAS_PIN_VOLTAGE
+&01e8 = 000B
+ 
+//PSKEY_MIC_BIAS_PIN_CURRENT
+&01e9 = 0007 
+
+//PSKEY_ONCHIP_HCI_CLIENT
+&03cc = 0001
+
+//PSKEY_CLOCK_REQUEST_ENABLE
+&0246 = 0000
+
+// PSKEY_INITIAL_BOOTMODE
+&03cd = 0001
+
+// --------MODE0-------------------------------------------------------- 
+// BOOTMODE_KEY_LIST_0: Overwrite :
+//                                HOST_INTRFACE  (1F9)
+//								  VM_DISABLE     (25D)
+//                                USB_VM_CONTROL (3C0)
+//                                USB PRODUCT ID (02BF)  
+&04B0 = 01F9 025D 03C0 02BF
+// 
+// BOOTMODE_KEY_TABLE_0+0: PSKEY_HOST_INTERFACE = USB (Set to 0001 for BCSP)
+&04B8 = 0002
+// BOOTMODE_KEY_TABLE_0+1: PSKEY_VM_DISABLE = TRUE
+&04B9 = 0001
+// BOOTMODE_KEY_TABLE_0+3: PSKEY_USB_VM_CONTROL = FALSE
+&04BA = 0000
+//  BOOTMODE_KEY_TABLE_0+4: USB PID = 0xffff (DFU)
+&04BB = ffff
+
+
+// --------MODE1-------------------------------------------------------- 
+// BOOTMODE_KEY_LIST_1: 
+//                                HOST_INTRFACE	(1F9)   
+//								  VM_DISABLE	(25D)
+&04B1 = 01F9 025D
+// 
+// BOOTMODE_KEY_TABLE_1+0: PSKEY_HOST_INTERFACE = NONE
+&04f8 = 0000
+// BOOTMODE_KEY_TABLE_1+1: PSKEY_VM_DISABLE = FALSE
+&04f9 = 0000
+
+
+

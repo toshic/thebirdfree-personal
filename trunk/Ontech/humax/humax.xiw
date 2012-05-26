@@ -1,0 +1,5 @@
+<workspace>
+ <project path="humax.xip" />
+ <project path="stereo_headset/sbc_decoder.xip" />
+ <project path="audio_adaptor/sbc_encoder.xip" />
+</workspace>

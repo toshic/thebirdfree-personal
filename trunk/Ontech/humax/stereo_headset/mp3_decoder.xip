@@ -1,0 +1,58 @@
+<project buildenvironment="{6907f3f0-0ed4-11d8-be02-0050dadfe87d}" executionenvironment="{2ca81310-0ecd-11d8-be02-0050dadfe87d}" executionenvironmentname="Kalimba SPI" buildenvironmentoption="" buildenvironmentname="Kalimba Command Line" executionenvironmentoption="BC03MM" >
+ <folder name="Header Files" >
+  <file path="music_example.h" />
+  <file path="stream_copy.h" />
+  <file path="music_example_config.h" />
+  <file path="mips_profile.h" />
+ </folder>
+ <file path="codec_decoder.asm" />
+ <file path="stream_copy.asm" />
+ <file path="music_example_config.asm" />
+ <file path="music_example_system.asm" />
+ <file path="mips_profile.asm" />
+ <file path="spi_message.asm" />
+ <file path="vm_message.asm" />
+ <file path="sr_adjustment.asm" />
+ <properties currentconfiguration="Release" >
+  <configuration name="Debug" >
+   <property key="audiocbuffersize" >1152</property>
+   <property key="bootstrap" >1</property>
+   <property key="codeccbuffersize" >3072</property>
+   <property key="debugmode" >0</property>
+   <property key="debugtransport" >[SPI|LPT1|No]</property>
+   <property key="defines" >SELECTED_CODEC_MP3, HARDWARE_RATE_MATCH</property>
+   <property key="goodworkingbufferlevel" >0.65</property>
+   <property key="image" >image</property>
+   <property key="libs" >core_debug, cbops_debug, mp3_debug, codec_debug, frame_sync_debug, audio_proc_debug, spi_comm_debug, math_debug</property>
+   <property key="output" ></property>
+   <property key="warpfilter" >1</property>
+   <property key="warpratehighcoefficient" >0.01</property>
+   <property key="warpratelowcoefficient" >0.001</property>
+   <property key="warpratemaxramp" >0.005</property>
+   <property key="warpratetransitionlevelwords" >100</property>
+   <property key="zerodataratebuffering" >200000</property>
+   <property key="zerodataratestopping" >150000</property>
+  </configuration>
+  <configuration name="Release" >
+   <property key="audiocbuffersize" >1152</property>
+   <property key="bootstrap" >1</property>
+   <property key="codeccbuffersize" >3072</property>
+   <property key="comfortnoisegain" >0</property>
+   <property key="debugmode" >1</property>
+   <property key="debugtransport" >[SPI|LPT1|No]</property>
+   <property key="defines" >SELECTED_CODEC_MP3, HARDWARE_RATE_MATCH</property>
+   <property key="goodworkingbufferlevel" >0.65</property>
+   <property key="hardware" >0</property>
+   <property key="image" >image</property>
+   <property key="libs" >core, cbops, mp3,codec, frame_sync, audio_proc, spi_comm, math</property>
+   <property key="output" ></property>
+   <property key="warpfilter" >1</property>
+   <property key="warpratehighcoefficient" >0.01</property>
+   <property key="warpratelowcoefficient" >0.001</property>
+   <property key="warpratemaxramp" >0.005</property>
+   <property key="warpratetransitionlevelwords" >100</property>
+   <property key="zerodataratebuffering" >200000</property>
+   <property key="zerodataratestopping" >150000</property>
+  </configuration>
+ </properties>
+</project>

@@ -1,0 +1,11 @@
+<project buildenvironment="{6907f3f0-0ed4-11d8-be02-0050dadfe87d}" executionenvironment="{2ca81310-0ecd-11d8-be02-0050dadfe87d}" executionenvironmentname="kalimba bccmd" buildenvironmentoption="" buildenvironmentname="kalimba" executionenvironmentoption="BC03MM" >
+ <file path="codec_decoder_aac.asm" />
+ <properties currentconfiguration="Release" >
+  <configuration name="Release" >
+   <property key="bootstrap" >1</property>
+   <property key="defines" >ENABLE_LATM</property>
+   <property key="hardware" >0</property>
+   <property key="libs" >core, cbops, math, codec, aac</property>
+  </configuration>
+ </properties>
+</project>

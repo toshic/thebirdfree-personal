@@ -1,0 +1,97 @@
+//an example application which makes use of the ledparse
+//generated led functions
+
+/////define some special led pins///
+
+pio 0 BLUE
+pio 1 RED
+
+/////define state patterns to be used/////
+
+pattern LEDS_OFF RPT
+    RED BLUE OFF 0
+	
+pattern BLUE_FAST_FLASH_RPT    RPT
+    BLUE ON  100
+    BLUE OFF 100   
+	
+pattern BLUE_MEDIUM_FLASH_RPT    RPT
+    BLUE ON  300
+    BLUE OFF 300   
+	
+pattern BLUE_LONG_OFF_RPT    RPT
+    BLUE ON  750
+    BLUE OFF 2550   
+	
+pattern BLUE_SHORT_ON_RPT    RPT
+    BLUE ON  100
+    BLUE OFF 1000  
+	
+pattern RED_ON_RPT    RPT
+    RED ON  1000
+	
+pattern BLUE_ON_RPT    RPT
+    BLUE ON  1000
+	
+pattern RED_BLUE_ON_RPT    RPT
+    RED BLUE ON  1000
+	
+pattern BLUE_FAST_FLASH_ALT_RED_RPT    RPT
+    BLUE ON  100
+    BLUE OFF 0  
+	RED ON  100
+    RED OFF 0  
+	
+pattern BLUE_MEDIUM_FLASH_ALT_RED_RPT    RPT
+    BLUE ON  300
+    BLUE OFF 0  
+	RED ON  300
+    RED OFF 0  
+	
+pattern BLUE_LONG_OFF_ALT_RED_RPT    RPT
+    BLUE ON  750
+    BLUE OFF 0 
+	RED ON  2550
+    RED OFF 0  
+	
+pattern BLUE_SHORT_ON_ALT_RED_RPT    RPT
+    BLUE ON  100
+    BLUE OFF 0
+	RED ON  1000
+    RED OFF 0  
+	
+
+/////define event patterns to be used/////
+
+pattern LEDS_EVENT_POWER_ON
+	RED ON 1000
+	RED OFF 1000
+
+pattern LEDS_EVENT_POWER_OFF
+	RED ON 1000
+	RED OFF 1000
+	
+pattern LEDS_EVENT_CALL
+	RED ON 100
+	RED OFF 100
+	
+pattern LEDS_EVENT_RESET_PAIRED_DEVICES
+	RED ON 1000
+	RED OFF 500
+	RED ON 1000
+	RED OFF 500
+
+pattern LEDS_EVENT_LINK_LOSS
+	RED ON 500
+	RED OFF 500
+	RED ON 500
+	RED OFF 500
+	
+pattern LEDS_EVENT_TOGGLE_MUTE
+	RED BLUE ON 50
+	RED BLUE OFF 50
+
+pattern LEDS_EVENT_CONNECTED
+	RED ON 50
+	RED OFF 50
+	
