@@ -43,17 +43,10 @@ typedef uint16 HeadsetTone_t ;
 #define TONE_NOT_DEFINED        0           /*!< @brief Definition of empty entry in gEventTones array */
 
 /* Local stream end point codec IDs */
-#define SBC_SEID                1           /*!< @brief Local Stream End Point ID for SBC codec */
-#define MP3_SEID                2           /*!< @brief Local Stream End Point ID for MP3 codec */
-#define FASTSTREAM_SEID         3           /*!< @brief Local Stream End Point ID for FASTSTREAM codec */
-#define AAC_SEID                4           /*!< @brief Local Stream End Point ID for AAC codec */
+#define SBC_SINK_SEID                1           /*!< @brief Local Stream End Point ID for SBC codec */
+#define SBC_SOURCE_SEID              2           /*!< @brief Local Stream End Point ID for SBC codec */
 
-#define NUM_SEPS                (AAC_SEID)  /*!< @brief The total number of SEPs with AAC included */
-
-/* The bits used to enable codec support for A2DP, as read from PSKEY_CODEC_ENABLED */
-#define MP3_CODEC_BIT           0           /*!< @brief Bit used to enable MP3 codec in PSKEY_CODEC_ENABLED */
-#define AAC_CODEC_BIT           1           /*!< @brief Bit used to enable AAC codec in PSKEY_CODEC_ENABLED */
-#define FASTSTREAM_CODEC_BIT    2           /*!< @brief Bit used to enable FASTSTREAM codec in PSKEY_CODEC_ENABLED */
+#define NUM_SEPS                (SBC_SOURCE_SEID)  /*!< @brief The total number of SEPs with SBC_SOURCE_SEID included */
 
 #define KALIMBA_RESOURCE_ID     1           /*!< @brief Resource ID for Kalimba */
 
@@ -555,7 +548,6 @@ typedef struct
 	Configuration_t		*config;						/*!< Pointer to general configuration data */
 
 	sep_config_type 	*sbc_caps;						/*!< The user defined SBC capabilities */
-	sep_config_type 	*optional_caps[NUM_SEPS-1];		/*!< The user defined MP3 capabilities */
     
     bdaddr*             confirmation_addr;              /*!< user confirmation data */
 	

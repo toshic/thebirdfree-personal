@@ -56,7 +56,6 @@ static void     configManagerTimeouts               (uint16 pConfigID);
 static void     configManagerAmp	                (uint16 pConfigID);
 static void     configManagerFeatures               (uint16 pConfigID);
 static void     configManagerSsr                    (uint16 pConfigID);
-static void 	configManagerA2DPcodecCaps			(uint16 ps_id, uint16 max_size, sep_config_type **caps_a, sep_config_type **caps_b/*, uint16 optional_bit, uint16 optional_bit_b*/);
 static void 	configManagerPowerTables			(void);
 static void 	configManagerRetrieveLastDevices	(void);
 
@@ -71,7 +70,6 @@ static void  	configManagerLEDS                   (uint16 pConfigID);
 /*****************************************************************************/
 void configManagerInit(void)  
 { 
-	uint8 codec_enabled;
 	uint16 lConfigID  = get_config_id ( PSKEY_CONFIGURATION_ID ) ;
 	
 		/* Read and configure the headset features */
@@ -105,22 +103,6 @@ void configManagerInit(void)
 	
 		/* Read and configure HFP features */
 	configManagerSetupSupportedFeatures(lConfigID);
-	
-		/* Read and configure A2DP codec caps */
-	configManagerA2DPcodecCaps(PSKEY_A2DP_CODEC_CAPS_A, MAX_A2DP_CODEC_CAPS_A_SIZE + MAX_A2DP_CODEC_CAPS_B_SIZE, &theHeadset.sbc_caps, &theHeadset.optional_caps[AAC_CODEC_BIT]);
-	configManagerA2DPcodecCaps(PSKEY_A2DP_CODEC_CAPS_B, MAX_A2DP_CODEC_CAPS_A_SIZE * 2, &theHeadset.optional_caps[MP3_CODEC_BIT], &theHeadset.optional_caps[FASTSTREAM_CODEC_BIT]);
-	
-		/* Read the optional A2DP codecs that are enabled */
-	if (PsRetrieve(PSKEY_CODEC_ENABLED, &codec_enabled, sizeof(uint8)))
-	{
-		theHeadset.a2dpCodecsEnabled = codec_enabled;
-	}
-
-	CONF_DEBUG(("Co: User A2DP caps sbc[%x] aac[%x] mp3[%x] faststream[%x]\n",
-				(uint16)theHeadset.sbc_caps,
-				(uint16)theHeadset.optional_caps[AAC_CODEC_BIT],
-				(uint16)theHeadset.optional_caps[MP3_CODEC_BIT],
-				(uint16)theHeadset.optional_caps[FASTSTREAM_CODEC_BIT]));
 	
 		/* Read and configure HFP and A2DP power tables */
 	configManagerPowerTables();
@@ -655,77 +637,6 @@ static void configManagerSsr(uint16 pConfigID)
                                 theHeadset.config->ssr_data.signalling_params.max_remote_latency,
                                 theHeadset.config->ssr_data.signalling_params.min_remote_timeout,
                                 theHeadset.config->ssr_data.signalling_params.min_local_timeout));
-}
-
-
-static void store_a2dp_caps(sep_config_type **to_caps, uint16 *from_caps)
-{
-	/* point to the memory allocation for this codec */
-	uint16 *local_caps = (uint16*)*to_caps;
-	/* copy the header information for the codec */
-	memmove(local_caps, from_caps, 5);
-   /* copy the capabilities for the codec, leaving a gap for the caps pointer */
-	memmove(local_caps+6, &from_caps[5], from_caps[4]);
-	/* update the application codec pointer */ 
-	*to_caps = (sep_config_type *)local_caps;
-	(*to_caps)->caps = (uint8 *)&local_caps[6]; 
-}
-
-
-/****************************************************************************
-NAME 
-    configManagerA2DPcodecCaps
-
-DESCRIPTION
-    Read and configure the A2DP codec caps.
- 
-RETURNS
-    void
-*/
-static void configManagerA2DPcodecCaps(uint16 ps_id, uint16 max_size, sep_config_type **caps_a, sep_config_type **caps_b/*uint16 optional_bit_a, uint16 optional_bit_b*/)
-{
-	bool caps_set = FALSE;
-	uint16 *CodecCaps = PanicUnlessMalloc ( sizeof(uint16) * max_size ) ;
-	uint16 size_ps_key = PsRetrieve(ps_id, CodecCaps, max_size);
-	
-	if (size_ps_key)
-	{
-		uint16 capsAsize = (CodecCaps[0]>>8) & 0xff;
-		uint16 capsBsize = (CodecCaps[0]) & 0xff;
-		
-		if (size_ps_key == ( (sizeof(uint16)*capsAsize) + 
-                           (sizeof(uint16)*capsBsize) +
-                            sizeof(uint16) ) )
-		{
-			if (capsAsize && (capsAsize > 6))
-			{
-				/* Store the PSKey defined capabilities for the first codec */
-				store_a2dp_caps(caps_a, &CodecCaps[1]);
-			}
-			else
-			{
-				*caps_a = 0;
-			}
-			if (capsBsize && (capsBsize > 6))
-			{
-				/* Store the PSKey defined capabilities for the second codec */
-				store_a2dp_caps(caps_b, &CodecCaps[6+CodecCaps[5]]);
-			}
-			else
-			{
-				*caps_b = 0;
-			}
-			caps_set = TRUE;
-		}
-	}
-	
-	if (!caps_set)
-	{
-		*caps_a = 0;
-		*caps_b = 0;
-	}
-	
-	free(CodecCaps);
 }
 
 

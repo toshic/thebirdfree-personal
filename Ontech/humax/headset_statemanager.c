@@ -219,7 +219,7 @@ void stateManagerEnterA2dpConnectedState(void)
 	{
    		stateManagerSetA2dpState(headsetA2dpConnected);
 		
-		if ( stateManagerIsHfpConnected() || !theHeadset.features.UseHFPprofile || (theHeadset.seid == FASTSTREAM_SEID))
+		if ( stateManagerIsHfpConnected() || !theHeadset.features.UseHFPprofile)
             headsetDisableConnectable() ;
 	}
 	

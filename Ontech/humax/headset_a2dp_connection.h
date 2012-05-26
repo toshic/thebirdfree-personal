@@ -47,7 +47,7 @@ NAME
 DESCRIPTION
      Connect to the last AV source the headset was connected to.
 */
-bool a2dpConnectRequest(bool connect_media, bool manual_connect);
+bool a2dpConnectRequest(bool connect_media, bool isSource, bool manual_connect);
 
 
 /*************************************************************************
@@ -57,7 +57,7 @@ NAME
 DESCRIPTION
      Connect to the last AV source with the requested address.
 */
-bool a2dpConnectBdaddrRequest(bdaddr *pAddr);
+bool a2dpConnectBdaddrRequest(bdaddr *pAddr, bool isSource);
 
 
 /*************************************************************************

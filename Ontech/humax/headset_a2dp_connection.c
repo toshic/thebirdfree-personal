@@ -51,12 +51,8 @@ bool a2dpGetLastUsedSource(bdaddr *addr, uint8 *seid)
 	if (*seid == 0)
 	{
 		/* No remote device has connected to a SEP on this device, so no record of which SEP to use.  */
-		if (theHeadset.a2dpCodecsEnabled & (1<<MP3_CODEC_BIT))
-			/* If MP3 is enabled always try this first, it may be supported at the remote end */
-			*seid = MP3_SEID;
-		else
-			/* Default to using SBC */
-			*seid = SBC_SEID;
+		/* Default to using SBC */
+		*seid = SBC_SINK_SEID;
 	}
 	
 	return TRUE;
@@ -80,19 +76,19 @@ bool a2dpEstablishConnection(bool a2dp_ag_connect_signalling_only, bool manual_c
 	
 		if (!hfpSlcGetLastConnectedAG(&ag_addr))
 		{
-			return (a2dpConnectRequest(TRUE, manual_connect));
+			return (a2dpConnectRequest(TRUE, FALSE, manual_connect));
 		}
 	
 		if (BdaddrIsSame(&a2dp_addr, &ag_addr) && a2dp_ag_connect_signalling_only)
 		{
 			if (!A2dpGetSignallingSink(theHeadset.a2dp))
 			{
-				return (a2dpConnectRequest(FALSE, manual_connect));
+				return (a2dpConnectRequest(FALSE, FALSE, manual_connect));
 			}
 		}
 		else
 		{
-			return (a2dpConnectRequest(TRUE, manual_connect));
+			return (a2dpConnectRequest(TRUE, FALSE, manual_connect));
 		}
 	}
 	
@@ -101,12 +97,15 @@ bool a2dpEstablishConnection(bool a2dp_ag_connect_signalling_only, bool manual_c
 
 
 /****************************************************************************/
-bool a2dpConnectRequest(bool connect_media, bool manual_connect)
+bool a2dpConnectRequest(bool connect_media, bool isSource, bool manual_connect)
 {
     bdaddr addr;
-	uint8 seid = SBC_SEID;
+	uint8 seid = SBC_SINK_SEID;
 	uint8 seids[2];
 	uint16 size_seids = 1;
+
+	if(isSource)
+    	seid = SBC_SOURCE_SEID;
 	
 	if (stateManagerGetHfpState() == headsetPoweringOn)
 	{
@@ -131,8 +130,6 @@ bool a2dpConnectRequest(bool connect_media, bool manual_connect)
 		theHeadset.sendPlayOnConnection = TRUE;
 		theHeadset.manualA2dpConnect = manual_connect;
 		
-		size_seids = InitSeidConnectPriority(seid, seids);
-			
 		if (!A2dpGetMediaSink(theHeadset.a2dp))
 		{
 			A2DP_CONNECTION_DEBUG(("A2DP_CONNECTION: Connect\n"));
@@ -154,11 +151,14 @@ bool a2dpConnectRequest(bool connect_media, bool manual_connect)
 
 
 /****************************************************************************/
-bool a2dpConnectBdaddrRequest(bdaddr *pAddr)
+bool a2dpConnectBdaddrRequest(bdaddr *pAddr, bool isSource)
 {
-	uint8 seid = SBC_SEID;
+	uint8 seid = SBC_SINK_SEID;
 	uint8 seids[2];
 	uint16 size_seids = 1;
+
+	if(isSource)
+	    seid = SBC_SOURCE_SEID;
 	
 	if ((stateManagerGetHfpState() == headsetPoweringOn) || 
 		(stateManagerGetA2dpState() != headsetA2dpConnectable) ||
@@ -168,8 +168,6 @@ bool a2dpConnectBdaddrRequest(bdaddr *pAddr)
 		A2DP_CONNECTION_DEBUG(("A2DP_CONNECTION: Invalid state\n"));
 		return FALSE;
 	}
-	
-	size_seids = InitSeidConnectPriority(seid, seids);
 	
 	/* Open media channel. Call the correct API depending on whether signalling connected or not. */
     if (!A2dpGetSignallingSink(theHeadset.a2dp))
@@ -224,18 +222,7 @@ bool a2dpGetListNextA2dpSource(uint16 *current_index, bdaddr *addr, uint8 *seid)
         {
             if (lAttributes[attribute_a2dp_profile] || !lAttributes[attribute_hfp_hsp_profile])
             {
-                /* if no SEID defined, try and use MP3 if enabled, else default to SBC */
-                if (lAttributes[attribute_seid] == 0)
-                {
-                    if (theHeadset.a2dpCodecsEnabled & (1<<MP3_CODEC_BIT))
-                        *seid = MP3_SEID;
-                    else
-                        *seid = SBC_SEID;
-                }
-                else
-                {
-                    *seid = lAttributes[attribute_seid];
-                }
+                *seid = SBC_SINK_SEID;
                 return TRUE;
             }
         }
@@ -248,7 +235,7 @@ bool a2dpGetListNextA2dpSource(uint16 *current_index, bdaddr *addr, uint8 *seid)
 bool a2dpListConnection(void)
 {
     bdaddr addr;
-	uint8 seid = SBC_SEID;
+	uint8 seid = SBC_SINK_SEID;
 	uint8 seids[2];
 	uint16 size_seids = 1;
 	uint16 index;
@@ -300,8 +287,6 @@ list_continue:
     theHeadset.a2dpConnecting = TRUE;
 	theHeadset.sendPlayOnConnection = TRUE;
 		
-	size_seids = InitSeidConnectPriority(seid, seids);
-			
 	if (!A2dpGetMediaSink(theHeadset.a2dp))
 	{
 		theHeadset.manualA2dpConnect = TRUE;

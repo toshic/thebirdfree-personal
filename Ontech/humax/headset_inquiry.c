@@ -214,7 +214,7 @@ void inquiryHandleResult( CL_DM_INQUIRE_RESULT_T* result )
 					}
 				}		
 				/* This was an A2DP inquiry so try and connect A2DP */
-				else if (a2dpConnectBdaddrRequest(&theHeadset.inquiry_data[0].bd_addr))
+				else if (a2dpConnectBdaddrRequest(&theHeadset.inquiry_data[0].bd_addr,FALSE))
 				{
 					/* Ensure the link key for this device is deleted before the connection attempt,
 	 				   prevents reconnection problems with BT2.1 devices.*/

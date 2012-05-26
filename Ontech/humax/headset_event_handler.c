@@ -853,7 +853,7 @@ void handleUEMessage( Task task, MessageId id, Message message )
 		{
 			theHeadset.eqMode++;	
 		}
-		if ((theHeadset.dsp_process == dsp_process_a2dp) && (theHeadset.seid != FASTSTREAM_SEID))
+		if ((theHeadset.dsp_process == dsp_process_a2dp))
 		{
 			/* Set audio mode for A2DP only (not used for Faststream) */
 			AudioSetMode(theHeadset.eqMode, 0);
