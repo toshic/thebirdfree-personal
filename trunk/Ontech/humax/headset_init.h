@@ -89,17 +89,6 @@ DESCRIPTION
 */
 void InitAvrcp(void);
 
-
-/*************************************************************************
-NAME    
-    InitSeidConnectPriority
-    
-DESCRIPTION
-    Retrieves a list of the preferred Stream End Points to connect with.
-*/
-uint16 InitSeidConnectPriority(uint8 seid, uint8 *seid_list);
-
-
 /*************************************************************************
 NAME    
     InitA2dpPlugin

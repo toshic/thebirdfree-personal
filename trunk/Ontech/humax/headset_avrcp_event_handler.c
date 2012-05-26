@@ -214,7 +214,7 @@ void avrcpEventPlay(void)
 		/* If no media channel connected, then connect it now */
 		if (!A2dpGetMediaSink(theHeadset.a2dp))
 		{
-			a2dpConnectRequest(TRUE, TRUE);
+			a2dpConnectRequest(TRUE, FALSE, TRUE);
 		}
 		else
 		{		
@@ -247,7 +247,7 @@ void avrcpEventPlay(void)
 			else
 			{
 				/* No media connection so connect it now. */
-				a2dpConnectRequest(TRUE, TRUE);	
+				a2dpConnectRequest(TRUE, FALSE, TRUE);	
 			}
 		}
 		else if ( (stateManagerGetA2dpState () == headsetA2dpStreaming ) || (stateManagerGetA2dpState () == headsetA2dpPaused) )
@@ -287,7 +287,7 @@ void avrcpEventPause(void)
 			else
 			{
 				/* No media connection so connect it now. */
-				a2dpConnectRequest(TRUE, TRUE);	
+				a2dpConnectRequest(TRUE, FALSE, TRUE);	
 			}
 		}
 		else if ( (stateManagerGetA2dpState () == headsetA2dpStreaming ) || (stateManagerGetA2dpState () == headsetA2dpPaused) )

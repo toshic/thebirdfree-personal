@@ -150,15 +150,6 @@ void CsrSbcEncoderPluginConnect( Sink audio_sink , Task codec_task , uint16 volu
         
 		(void)PcmClearAllRouting();
 
-		if (CodecGetCodecType(codec_task) == codec_wm8731)
-		{
-			PRINT(("Audio Plugin: codec_wm8731\n"));
-			/* configure slot 0 and 1 to be left and right channel
-			and synchronise the offsets for stereo playback */
-			(void)PcmRateAndRoute(0, PCM_NO_SYNC, (uint32) rate, (uint32) rate, VM_PCM_EXTERNAL_I2S);
-			(void)PcmRateAndRoute(1, 0, (uint32) rate, (uint32) rate, VM_PCM_EXTERNAL_I2S);
-		}
-		else
 		{
 			PRINT(("Audio Plugin: codec_internal\n"));
 			/* configure slot 0 and 1 to be left and right channel

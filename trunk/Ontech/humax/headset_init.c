@@ -33,6 +33,7 @@ Copyright (C) Cambridge Silicon Radio Ltd. 2004-2009
 
 
 #include <csr_a2dp_decoder_common_plugin.h>
+#include <csr_sbc_encoder_plugin.h>
 #include "default_aac_service_record.h"
 
 
@@ -43,32 +44,8 @@ Copyright (C) Cambridge Silicon Radio Ltd. 2004-2009
 #endif
 
 
-static const sep_config_type sbc_sep = { SBC_SEID, KALIMBA_RESOURCE_ID, sep_media_type_audio, a2dp_sink, 1, 0, sizeof(sbc_caps_sink), sbc_caps_sink };
-static const sep_config_type faststream_sep = { FASTSTREAM_SEID, KALIMBA_RESOURCE_ID, sep_media_type_audio, a2dp_sink, 1, 38, sizeof(faststream_caps_sink), faststream_caps_sink };
-static const sep_config_type mp3_sep = { MP3_SEID, KALIMBA_RESOURCE_ID, sep_media_type_audio, a2dp_sink, 1, 0, sizeof(mp3_caps_sink), mp3_caps_sink };
-static const sep_config_type aac_sep = { AAC_SEID, KALIMBA_RESOURCE_ID, sep_media_type_audio, a2dp_sink, 1, 0, sizeof(aac_caps_sink), aac_caps_sink };
-
-#define NUM_OPTIONAL_CODECS	(NUM_SEPS-1)
-
-
-typedef struct
-{
-	unsigned				seid:8;		/* The unique ID for the SEP. */
-	unsigned				bit:8;		/* The bit position in PSKEY_USR26 to enable the codec. */
-	const sep_config_type	*config;	/* The SEP config data. These configs are defined above. */
-	TaskData				*plugin;	/* The audio plugin to use. */
-} optional_codec_type;
-
-/* Table which indicates which A2DP codecs are avaiable on the headset.
-   Add any other codecs to the bottom of the table.
-*/
-static const optional_codec_type optionalCodecList[NUM_OPTIONAL_CODECS] = 
-{
-	{FASTSTREAM_SEID, FASTSTREAM_CODEC_BIT, &faststream_sep, (TaskData *)&csr_faststream_sink_plugin}
-	,{MP3_SEID, MP3_CODEC_BIT, &mp3_sep, (TaskData *)&csr_mp3_decoder_plugin}
-	,{AAC_SEID, AAC_CODEC_BIT, &aac_sep, (TaskData *)&csr_aac_decoder_plugin}
-};
-
+static const sep_config_type sbc_sink_sep = { SBC_SINK_SEID, KALIMBA_RESOURCE_ID, sep_media_type_audio, a2dp_sink, 1, 0, sizeof(sbc_caps_sink), sbc_caps_sink };
+static const sep_config_type sbc_source_sep = { SBC_SOURCE_SEID, KALIMBA_RESOURCE_ID, sep_media_type_audio, a2dp_source, 1, 0, sizeof(sbc_caps_source_analogue), sbc_caps_source_analogue };
 
 /****************************************************************************
   FUNCTIONS
@@ -206,57 +183,19 @@ void InitHfp(void)
 /*****************************************************************************/
 void InitA2dp(void)
 {
-	uint16 i;
-	bool aac_enable = FALSE;
-    
     sep_data_type seps[NUM_SEPS];
 	uint16 number_of_seps = 0;
 	
 	seps[number_of_seps].in_use = FALSE;
-			        
-	if (theHeadset.sbc_caps)
-		seps[number_of_seps].sep_config = theHeadset.sbc_caps;
-	else
-		seps[number_of_seps].sep_config = &sbc_sep;
-	
+	seps[number_of_seps].sep_config = &sbc_sink_sep;
+	number_of_seps++;
+
+	seps[number_of_seps].in_use = FALSE;
+	seps[number_of_seps].sep_config = &sbc_source_sep;
 	number_of_seps++;
 	
-	for (i=0; i<NUM_OPTIONAL_CODECS; i++)
-	{
-		if (theHeadset.a2dpCodecsEnabled & (1<<optionalCodecList[i].bit))
-		{
-			if ((1<<optionalCodecList[i].bit) & (1<<AAC_CODEC_BIT))
-				aac_enable = TRUE;
-			
-			if (theHeadset.optional_caps[optionalCodecList[i].bit])
-				seps[number_of_seps].sep_config = theHeadset.optional_caps[optionalCodecList[i].bit];
-			else
-				seps[number_of_seps].sep_config = optionalCodecList[i].config;
-			seps[number_of_seps].in_use = FALSE;
-			number_of_seps++;
-			INIT_DEBUG(("INIT: Optional Codec Enabled %d\n",i)); 
-		}
-	}
-
-	if (aac_enable)	
-	{   
-		service_record_type sdp;
-
-		sdp.size_service_record_a = sizeof(a2dp__aac_sink_service_record);
-		sdp.service_record_a = a2dp__aac_sink_service_record;
-		sdp.size_service_record_b = 0;
-		sdp.service_record_b = NULL;
-		
-		INIT_DEBUG(("INIT: AAC Enabled\n")); 
-
-		/* Initialise the A2DP library */
-	    A2dpInit(&theHeadset.task, A2DP_INIT_ROLE_SINK, &sdp, number_of_seps, seps);
-	}
-	else
-	{
-		/* Initialise the A2DP library */
-	    A2dpInit(&theHeadset.task, A2DP_INIT_ROLE_SINK, NULL, number_of_seps, seps);
-    }
+	/* Initialise the A2DP library */
+    A2dpInit(&theHeadset.task, A2DP_INIT_ROLE_SOURCE | A2DP_INIT_ROLE_SINK, NULL, number_of_seps, seps);
 }
 
 
@@ -278,47 +217,13 @@ void InitAvrcp(void)
 
 
 /*****************************************************************************/
-uint16 InitSeidConnectPriority(uint8 seid, uint8 *seid_list)
-{
-	uint16 size_seids = 1;
-	uint16 i;
-	
-	for (i=0; i<NUM_OPTIONAL_CODECS; i++)
-	{
-		if ((!(theHeadset.a2dpCodecsEnabled & (1<<optionalCodecList[i].bit)) && (seid == optionalCodecList[i].seid)))
-			seid = SBC_SEID;
-	}
-	
-	if (seid != SBC_SEID)
-	{
-		seid_list[0] = seid;
-		seid_list[1] = SBC_SEID;
-		size_seids = 2;
-		INIT_DEBUG(("INIT: Connect using SEID %d then SBC\n",seid));
-	}
-	else
-	{
-		seid_list[0] = SBC_SEID;
-		INIT_DEBUG(("INIT: Connect using SBC\n" ));
-	}
-	
-	return size_seids;
-}
-
-
-/*****************************************************************************/
 Task InitA2dpPlugin(uint8 seid)
 {
-	uint16 i;
-	
-	if (seid == SBC_SEID)
+	if (seid == SBC_SINK_SEID)
 		return (TaskData *)&csr_sbc_decoder_plugin;
 	
-	for (i=0; i<NUM_OPTIONAL_CODECS; i++)
-	{
-		if (optionalCodecList[i].seid == seid)
-			return optionalCodecList[i].plugin;
-	}
+	if (seid == SBC_SOURCE_SEID)
+		return (TaskData *)&csr_sbc_encoder_plugin;
 	
 	/* No plugin found so Panic */
 	Panic();
@@ -386,11 +291,6 @@ void InitConfigurationMemory(void)
 	INIT_DEBUG(("INIT: Malloc size [%d]\n",lSize));
 	/*************************************/
 #endif
-	
-	/* Store pointer to MP3 and Faststream codec capabilities memory */
-	theHeadset.optional_caps[MP3_CODEC_BIT] = (sep_config_type *)&buffer[pos];
-	theHeadset.optional_caps[FASTSTREAM_CODEC_BIT] = (sep_config_type *)&buffer[pos + MAX_A2DP_CODEC_CAPS_A_SIZE];
-	
 #ifdef ROM_LEDS			
 	/*** One memory slot ***/
 	/* Allocate Memory for LED State Patterns, Last Devices, and General configuration parameters */
@@ -442,7 +342,6 @@ void InitConfigurationMemory(void)
 	buffer = PanicUnlessMalloc ( lSize );
 	INIT_DEBUG(("INIT: Malloc size [%d]\n",lSize));
 	theHeadset.gEventTones = (HeadsetTone_t *)&buffer[0];
-	theHeadset.optional_caps[AAC_CODEC_BIT] = (sep_config_type *)&buffer[pos];
 	/*************************************/
 }
 
