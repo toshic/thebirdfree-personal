@@ -1,0 +1,4 @@
+
+# VARIANTS := auristream
+
+# CFLAGS_auristream := -DINCLUDE_NO_DSP_AURISTREAM  # flags for building debug version of HFP lib

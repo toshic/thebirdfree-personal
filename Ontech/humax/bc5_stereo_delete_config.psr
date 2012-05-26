@@ -1,0 +1,79 @@
+// -------------------------------------------------------------------
+// This file contains the customer specific persistent store settings
+//
+// Customer:	Various
+// Product:		CSR BC5-Stereo
+// Date:		24/01/07
+// Version: 	1.0
+// -------------------------------------------------------------------
+
+
+// PSKEY_USR0
+&028a -
+// PSKEY_USR1
+&028b -
+// PSKEY_USR2
+&028c -
+// PSKEY_USR3
+&028d -
+// PSKEY_USR4
+&028e -
+// PSKEY_USR5
+&028f -
+// PSKEY_USR6
+&0290 -
+// PSKEY_USR7
+&0291 -
+// PSKEY_USR8
+&0292 -
+// PSKEY_USR9
+&0293 -
+// PSKEY_USR10
+&0294 -
+// PSKEY_USR11
+&0295 -
+// PSKEY_USR12
+&0296 -
+// PSKEY_USR13
+&0297 -
+// PSKEY_USR14
+&0298 -
+// PSKEY_USR15
+&0299 -
+// PSKEY_USR16
+&029a -
+// PSKEY_USR17
+&029b -
+// PSKEY_USR18
+&029c -
+// PSKEY_USR19
+&029d -
+// PSKEY_USR20
+&029e -
+// PSKEY_USR21
+&029f -
+// PSKEY_USR22
+&02a0 -
+// PSKEY_USR23
+&02a1 -
+// PSKEY_USR24
+&02a2 -
+// PSKEY_USR25
+&02a3 -
+// PSKEY_USR26
+&02a4 -
+// PSKEY_USR27
+&02a5 -
+// PSKEY_USR28
+&02a6 -
+
+// Don't delete paired device info (PSKEY_USR29 - PSKEY_USR36)
+
+// PSKEY_USR37
+&02af -
+// PSKEY_USR38
+&02b0 -
+// PSKEY_USR39
+&02b1 -
+// PSKEY_USR40
+&02b2 -

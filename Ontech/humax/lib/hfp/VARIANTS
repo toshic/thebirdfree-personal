@@ -1,0 +1,4 @@
+
+VARIANTS := debug
+
+CFLAGS_debug := -DHFP_DEBUG_LIB  # flags for building debug version of HFP lib

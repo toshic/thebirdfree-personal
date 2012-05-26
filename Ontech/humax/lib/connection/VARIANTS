@@ -1,0 +1,4 @@
+
+VARIANTS := debug
+
+CFLAGS_debug := -DCONNECTION_DEBUG_LIB  # flags for building debug version of connection lib
