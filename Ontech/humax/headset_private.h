@@ -148,6 +148,7 @@ typedef struct
     uint32 voice_rate;
     unsigned bitpool:8;
     unsigned format:8;
+    uint16 packet_size;
 	uint16 clock_mismatch;
 } sink_codec_data_type;
 

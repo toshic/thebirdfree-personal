@@ -363,6 +363,7 @@ static void handleA2DPCodecSettingsInd(A2DP_CODEC_SETTINGS_IND_T *msg)
 	theHeadset.a2dp_data.codecData.voice_rate = codecData.voice_rate;
 	theHeadset.a2dp_data.codecData.bitpool = codecData.bitpool;
 	theHeadset.a2dp_data.codecData.format = codecData.format;	
+    theHeadset.a2dp_data.codecData.packet_size = codecData.packet_size;
 	
 	A2DP_MSG_DEBUG(("	chn_mode=%d rate=0x%x\n",theHeadset.a2dp_channel_mode,theHeadset.a2dp_rate));
 	A2DP_MSG_DEBUG(("	content_protection=%d voice_rate=0x%lx bitpool=0x%x format=0x%x\n",
