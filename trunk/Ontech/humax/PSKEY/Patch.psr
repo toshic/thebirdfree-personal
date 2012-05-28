@@ -13,7 +13,7 @@
 // PSKEY_CODEC_MIN_CPU_CLOCK
 &21df = 0000// 16 MHz (full rate)
 // PSKEY_LOCAL_SUPPORTED_FEATURES
-&0239 = ffff f88b 1e1b 8350
+&00ef = ffff f88b 1e1b 8350
 
 // PSKEY_USR_0
 &028a -
