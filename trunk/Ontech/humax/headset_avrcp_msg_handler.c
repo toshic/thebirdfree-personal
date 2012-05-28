@@ -16,7 +16,7 @@ Copyright (C) Cambridge Silicon Radio Ltd. 2004-2009
 #include "headset_private.h"
 #include "headset_statemanager.h"
 #include "headset_volume.h"
-
+#include "at_cmd.h"
 
 #include <avrcp.h>
 #include <panic.h>
@@ -58,6 +58,8 @@ static void handleAVRCPConnectInd(AVRCP_CONNECT_IND_T *msg)
 	AVRCP_MSG_DEBUG(("AVRCP_CONNECT_IND : "));
 	
     MessageCancelAll(&theHeadset.task, APP_AVRCP_CONNECT_REQ);
+
+    SendEvent(EVT_AVRCP_SIGNAL_CONNECT_IND,0);
     
 	if ((stateManagerGetAvrcpState() == avrcpReady) && (stateManagerGetHfpState() != headsetPoweringOn))
 	{ /* Accept connection */
@@ -76,6 +78,9 @@ static void handleAVRCPConnectInd(AVRCP_CONNECT_IND_T *msg)
 static void handleAVRCPConnectCfm(AVRCP_CONNECT_CFM_T *msg)
 {
 	AVRCP_MSG_DEBUG(("AVRCP_CONNECT_CFM : \n"));
+
+    SendEvent(EVT_AVRCP_SIGNAL_CONNECT_CFM,msg->status);
+
 	if (stateManagerGetAvrcpState() == avrcpConnecting)
 	{
 	    if(msg->status == avrcp_success)
@@ -116,6 +121,8 @@ static void handleAVRCPDisconnectInd(AVRCP_DISCONNECT_IND_T *msg)
 {
 	PROFILE_MEMORY(("AVRCPDisco"))
 	AVRCP_MSG_DEBUG(("AVRCP_DISCONNECT_IND : "));
+
+    SendEvent(EVT_AVRCP_SIGNAL_DISCONNECT_IND,msg->status);
 
 	if ( stateManagerIsAvrcpConnected() )
 	{

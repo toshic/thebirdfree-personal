@@ -19,8 +19,8 @@ Copyright (C) Cambridge Silicon Radio Ltd. 2004-2009
 #include "headset_link_policy.h"
 #include "headset_private.h"
 #include "headset_statemanager.h"
-#include "headset_tones.h"
 #include "headset_configmanager.h"
+#include "at_cmd.h"
 
 #include <a2dp.h>
 #include <bdaddr.h>
@@ -83,11 +83,7 @@ static void handleA2DPInitCfm(const A2DP_INIT_CFM_T *msg)
 		theHeadset.a2dp_data.sep_entries = msg->sep_list;
 		
 		/* Initialise AVRCP if enabled */
-		if (theHeadset.features.UseAVRCPprofile)
-			InitAvrcp();
-		else
-			/* All profile libraries are now initialised */
-			theHeadset.ProfileLibrariesInitialising = FALSE;
+		InitAvrcp();
     }
     else
     {
@@ -101,6 +97,8 @@ static void handleA2DPOpenInd(Sink sink, uint8 seid)
 {
     bdaddr bdaddr_ind;
     
+    SendEvent(EVT_A2DP_OPEN_IND,0);
+
 	if (SinkGetBdAddr(sink, &bdaddr_ind))
 	{
 		uint8 lAttributes[ATTRIBUTE_SIZE];
@@ -145,6 +143,8 @@ static void handleA2DPOpenInd(Sink sink, uint8 seid)
 static void handleA2DPOpenCfm(a2dp_status_code status, Sink sink, uint8 seid)
 {
 	theHeadset.a2dpConnecting = FALSE;
+
+    SendEvent(EVT_A2DP_OPEN_CFM,status);
 	
 	if (status == a2dp_success)
 	{
@@ -170,6 +170,8 @@ static void handleA2DPStartInd(A2DP_START_IND_T *msg)
 		A2DP_MSG_DEBUG(("    Not Connected - Ignoring\n"));
 		return;
 	}
+
+    SendEvent(EVT_A2DP_START_IND,0);
 	
     if (!A2dpGetMediaSink(theHeadset.a2dp) || (stateManagerIsA2dpStreaming()))
         return;
@@ -192,6 +194,8 @@ static void handleA2DPStartInd(A2DP_START_IND_T *msg)
 
 static void handleA2DPStartCfm(A2DP_START_CFM_T *msg)
 {
+    SendEvent(EVT_A2DP_START_CFM,msg->status);
+
     if (msg->status == a2dp_success)
     {   
         A2DP_MSG_DEBUG(("Start Success\n"));
@@ -247,6 +251,7 @@ static void handleA2DPStartCfm(A2DP_START_CFM_T *msg)
 
 static void handleA2DPSuspendInd(A2DP_SUSPEND_IND_T *msg)
 {
+    SendEvent(EVT_A2DP_SUSPEND_IND,0);
 	if (!stateManagerIsA2dpStreaming())
 	{
 		A2DP_MSG_DEBUG(("    Not Streaming - Ignoring\n"));
@@ -267,6 +272,9 @@ static void handleA2DPSuspendCfm(A2DP_SUSPEND_CFM_T *msg)
 		A2DP_MSG_DEBUG(("    Not Connected - Ignoring\n"));
 		return;
 	}
+
+    SendEvent(EVT_A2DP_SUSPEND_CFM,msg->status);
+
     if (msg->status == a2dp_success)
     {
         A2DP_MSG_DEBUG(("Suspend Success\n"));
@@ -380,21 +388,7 @@ static void handleA2DPSignallingConnected(a2dp_status_code status, A2DP *a2dp, S
 		/* This connection failed so check if inquiry needs to resume */
 		inquiryContinue();
 		
-		if (theHeadset.LinkLossAttemptA2dp && (++theHeadset.LinkLossAttemptA2dp <= theHeadset.features.LinkLossRetries))
-		{
-			/* Still reconnection attempts after link loss to try */
-			A2DP_MSG_DEBUG(("A2DP : Link loss connection attempt %d \n",theHeadset.LinkLossAttemptA2dp)) ; 
-			/* try next reconnect in several secs */
-			MessageSendLater(&theHeadset.task, APP_CONNECT_A2DP_LINK_LOSS, 0, D_SEC(LINK_LOSS_RETRY_TIME_SECS));
-			return;
-		}
 		theHeadset.LinkLossAttemptA2dp = 0;
-		if (theHeadset.a2dp_list_index != 0xf)
-		{
-			/* Connect to next A2DP source in list */
-			MessageSendLater(&theHeadset.task, APP_CONTINUE_A2DP_LIST_CONNECTION , 0, 0);
-			return;
-		}
         /* Send event to signify that reconnection attempt failed */
 		MessageSend(&theHeadset.task, EventA2dpReconnectFailed, 0);
         return;
@@ -415,6 +409,8 @@ static void handleA2DPSignallingConnected(a2dp_status_code status, A2DP *a2dp, S
     }
     
     A2DP_MSG_DEBUG(("Signalling Success\n"));
+
+    SendEvent(EVT_A2DP_SIGNAL_CONNECT_CFM,status);
 	
 	theHeadset.a2dp = a2dp;
     
@@ -470,9 +466,6 @@ static void handleA2DPSignallingConnected(a2dp_status_code status, A2DP *a2dp, S
 			}
     		/* always shuffle the pdl into mru order */        
     		ConnectionSmUpdateMruDevice(&bdaddr_ind) ;
-			
-			/* Store last used A2DP */
-			theHeadset.LastDevices->lastA2dpConnected = bdaddr_ind;
 		}
 		
 		/* Update Link Policy as A2DP has connected. */
@@ -486,100 +479,17 @@ static void handleA2DPSignallingDisconnected(A2DP_SIGNALLING_CHANNEL_DISCONNECT_
     if (!A2dpGetMediaSink(theHeadset.a2dp))
 	    stateManagerEnterA2dpConnectableState(FALSE);
 		
+    SendEvent(EVT_A2DP_SIGNAL_DISCONNECT_IND,msg->status);
+
 	theHeadset.a2dp = 0; 
 	
 	avrcpDisconnectReq();
 		    
-	if (msg->status == a2dp_disconnect_link_loss)
-	{
-		/* Reconnect on link loss */
-		A2DP_MSG_DEBUG(("A2DP: Link Loss Detect\n")) ;
-               
-        MessageSend( &theHeadset.task , EventLinkLoss , 0 ) ;
-		
-		/* Decide on reconnection behaviour, only if the headset is configured to reconnect on link loss */
-		if (theHeadset.features.LinkLossRetries)
-		{
-			if (theHeadset.combined_link_loss)
-			{
-				/* HFP on this device already suffered link loss so connect HFP first */
-				theHeadset.slcConnectFromPowerOn = TRUE;
-				theHeadset.LinkLossAttemptHfp = 1;
-				MessageSend(&theHeadset.task, APP_CONNECT_HFP_LINK_LOSS, 0);
-			}
-			else if (HfpGetSlcSink(theHeadset.hfp_hsp) && !BdaddrIsZero(&theHeadset.LastDevices->lastHfpConnected) && !BdaddrIsZero(&theHeadset.LastDevices->lastA2dpConnected))
-			{
-				if (BdaddrIsSame(&theHeadset.LastDevices->lastHfpConnected, &theHeadset.LastDevices->lastA2dpConnected))
-				{
-					/* Flag to indicate that HFP should be reconnected first. It's still connected but should suffer link loss soon. */
-					theHeadset.combined_link_loss = TRUE;
-				}
-				else
-				{
-					/* Connect to standalone A2DP source */
-					theHeadset.LinkLossAttemptA2dp = 1;
-					a2dpEstablishConnection(FALSE, FALSE);
-				}
-			}
-			else	
-			{
-				/* Standard reconnect procedure for A2DP */
-				theHeadset.LinkLossAttemptA2dp = 1;
-				a2dpEstablishConnection(FALSE, FALSE);
-			}
-		}
-	}
-	else
-	{
-		theHeadset.combined_link_loss = FALSE;
-	}
+	theHeadset.combined_link_loss = FALSE;
 	
 	MessageSend ( &theHeadset.task , EventA2dpDisconnected , 0 );
 	
-	
-	if (!BdaddrIsZero(&theHeadset.LastDevices->lastA2dpConnected))
-	{
-		uint8 lAttributes[ATTRIBUTE_SIZE];
-		/* Retrieve attributes for this device */
-    	if (ConnectionSmGetAttributeNow(PSKEY_ATTRIBUTE_BASE, &theHeadset.LastDevices->lastA2dpConnected, ATTRIBUTE_SIZE, lAttributes))
-		{
-			bool write_params = FALSE;
-			if (!lAttributes[attribute_a2dp_profile])
-			{
-				lAttributes[attribute_a2dp_profile] = 1;
-				write_params = TRUE;
-			}
-			if (lAttributes[attribute_a2dp_volume] != theHeadset.gAvVolumeLevel)
-			{
-				lAttributes[attribute_a2dp_volume] = theHeadset.gAvVolumeLevel;
-				write_params = TRUE;
-			}
-			if (lAttributes[attribute_clock_mismatch] != theHeadset.clock_mismatch_rate)
-			{
-				lAttributes[attribute_clock_mismatch] = theHeadset.clock_mismatch_rate;
-				write_params = TRUE;
-			}
-			if (write_params)
-			{
-				/* Write params to PS */
-				ConnectionSmPutAttribute(PSKEY_ATTRIBUTE_BASE, &theHeadset.LastDevices->lastA2dpConnected, ATTRIBUTE_SIZE, lAttributes); 
-				A2DP_MSG_DEBUG(("A2DP: Store A2DP attributes [%d][%d][%d][%d][%d][%d]\n",lAttributes[0],
-			   		lAttributes[1],lAttributes[2],lAttributes[3],lAttributes[4],lAttributes[5])) ;
-			}
-		}
-	}
-	
 	theHeadset.clock_mismatch_rate = 0;
-	
-	if (theHeadset.switch_a2dp_source)
-	{
-		if ((stateManagerGetHfpState() != headsetPoweringOn) && !a2dpIsConnecting())
-		{
-			/* This was a switch source disconnect, so now connect to next A2DP source */
-			theHeadset.a2dp_list_index = 0;
-			MessageSendLater(&theHeadset.task, APP_CONTINUE_A2DP_LIST_CONNECTION , 0, 0);
-		}
-	}
 	
 	/* Update Link Policy as A2DP has disconnected. */
 	linkPolicyA2dpSigDisconnect();
@@ -602,6 +512,8 @@ void handleA2DPMessage( Task task, MessageId id, Message message )
 	case A2DP_SIGNALLING_CHANNEL_CONNECT_IND:
         A2DP_MSG_DEBUG(("A2DP_SIGNALLING_CHANNEL_CONNECT_IND : \n"));
 	
+        SendEvent(EVT_A2DP_SIGNAL_CONNECT_IND,0);
+
 		/* Stop any pending inquiry now */
     	inquiryStop();
 	

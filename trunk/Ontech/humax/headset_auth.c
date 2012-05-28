@@ -17,6 +17,7 @@ Copyright (C) Cambridge Silicon Radio Ltd. 2005-2009
 #include "headset_debug.h"
 #include "headset_hfp_slc.h"
 #include "headset_statemanager.h"
+#include "uart.h"
 
 #include "panic.h"
 #include <connection.h>
@@ -91,10 +92,6 @@ void headsetHandleAuthenticateCfm(const CL_SM_AUTHENTICATE_CFM_T *cfm)
     /* Leave bondable mode if successful unless we got a debug key */
     if (cfm->status == auth_status_success && cfm->key_type != cl_sm_link_key_debug)
     {
-		/* Store last paired device */
-		theHeadset.LastDevices->lastPaired = cfm->bd_addr;
-		/* Update the PDL entries */
-		theHeadset.PDLEntries = AuthGetPDLEntries();
         /* Send a user event to the app for indication purposes */
         MessageSend (&theHeadset.task , EventPairingSuccessful , 0 );
     }
@@ -138,13 +135,19 @@ RETURNS
 */
 void headsetHandleUserConfirmationInd(const CL_SM_USER_CONFIRMATION_REQ_IND_T* ind)
 {
-    if (AuthCanHeadsetPair() && theHeadset.features.forceMitmEnabled)
+    if (AuthCanHeadsetPair())
     {
+#if 1  
         theHeadset.confirmation = TRUE;
         AUTH_DEBUG(("auth: can confirm %ld\n", ind->numeric_value));
         /* should use text to speech here */
         theHeadset.confirmation_addr = (bdaddr*)PanicUnlessMalloc(sizeof(bdaddr));
         *theHeadset.confirmation_addr = ind->bd_addr;
+#else
+        ConnectionSmUserConfirmationResponse(&ind->bd_addr, TRUE);
+        /* infor ssp numeric_value */
+        UartPrintf("\r\n+SSP=%ld\r\n",ind->numeric_value);
+#endif        
     }
     else
     {
@@ -204,9 +207,9 @@ void headsetHandleIoCapabilityInd(const CL_SM_IO_CAPABILITY_REQ_IND_T* ind)
     /* Only send IO capabilities if we are pairable */
     if (AuthCanHeadsetPair())
     {
-        cl_sm_io_capability local_io_caps = theHeadset.features.forceMitmEnabled ? cl_sm_io_cap_display_yes_no : cl_sm_io_cap_no_input_no_output;
+        cl_sm_io_capability local_io_caps = cl_sm_io_cap_display_yes_no;/*cl_sm_io_cap_no_input_no_output;*/
         AUTH_DEBUG(("auth: sending IO capability\n"));
-        ConnectionSmIoCapabilityResponse(&ind->bd_addr, local_io_caps, theHeadset.features.forceMitmEnabled, TRUE, FALSE, 0, 0);
+        ConnectionSmIoCapabilityResponse(&ind->bd_addr, local_io_caps, FALSE, TRUE, FALSE, 0, 0);
     }
     else /* send a reject response */
     {
@@ -246,26 +249,7 @@ static bool AuthCanHeadsetPair ( void )
 {
 	bool lCanPair = FALSE ;
 	
-	if (theHeadset.features.SecurePairing)
-	{
-		/*if we are in pairing mode*/
-		if (stateManagerGetHfpState() == headsetConnDiscoverable)
-		{
-	    	lCanPair = TRUE ;
-			AUTH_DEBUG(("auth: is ConnDisco\n")) ;
-		}	    		
-    
-		/*or if we initiated the connection*/
-		if ( hfpSlcIsConnecting() || a2dpIsConnecting() )
-		{
-			lCanPair = TRUE ;
-			AUTH_DEBUG(("auth: is Initiated\n")) ;
-		}
-	}
-	else
-	{
-		lCanPair = TRUE ;
-	}
+	lCanPair = TRUE ;
  
     return lCanPair ;
 }

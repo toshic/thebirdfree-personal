@@ -116,20 +116,6 @@ typedef enum
 }configType;
 
 
-typedef struct 
-{
-    unsigned event:8;
-    unsigned tone:8;
-}tone_config_type ;
-
-
-typedef struct
-{
-    uint16 event;
-    button_pattern_type pattern[6];
-}button_pattern_config_type ;
-
-
 /****************************************************************************
   FUNCTIONS
 */

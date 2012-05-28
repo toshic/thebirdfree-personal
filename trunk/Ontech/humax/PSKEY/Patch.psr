@@ -1,0 +1,70 @@
+// OnTechJig PSKEY
+
+// PSKEY_MAX_ACLS
+&000d = 0001
+// PSKEY_DEVICE_NAME
+&0108 = 4e4f 4554 4843
+// PSKEY_UART_BAUDRATE
+&01be = 0027// 9.6 kbaud
+// PSKEY_PCM_MIN_CPU_CLOCK
+&024d = 0000// 16 MHz (full rate)
+// PSKEY_FIXED_PIN
+&035b = 0030 0030 0030 0030
+// PSKEY_CODEC_MIN_CPU_CLOCK
+&21df = 0000// 16 MHz (full rate)
+// PSKEY_LOCAL_SUPPORTED_FEATURES
+&0239 = ffff f88b 1e1b 8350
+
+// PSKEY_USR_0
+&028a -
+&028b - 
+&028c - 
+&028d - 
+&028e - 
+&028f - 
+&0290 - 
+&0291 - 
+&0292 - 
+&0293 - 
+&0294 - 
+&0295 - 
+&0296 - 
+&0297 - 
+&0298 - 
+&0299 - 
+&029a - 
+&029b - 
+&029c - 
+&029d - 
+&029e - 
+&029f - 
+&02a0 - 
+&02a1 - 
+&02a2 - 
+&02a3 - 
+&02a4 - 
+&02a5 - 
+&02a6 - 
+&02a7 - 
+&02a8 - 
+&02a9 - 
+&02aa - 
+&02ab - 
+&02ac - 
+&02ad - 
+&02ae - 
+&02af - 
+&02b0 - 
+&02b1 - 
+&02b2 - 
+&02b3 - 
+&02b4 - 
+&02b5 - 
+&02b6 - 
+&02b7 - 
+&02b8 - 
+&02b9 - 
+&02ba - 
+&02bb - 
+&02bc - 
+&02bd - 

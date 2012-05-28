@@ -15,8 +15,6 @@ Copyright (C) Cambridge Silicon Radio Ltd. 2004-2009
 #include "headset_statemanager.h"
 #include "headset_states.h"
 
-#include "headset_csr_features.h"
-
 #include <hfp.h>
 #include <panic.h>
 
@@ -288,7 +286,6 @@ void handleHFPMessage( Task task, MessageId id, Message message )
 		break ;		
 		
 	case HFP_CSR_FEATURE_NEGOTIATION_IND:
-		csr2csrFeatureNegotiationInd((HFP_CSR_FEATURE_NEGOTIATION_IND_T *)message );
 		break ;
     
     /* three way calling msgs */

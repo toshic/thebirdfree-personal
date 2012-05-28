@@ -10,7 +10,6 @@ Copyright (C) Cambridge Silicon Radio Ltd. 2004-2009
 #include "headset_a2dp_connection.h"
 #include "headset_a2dp_msg_handler.h"
 #include "headset_a2dp_stream_control.h"
-#include "headset_amp.h"
 #include "headset_avrcp_event_handler.h"
 #include "headset_avrcp_msg_handler.h"
 #include "headset_cl_msg_handler.h"
@@ -26,6 +25,7 @@ Copyright (C) Cambridge Silicon Radio Ltd. 2004-2009
 #include "headset_led_manager.h"
 #include "headset_private.h"
 #include "headset_statemanager.h"
+#include "at_cmd.h"
 
 #include <a2dp.h>
 #include <audio.h>
@@ -92,10 +92,6 @@ static void handleAppMessage( Task task, MessageId id, Message message )
 		MAIN_DEBUG(("APP_AVRCP_CONNECT_REQ\n"));
 		handleAVRCPConnectReq((APP_AVRCP_CONNECT_REQ_T*)message);
 		break;
-	case APP_AMP_OFF:
-		MAIN_DEBUG(("APP_AMP_OFF\n"));
-		AmpOff();
-		break;
 	case APP_SEND_PLAY:
 		MAIN_DEBUG(("APP_SEND_PLAY\n"));
 		if (theHeadset.features.autoSendAvrcp)
@@ -115,23 +111,9 @@ static void handleAppMessage( Task task, MessageId id, Message message )
 		break;
 	case APP_CONNECT_HFP_LINK_LOSS:
 		MAIN_DEBUG(("APP_CONNECT_HFP_LINK_LOSS\n"));
-		if (theHeadset.LinkLossAttemptHfp)
-			hfpSlcLastConnectRequest(hfp_handsfree_profile);	
 		break;
 	case APP_CONNECT_A2DP_LINK_LOSS:
 		MAIN_DEBUG(("APP_CONNECT_A2DP_LINK_LOSS\n"));
-		if (theHeadset.LinkLossAttemptA2dp)
-			a2dpEstablishConnection(FALSE, FALSE);
-		break;
-	case APP_CONTINUE_HFP_LIST_CONNECTION:
-		MAIN_DEBUG(("APP_CONTINUE_HFP_LIST_CONNECTION\n"));
-		if (theHeadset.hfp_list_index != 0xf)
-			hfpSlcListConnection();
-		break;
-	case APP_CONTINUE_A2DP_LIST_CONNECTION:
-		MAIN_DEBUG(("APP_CONTINUE_A2DP_LIST_CONNECTION\n"));
-		if (theHeadset.a2dp_list_index != 0xf)
-			a2dpListConnection();
 		break;
 	case APP_EVENT_REFRESH_ENCRYPTION:
 		MAIN_DEBUG(("APP_EVENT_REFRESH_ENCRYPTION\n"));
@@ -175,7 +157,8 @@ static void handleAppMessage( Task task, MessageId id, Message message )
 		MAIN_DEBUG(("APP_CONNECT_A2DP\n"));
 		if (!A2dpGetSignallingSink(theHeadset.a2dp))
 		{
-			a2dpEstablishConnection(((APP_CONNECT_A2DP_T *)message)->a2dp_ag_connect_signalling_only, FALSE);
+		    bdaddr bd_addr;
+			a2dpConnectBdaddrRequest(&bd_addr,FALSE);
 		}
 		break;
 	case APP_TX_TEST_MODE:
@@ -272,6 +255,12 @@ static void app_handler(Task task, MessageId id, Message message)
         vm2host_avrcp(task, id, message);
     #endif
     }      
+    else if( id == MESSAGE_MORE_DATA )
+    {
+        Source source = ((MessageMoreData *)message)->source;
+        if(source == StreamUartSource())
+            parseUart(source,task);
+    }
 	else if ( (id >= HEADSET_MSG_BASE ) && (id <= HEADSET_MSG_TOP) )
     {     
         handleAppMessage(task, id,  message);
@@ -315,6 +304,7 @@ int main(void)
 #ifdef TEST_HARNESS
     test_init();
 #endif
+    MessageSinkTask(StreamUartSink(),&theHeadset.task);
 
     /* Start the message scheduler loop */
     MessageLoop();

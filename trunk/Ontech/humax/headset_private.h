@@ -14,12 +14,8 @@ Part of Stereo-Headset-SDK 2009.R2
 #define _HEADSET_PRIVATE_H_
 
 
-#include "headset_buttonmanager.h"
 #include "headset_leddata.h"
 #include "headset_states.h"
-#ifdef SD_SUPPORT
-#include "headset_sd.h"
-#endif
 
 #include <app/message/system_message.h>
 #include <a2dp.h>
@@ -38,10 +34,6 @@ Part of Stereo-Headset-SDK 2009.R2
 
 #define A2DP_RESTART_DELAY      (uint32)500 /*!< @brief Restart A2DP Delay Time */
 
-/*! @brief Definition of headset tone type */
-typedef uint16 HeadsetTone_t ;
-#define TONE_NOT_DEFINED        0           /*!< @brief Definition of empty entry in gEventTones array */
-
 /* Local stream end point codec IDs */
 #define SBC_SINK_SEID                1           /*!< @brief Local Stream End Point ID for SBC codec */
 #define SBC_SOURCE_SEID              2           /*!< @brief Local Stream End Point ID for SBC codec */
@@ -55,8 +47,6 @@ typedef uint16 HeadsetTone_t ;
 #define LED_A2DP_STATES			(3)
 #define LED_TOTAL_STATES		(LED_HEADSET_STATES + (LED_A2DP_STATES*LED_HFP_STATES))
 
-#define LINK_LOSS_RETRY_TIME_SECS (10)
-
 #define MAX_PAIRED_DEVICES		(8)
 
 
@@ -68,25 +58,18 @@ enum
     APP_RESUME_A2DP = HEADSET_MSG_BASE,
     APP_AVRCP_CONTROLS,
     APP_AVRCP_CONNECT_REQ,
-    APP_AMP_OFF,
     APP_SEND_PLAY,
     APP_CHARGER_MONITOR,
 	APP_ENABLE_POWER_OFF,
 	APP_LIMBO_TIMEOUT,
-	APP_CHECK_FOR_LOW_BATT,
-	APP_CHECK_FOR_AUDIO_TRANSFER,
+    APP_INQUIRY_CONTINUE,
+    APP_CHECK_FOR_AUDIO_TRANSFER,
 	APP_CONNECT_HFP_LINK_LOSS,
 	APP_CONNECT_A2DP_LINK_LOSS,
-	APP_CONTINUE_HFP_LIST_CONNECTION,
-	APP_CONTINUE_A2DP_LIST_CONNECTION,
 	APP_EVENT_REFRESH_ENCRYPTION,
 	APP_CANCEL_HSP_INCOMING_CALL,
 	APP_CONNECT_A2DP,
 	APP_TX_TEST_MODE,
-	APP_INQUIRY_CONTINUE,
-#ifdef SD_SUPPORT
-        APP_SD_EVENT,
-#endif
     HEADSET_MSG_TOP
 };
 
@@ -138,48 +121,6 @@ typedef enum
 } dspProcessType;
 
 
-/*! @brief Definition of the battery monitoring configuration */
-typedef struct
-{
-    uint16 spare;
-
-    unsigned low_threshold:8 ;
-    unsigned shutdown_threshold:8 ;  
-	
-	unsigned level_1_threshold:8 ;
-    unsigned level_2_threshold:8 ;
-    
-    unsigned monitoring_period:8 ;
-	unsigned unused:8;
-	
-	/* the time period at which the low batt tone is played */
-    unsigned low_batt_tone_period:16 ;
-
-}battery_config_type;
-
-/*! @brief Definition of the power configuration */
-typedef struct
-{
-    battery_config_type battery;
-} power_config_type;
-
-/*! @brief Task to receive battery readings */
-typedef struct
-{
-    TaskData        		task;
-	BatteryState			state;	
-} batTask;
-
-/*! @brief Enumeration of Charger states */
-typedef enum
-{
-    disconnected,       /*!< Charger is disconnected */
-    trickle_charge,     /*!< Charger is trickle charging */
-    fast_charge,        /*!< Charger is fast charging */
-    charge_error        /*!< Charger error */
-} charging_state_type;
-
-
 /*! @brief Possible sample rate values for A2DP */
 typedef enum
 {
@@ -190,14 +131,6 @@ typedef enum
     a2dp_rate_22_050k,
     a2dp_rate_16_000k
 } a2dp_rate_type;
-
-
-/*! @brief Definition of the power state */
-typedef struct
-{
-    power_config_type   config;     /*!< Configuration */
-    batTask             vbat_task;  /*!< Vbat */
-} power_type;
 
 
 /*! @brief AVRCP Specific data */
@@ -241,33 +174,10 @@ typedef struct TimeoutsTag
 }Timeouts_t ;
 
 
-/*! @brief The amp control */
-typedef struct AmpTag
-{
-    unsigned useAmp:1;
-    unsigned ampAutoOff:1;
-    unsigned unused:1;
-    unsigned ampPio:5;
-    unsigned ampOffDelay:8;
-}Amp_t ;
-
-
 typedef enum 
 {
-	audio_codec_cvsd 				= 0,
-	audio_codec_auristream_2_bit 	= 1,
-	audio_codec_auristream_4_bit 	= 2
+	audio_codec_cvsd 				= 0
 } audio_codec_type ;
-
-#define AUDIO_CODEC_NUM_CODEC_SPACES	(audio_codec_auristream_4_bit+1)
-
-typedef enum
-{
-	auristream_mask_cvsd				= (1 << 0),
-	auristream_mask_auristream_2_bit	= (1 << 1),
-	auristream_mask_auristream_4_bit	= (1 << 2)
-} auristream_codec_masks;
-
 
 /*! @brief The application features block.
 
@@ -405,15 +315,6 @@ typedef struct
     uint16      retx_effort;  
 } HFP_features_type ;
 
-typedef struct 
-{
-	uint32 bw_2bits;
-	uint32 bw_4bits;
-	uint16 max_latency;
-	uint16 voice_settings;
-	uint16 retx_effort;
-} auristream_t;
-
 typedef struct
 {	
 	unsigned hfpGain:8;
@@ -505,9 +406,7 @@ typedef struct
 
 typedef struct 
 {	
-	power_type          power;  
 	vol_table_t 		gVolLevels;
-	auristream_t		Auristream;
 	subrate_data        ssr_data;
 	rssi_pairing_t		rssi;
 }Configuration_t;
@@ -520,12 +419,6 @@ typedef struct
 typedef struct
 {
     TaskData            task;                           /*!< Main task for the stereo headset application */
-    ButtonsTaskData     *theButtonTask;                 /*!< Headset buttons task */
-	
-#ifdef ROM_LEDS	
-    LedTaskData         theLEDTask;                     /*!< Headset LEDs task */
-#endif
-	
     Task                theCodecTask;                   /*!< Codec task */
 
     a2dpData            a2dp_data;                      /*!< Local A2DP data */
@@ -537,8 +430,6 @@ typedef struct
     A2DP                *a2dp;                          /*!< Pointer to A2DP Profile instance */
     AVRCP               *avrcp;                         /*!< Pointer to AVRCP Profile instance */
 
-	HeadsetTone_t       *gEventTones ;                  /*!< Pointer to array of headset tones */
-	last_devices_t		*LastDevices;					/*!< The last used devices info */
 	power_table         *user_power_table;				/*!< The low power table entries */
 	    
     Timeouts_t          Timeouts ;                      /*!< Application timeouts */   
@@ -547,8 +438,6 @@ typedef struct
 	
 	Configuration_t		*config;						/*!< Pointer to general configuration data */
 
-	sep_config_type 	*sbc_caps;						/*!< The user defined SBC capabilities */
-    
     bdaddr*             confirmation_addr;              /*!< user confirmation data */
 	
 	inquiry_data_t		*inquiry_data;					/*!< Holds the results of headset inquiry */	
@@ -566,15 +455,11 @@ typedef struct
     unsigned            connect_a2dp_when_no_call:1;    /*!< Flag to indicate that A2DP should be connected once call activity has ended */
 
     unsigned            seid:8;	                        /*!< Active SEP ID */
-    charging_state_type charger_state:2;                /*!< The current charger state */
     unsigned            gMuted:1 ;                      /*!< Flag to indicate if call audio is muted */
     unsigned            gHfpVolumeLevel:5 ;             /*!< The HFP audio volume level */
 
     unsigned            gAvVolumeLevel:5 ;              /*!< The A2DP audio volume level */
     a2dp_rate_type      a2dp_rate:3;                    /*!< A2DP rate */
-    unsigned            buttons_locked:1 ;              /*!< Flag to indicate if button locking is enabled */
-    unsigned            useAmp:1 ;                      /*!< Flag to indicate if an audio amp is used on the hardware. */
-    unsigned            ampPio:5;                       /*!< The PIO that is used to turn the audio amp on and off */
     unsigned            voice_recognition_enabled:1;    /*!< Flag to indicate if voice recognition is enabled */
 
     unsigned            inquiry_scan_enabled:1;         /*!< Flag to indicate if inquiry scan is enabled */
@@ -584,23 +469,17 @@ typedef struct
     unsigned            slcConnecting:1 ;	        	/*!< Flag to indicate if headset is connecting HFP */
     unsigned            a2dpConnecting:1;               /*!< Flag to indicate if headset is connecting A2DP */
     unsigned            a2dpSourceSuspended:1;          /*!< Flag to indicate if headset successfully suspended A2DP source */
-    unsigned            ampAutoOff:1;                   /*!< Flag to indicate if amp should be turned off when there's no audio */
-    unsigned            ampOn:1;                        /*!< Flag to indicate if the amp is currently switched on */
     unsigned            sendPlayOnConnection:1;         /*!< Flag to indicate if an avrcp_play should be sent once media is connected */
-    unsigned 			low_battery_warning:1;			/*!< Flag to indicate if to send the low battery warning */
     unsigned            combined_link_loss:1;           /*!< Flag to indicate that if one profile has had link loss, it's probable the other profile will have link loss, if it's the same device */
     unsigned            InBandRingEnabled:1;            /*!< Flag to indicate if inband ringtones have been enabled from the AG */
     unsigned            PlayingState:1;                 /*!< Flag to indicate the suspected status of the playing music. ie. Playing (1) or Paused/Stopped (0). This is used to hold the state when not actually streaming as the source can be suspended but AVRCP commands can still be sent. */
 
     unsigned            RingTone:5;                     /*!< Flag to indicate the ringtone used by the headset for out-of-band ringing */
-    unsigned			gasGaugeRequest:1;				/*!< Flag to indicate if to send gas gauge level */
-    unsigned            ampOffDelay:8;                  /*!< Time in secs to wait after there's no audio, before turning audio amp off */
     unsigned            confirmation:1;                 /*!< Flag to indicate we have user confirmation data to send */
 	unsigned			headsetPoweredOn:1;				/*!< flag to indicate headset is powered on */
     
     unsigned            debugKeysInUse:1;               /*!< Flag to indicate if the SSP debug keys are being used */
     unsigned            a2dpCodecsEnabled:4;            /*!< Codec enabled */
-    unsigned            SCO_codec_selected:3;           /*!< Which audio codec is selected - audio_codec_type */
 	unsigned			PowerOffIsEnabled:1;			/*!< Flag stating if power off is enabled */
 	unsigned			LinkLossAttemptHfp:5;			/*!< Current connection attempt after HFP link loss */
 	unsigned			combinedDevice:1;				/*!< Keeps track of if the headset is connected to a combined A2DP-HFP device */
@@ -619,13 +498,8 @@ typedef struct
 	unsigned			SecondIncomingCall:1; 			/*!< record second incoming call */
 	unsigned			unused1:1;
 	
-	unsigned            PDLEntries:4;					/*!< records number of paired devices in list */	
 	unsigned			unused2:4;
 
-#ifdef SD_SUPPORT
-    sd_player_state *sd_player;
-#endif
-	
 } hsTaskData;
 
 

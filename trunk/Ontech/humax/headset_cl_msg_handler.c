@@ -17,11 +17,13 @@ Copyright (C) Cambridge Silicon Radio Ltd. 2004-2009
 #include "headset_private.h"
 #include "headset_scan.h"
 #include "headset_statemanager.h"
+#include "uart.h"
 
 #include <connection.h>
 #include <panic.h>
 #include <pio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #ifdef DEBUG_CL_MSG
 #define CL_MSG_DEBUG(x) DEBUG(x)
@@ -48,40 +50,21 @@ void handleCLMessage( Task task, MessageId id, Message message )
     
     		/* Configure security */
     		ConnectionSmSetSecurityLevel(0, 1, ssp_secl4_l0, TRUE, FALSE, FALSE);
-    		if (theHeadset.features.forceMitmEnabled)
-    		{
-        		/* Require MITM on the MUX (incoming and outgoing) */
-        		ConnectionSmSetSecurityLevel(0,3,ssp_secl4_l3, TRUE, TRUE, FALSE);
-    		}
-			
 			/* Reset sec mode config - always turn off debug keys on power on */
     		ConnectionSmSecModeConfig(&theHeadset.task,
                              cl_sm_wae_acl_owner_none,
                              FALSE,
                              TRUE);
 						
-            if (((CL_INIT_CFM_T*)message)->version == bluetooth2_1)
-            {
-                CL_MSG_DEBUG(("BLUETOOTH 2.1 MODE\n"));
-                /* set EIR inquiry mode */
-                ConnectionWriteInquiryMode(&theHeadset.task, inquiry_mode_eir);
-            }
-			
 			/* Initialise Inquiry Data to NULL */
             theHeadset.inquiry_data = NULL;
 			
 			/* Start initialisation of config */
 			InitUserFeatures();       
            
-			if (theHeadset.features.UseHFPprofile)
-				InitHfp();
-			else if (theHeadset.features.UseA2DPprofile)
-				InitA2dp();
-			else if (theHeadset.features.UseAVRCPprofile)
-				InitAvrcp();
-			else
-				/* All profile libraries are now initialised */
-				theHeadset.ProfileLibrariesInitialising = FALSE;            
+/*			InitHfp();*/
+            InitA2dp();
+
         }
         else
             Panic();
@@ -149,6 +132,31 @@ void handleCLMessage( Task task, MessageId id, Message message )
         CL_MSG_DEBUG(("CL_DM_INQUIRE_RESULT\n"));
         inquiryHandleResult((CL_DM_INQUIRE_RESULT_T*)message);
         break;
+	case CL_DM_REMOTE_NAME_COMPLETE:
+	{
+		CL_DM_REMOTE_NAME_COMPLETE_T *name = (CL_DM_REMOTE_NAME_COMPLETE_T*)message;
+		CL_MSG_DEBUG(("CL_DM_REMOTE_NAME_COMPLETE\n"));
+
+		if(name->status == hci_success)
+		{
+			char *name_str = PanicUnlessMalloc(name->size_remote_name+1);
+			memcpy(name_str,name->remote_name,name->size_remote_name);
+			name_str[name->size_remote_name] = 0;
+			UartPrintf("\r\n+RNM=%s\r\n",name_str);
+			free(name_str);
+		}
+		else
+			UartPrintf("\r\nERROR\r\n");
+		
+		break;
+	}
+	case CL_DM_RSSI_CFM:
+	{
+        CL_MSG_DEBUG(("CL_DM_RSSI_CFM_T %d (%d)\n",((CL_DM_RSSI_CFM_T*)message)->status,((CL_DM_RSSI_CFM_T*)message)->rssi));
+		UartPrintf("\r\n+RSSI=%d\r\n",((CL_DM_RSSI_CFM_T*)message)->rssi);
+        break;
+	}
+        
         
     /* Ignored messages */
     case CL_DM_ACL_OPENED_IND:

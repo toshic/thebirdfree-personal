@@ -21,33 +21,12 @@ Part of Stereo-Headset-SDK 2009.R2
 
 /*************************************************************************
 NAME    
-    a2dpGetLastUsedSource
-    
-DESCRIPTION
-    Retrieve bdaddr and sep of last used A2DP source. 
-	Return value of FALSE indicates no such device.
-*/
-bool a2dpGetLastUsedSource(bdaddr *addr, uint8 *seid);
-
-
-/*************************************************************************
-NAME    
-     a2dpEstablishConnection
-    
-DESCRIPTION
-     Establish A2DP connection to last used devices.
-*/
-bool a2dpEstablishConnection(bool a2dp_ag_connect_signalling_only, bool manual_connect);
-
-
-/*************************************************************************
-NAME    
      a2dpConnectRequest
     
 DESCRIPTION
      Connect to the last AV source the headset was connected to.
 */
-bool a2dpConnectRequest(bool connect_media, bool isSource, bool manual_connect);
+bool a2dpConnectRequest(bool isSource, bool manual_connect);
 
 
 /*************************************************************************
@@ -79,27 +58,6 @@ DESCRIPTION
 */
 bool a2dpIsConnecting(void);
 		
-
-/****************************************************************************
-NAME    
-    a2dpGetListNextA2dpSource
-    
-DESCRIPTION
-    Retrieve the next A2DP source in the device list. 
-*/
-bool a2dpGetListNextA2dpSource(uint16 *current_index, bdaddr *addr, uint8 *seid);
-
-
-/****************************************************************************
-NAME    
-    a2dpListConnection
-    
-DESCRIPTION
-    Connect to A2DP source in the device list. 
-*/
-bool a2dpListConnection(void);
-
-
 /****************************************************************************
 NAME    
     a2dpSwitchSource

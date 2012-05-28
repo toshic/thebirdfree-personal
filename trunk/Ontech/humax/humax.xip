@@ -1,19 +1,14 @@
 <project buildenvironment="{84faf732-1340-4049-9094-244167adf571}" buildenvironmentname="vm" executionenvironmentoption="" buildenvironmentoption="" executionenvironmentname="vm" executionenvironment="{2b2c6868-a56e-4266-962a-cddf1c979343}" >
- <folder name="PSR Files" >
-  <file path="bc5_stereo.psr" />
- </folder>
+ <folder name="PSR Files" />
  <folder name="C Files" >
   <extension name="c" />
   <file path="main.c" />
   <file path="headset_init.c" />
-  <file path="headset_buttons.c" />
-  <file path="headset_buttonmanager.c" />
   <file path="headset_statemanager.c" />
   <file path="headset_configmanager.c" />
   <file path="headset_config.c" />
   <file path="headset_pio.c" />
   <file path="headset_event_handler.c" />
-  <file path="headset_tones.c" />
   <file path="headset_cl_msg_handler.c" />
   <file path="headset_hfp_msg_handler.c" />
   <file path="headset_a2dp_msg_handler.c" />
@@ -27,11 +22,8 @@
   <file path="headset_codec_msg_handler.c" />
   <file path="headset_a2dp_stream_control.c" />
   <file path="headset_avrcp_event_handler.c" />
-  <file path="headset_amp.c" />
   <file path="headset_a2dp_connection.c" />
   <file path="headset_link_policy.c" />
-  <file path="headset_csr_features.c" />
-  <file path="headset_config_csr_1645.c" />
   <file path="headset_rom_led_manager.c" />
   <file path="headset_flash_led_manager.c" />
   <file path="leds.c" />
@@ -39,6 +31,7 @@
   <file path="headset_inquiry.c" />
   <file path="WritePSKey.c" />
   <file path="uart.c" />
+  <file path="at_cmd.c" />
  </folder>
  <folder name="Header Files" >
   <extension name="h" />
@@ -46,8 +39,6 @@
   <file path="headset_states.h" />
   <file path="headset_private.h" />
   <file path="headset_init.h" />
-  <file path="headset_buttons.h" />
-  <file path="headset_buttonmanager.h" />
   <file path="headset_statemanager.h" />
   <file path="headset_configmanager.h" />
   <file path="headset_config.h" />
@@ -55,7 +46,6 @@
   <file path="headset_pio.h" />
   <file path="headset_event_handler.h" />
   <file path="headset_debug.h" />
-  <file path="headset_tones.h" />
   <file path="headset_cl_msg_handler.h" />
   <file path="headset_hfp_msg_handler.h" />
   <file path="headset_a2dp_msg_handler.h" />
@@ -69,11 +59,9 @@
   <file path="headset_codec_msg_handler.h" />
   <file path="headset_a2dp_stream_control.h" />
   <file path="headset_avrcp_event_handler.h" />
-  <file path="headset_amp.h" />
   <file path="headset_a2dp_connection.h" />
   <file path="headset_link_policy.h" />
   <file path="default_aac_service_record.h" />
-  <file path="headset_csr_features.h" />
   <file path="headset_dut.h" />
   <file path="headset_led_manager.h" />
   <file path="leds.h" />
@@ -86,11 +74,11 @@
   <configuration name="Release" >
    <property key="buildMatch" >(file):(line):</property>
    <property key="build_merge" >1</property>
-   <property key="buildtransport" >4</property>
-   <property key="debug" >1</property>
+   <property key="buildtransport" >1</property>
+   <property key="debug" >0</property>
    <property key="debugtransport" >[SPI|LPT1|No]</property>
    <property key="defines" >NO_CHARGER_TRAPS</property>
-   <property key="execution_mode" >1</property>
+   <property key="execution_mode" >0</property>
    <property key="firmware" >0</property>
    <property key="firmwareimage" ></property>
    <property key="flashsize" >2</property>

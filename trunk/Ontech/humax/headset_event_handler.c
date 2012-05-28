@@ -17,7 +17,6 @@ Copyright (C) Cambridge Silicon Radio Ltd. 2004-2009
 #include "headset_hfp_slc.h"
 #include "headset_inquiry.h"
 #include "headset_led_manager.h"
-#include "headset_tones.h"
 #include "headset_statemanager.h"
 #include "headset_volume.h"
 #include "headset_auth.h"
@@ -61,56 +60,6 @@ static bool eventAllowedWhileProfilesInitialising(MessageId id)
 	}
 }
 
-#ifdef SD_SUPPORT
-static void eventHandleEventInSDMode(MessageId id)
-{
-    APP_SD_EVENT_T *message;
-    sd_event_id sd_event = BUTTON_INVALID;
-
-    /* set event type */
-    switch (id)
-    {
-        case EventPlay:
-        case EventEstablishA2dp:
-            sd_event = BUTTON_PLAY_PAUSE;
-            break;
-        case EventPause:
-            sd_event = BUTTON_PLAY_PAUSE;
-            break;
-        case EventStop:
-            sd_event = BUTTON_STOP;
-            break;
-        case EventSkipForward:
-            sd_event = BUTTON_NEXT;
-            break;
-        case EventSkipBackward:
-            sd_event = BUTTON_PREV;
-            break;
-        case EventFFWDPress:
-            sd_event = BUTTON_NEXT_HELD;
-            break;
-        case EventFFWDRelease:
-            sd_event = BUTTON_NEXT_RELEASED;
-            break;
-        case EventRWDPress:
-            sd_event = BUTTON_PREV_HELD;
-            break;
-        case EventRWDRelease:
-            sd_event = BUTTON_PREV_RELEASED;
-            break;
-        default:
-            /* not a valid event for SD player, just return */
-            return;
-    }
-
-    /* create message to post event to SD player */
-    message = PanicUnlessNew(APP_SD_EVENT_T);
-    message->event = sd_event;
-    /* conditionally send message to SD player when it isn't busy */
-    MessageSendConditionally(&theHeadset.task, APP_SD_EVENT, message, &theHeadset.sd_player->sd_busy);
-}
-#endif
-
 
 /****************************************************************************
   FUNCTIONS
@@ -124,16 +73,6 @@ void handleUEMessage( Task task, MessageId id, Message message )
     /* If we do not want the event received to be indicated then set this to FALSE. */
     bool lIndicateEvent = TRUE ;
 
-#ifdef SD_SUPPORT
-    /* in SD mode bypass normal event handling */
-    if (theHeadset.sd_player != NULL && theHeadset.sd_player->sd_mode == 1)
-    {
-        eventHandleEventInSDMode(id);
-        return;
-    }
-#endif
-
-	
 	if (theHeadset.ProfileLibrariesInitialising)
 	{
 		if (!eventAllowedWhileProfilesInitialising(id))
@@ -167,30 +106,6 @@ void handleUEMessage( Task task, MessageId id, Message message )
             /*do nothing for these events*/
         break ;
         default:
-                    /* If we have had an event then reset the timer - if it was the event then we will switch off anyway*/
-            if (theHeadset.Timeouts.AutoSwitchOffTime_s !=0)
-            {
-                /*EVENTS_DEBUG(("HS: AUTOSent Ev[%x] Time[%d]\n",id , theHeadset.Timeouts.AutoSwitchOffTime_s )) ;*/
-                MessageCancelAll( &theHeadset.task , EventAutoSwitchOff ) ;
-                MessageSendLater( &theHeadset.task , EventAutoSwitchOff , 0 , D_SEC(theHeadset.Timeouts.AutoSwitchOffTime_s) ) ;                
-            }
-			
-#ifdef ROM_LEDS			
-                /*handles the LED event timeouts - restarts state indications if we have had a user generated event only*/
-            if (theHeadset.theLEDTask.gLEDSStateTimeout)
-            {   
-                EVENTS_DEBUG(("HS: Restart St Inds[%d]\n", lState )) ;                    
-                LEDManagerIndicateState (lState , stateManagerGetA2dpState()) ;     
-                theHeadset.theLEDTask.gLEDSStateTimeout = FALSE ;
-            }
-            else
-            {
-                    /*reset the current number of repeats complete - i.e restart the timer so that the leds will disable after
-                    the correct time*/
-                LEDManagerResetStateIndNumRepeatsComplete() ;
-            }
-#endif			
-   
         break;
     }
     
@@ -212,15 +127,7 @@ void handleUEMessage( Task task, MessageId id, Message message )
 			if(theHeadset.Timeouts.EncryptionRefreshTimeout_m != 0)
 				MessageSendLater(&theHeadset.task, APP_EVENT_REFRESH_ENCRYPTION, 0, D_MIN(theHeadset.Timeouts.EncryptionRefreshTimeout_m));
 			
-			if ( theHeadset.Timeouts.DisablePowerOffAfterPowerOnTime_s )
-        	{
-            	theHeadset.PowerOffIsEnabled = FALSE ;
-            	MessageSendLater ( &theHeadset.task , APP_ENABLE_POWER_OFF , 0 , D_SEC ( theHeadset.Timeouts.DisablePowerOffAfterPowerOnTime_s ) ) ;
-        	}
-        	else
-        	{
-            	theHeadset.PowerOffIsEnabled = TRUE ;
-        	}
+        	theHeadset.PowerOffIsEnabled = TRUE ;
 		}
 		else
 		{
@@ -229,9 +136,9 @@ void handleUEMessage( Task task, MessageId id, Message message )
         break;
     case EventPowerOff:
         EVENTS_DEBUG(("EventPowerOff\n"));
-		if (theHeadset.buttons_locked || !theHeadset.PowerOffIsEnabled)
+		if (!theHeadset.PowerOffIsEnabled)
 		{
-			EVENTS_DEBUG(("Buttons Locked / Power off disabled - ignore event\n"));
+			EVENTS_DEBUG(("Power off disabled - ignore event\n"));
 			lIndicateEvent = FALSE ;
 			break;
 		}
@@ -251,26 +158,8 @@ void handleUEMessage( Task task, MessageId id, Message message )
     		MessageCancelAll ( &theHeadset.task, APP_EVENT_REFRESH_ENCRYPTION) ;
 		
         MessageCancelAll ( &theHeadset.task , EventPairingFail) ;
-		MessageCancelAll ( &theHeadset.task, APP_CHECK_FOR_LOW_BATT) ;
-        break;
-    case EventCancelLedIndication:
-        EVENTS_DEBUG(("EventCancelLedIndication\n"));
-#ifdef ROM_LEDS		
-        LedManagerResetLEDIndications() ;            
-#endif		
-		break ;  
-    case EventOkBattery:
-        /*EVENTS_DEBUG(("EventOkBattery\n"));*/
-        break;
-    case EventLowBattery:
-        EVENTS_DEBUG(("EventLowBattery\n"));
         break;
     case EventEnterPairing:    
-		if (theHeadset.buttons_locked)
-		{
-			lIndicateEvent = FALSE ;
-			break;
-		}       
 		EVENTS_DEBUG(("EventEnterPairing\n"));
         stateManagerEnterConnDiscoverableState( ) ;       
         break ;
@@ -278,23 +167,7 @@ void handleUEMessage( Task task, MessageId id, Message message )
         EVENTS_DEBUG(("EventPairingFail\n"));
         if (lState != headsetTestMode)
         {      
-			switch (theHeadset.features.exitPairingModeAction)
-			{
-			case PairingExit_PowerOff:
-				MessageSend ( &theHeadset.task , EventPowerOff , 0) ;
-				break;
-			case PairingExit_PowerOffPdlEmpty:
-				if (theHeadset.PDLEntries == 0)
-					MessageSend ( &theHeadset.task , EventPowerOff , 0) ;
-				else
-					stateManagerEnterHfpConnectableState( TRUE) ; 
-				break;
-			case PairingExit_Connectable:
-				stateManagerEnterHfpConnectableState( TRUE) ; 
-				break;
-			default:
-				break;
-			}
+			stateManagerEnterHfpConnectableState( TRUE) ; 
         }
         break ;    
     case EventPairingSuccessful:
@@ -337,57 +210,7 @@ void handleUEMessage( Task task, MessageId id, Message message )
 		
         theHeadset.voice_recognition_enabled = FALSE;
         break;
-    case EventTone1:
-        EVENTS_DEBUG(("EventTone1\n"));  
-		/* Disable event tone 1 if button locking active */
-		if (theHeadset.buttons_locked)
-			lIndicateEvent = FALSE ;
-        break;
-    case EventTone2:
-        EVENTS_DEBUG(("EventTone2\n"));    
-		/* Event tone 2 active regardless of button locking */
-        break;
-    case EventLEDEventComplete:
-        EVENTS_DEBUG(("EventLEDEventComplete\n"));
-		
-#ifdef ROM_LEDS			
-        if ( (( LMEndMessage_t *)message)->Event  == EventResetPairedDeviceList )
-        {
-            /* The reset has been completed */
-            MessageSend(&theHeadset.task , EventResetComplete , 0 ) ;
-        }
-       	
-		if (theHeadset.features.QueueLEDEvents )
-        {
-        	if (theHeadset.theLEDTask.Queue.Event1)
-        	{
-            	EVENTS_DEBUG(("HS : Play Q'd Ev [%x]\n", (theHeadset.theLEDTask.Queue.Event1)  ));
-            	/*EVENTS_DEBUG(("HS : Queue [%x][%x][%x][%x]\n", theHeadset.theLEDTask.Queue.Event1,
-                                                              theHeadset.theLEDTask.Queue.Event2,
-                                                              theHeadset.theLEDTask.Queue.Event3,
-                                                              theHeadset.theLEDTask.Queue.Event4
-                                                                    
-                                                                ));*/
-                
-             	LEDManagerIndicateEvent ( (theHeadset.theLEDTask.Queue.Event1) ) ;
-    
-             	/*shuffle the queue*/
-             	theHeadset.theLEDTask.Queue.Event1 = theHeadset.theLEDTask.Queue.Event2 ;
-             	theHeadset.theLEDTask.Queue.Event2 = theHeadset.theLEDTask.Queue.Event3 ;
-             	theHeadset.theLEDTask.Queue.Event3 = theHeadset.theLEDTask.Queue.Event4 ;
-             	theHeadset.theLEDTask.Queue.Event4 = 0x00 ;
-        	}
-		}
-#endif
-		
-        break;
     case EventEstablishSLC:   
-		
-		if (theHeadset.buttons_locked)
-		{
-			lIndicateEvent = FALSE ;
-			break;
-		}		
 		EVENTS_DEBUG(("EventEstablishSLC\n"));
 		
 		/* Cancel inquiry and throw away results if one is in progress */
@@ -397,58 +220,13 @@ void handleUEMessage( Task task, MessageId id, Message message )
 		{
 			/* This is from power on so carry out the power on connect sequence */
 			lIndicateEvent = FALSE ;			
-					
-			/* Determine what the headset should connect to now it is powered on */ 
-			switch (theHeadset.features.ConnectActionOnPowerOn)
-			{
-			case AR_ConnectToAG:
-				theHeadset.slcConnectFromPowerOn = FALSE;
-				if (theHeadset.features.PowerOnConnectToDevices == Connect_List)
-				{
-					/* Connect to devices in list order */	
-					hfpSlcListConnection();
-				}
-				else
-				{
-					/* Try a connection attempt to Last AG. */  
-					hfpSlcLastConnectRequest( hfp_handsfree_profile ) ;	
-				}
-				break;
-			case AR_ConnectToAGandA2DP:
-				if (theHeadset.features.PowerOnConnectToDevices == Connect_List)
-				{
-					/* Connect to devices in list order */	
-					if (!hfpSlcListConnection())
-						theHeadset.slcConnectFromPowerOn = FALSE;
-				}
-				else
-				{
-					/* Try a connection attempt to Last AG. */  
-					if (!hfpSlcLastConnectRequest( hfp_handsfree_profile ))
-						theHeadset.slcConnectFromPowerOn = FALSE;
-				}
-				break;
-			case AR_None:
-			default:
-				theHeadset.slcConnectFromPowerOn = FALSE;
-				break;
-			}	
 		}
 		else
 		{
-			/* This is a manual connect */
-			if (theHeadset.features.ManualConnectToDevices == Connect_List)
-			{
-				/* Connect to devices in list order */	
-				if (!hfpSlcListConnection())
-					lIndicateEvent = FALSE ;
-			}
-			else
-			{
-				/* Try a connection attempt to Last AG. */       
-        		if (!hfpSlcLastConnectRequest( hfp_handsfree_profile ) )
-					lIndicateEvent = FALSE ;
-			}
+		    bdaddr bd_addr;
+			/* Try a connection attempt to Last AG. */       
+    		if (!hfpSlcConnectBdaddrRequest( hfp_handsfree_profile, &bd_addr ) )
+				lIndicateEvent = FALSE ;
 		}
         
         break;
@@ -459,11 +237,6 @@ void handleUEMessage( Task task, MessageId id, Message message )
         EVENTS_DEBUG(("EventA2dpReconnectFailed\n"));
         break;
     case EventInitateVoiceDial:                   
-		if (theHeadset.buttons_locked)
-		{
-			lIndicateEvent = FALSE ;
-			break;
-		}
 		EVENTS_DEBUG(("EventInitateVoiceDial [%d]\n", theHeadset.voice_recognition_enabled )) ; 
         /* Toggle the voice dial behaviour depending on whether we are currently active */
         if (theHeadset.voice_recognition_enabled)
@@ -478,12 +251,6 @@ void handleUEMessage( Task task, MessageId id, Message message )
         }            
         break ;
     case EventLastNumberRedial:          
-		if (theHeadset.buttons_locked)
-		{
-			lIndicateEvent = FALSE ;
-			break;
-		}		
-		
 		if (theHeadset.features.LNRCancelsVoiceDialIfActive)
 		{
 			if (theHeadset.voice_recognition_enabled)
@@ -534,11 +301,6 @@ void handleUEMessage( Task task, MessageId id, Message message )
         EVENTS_DEBUG(("EventScoLinkClose\n")) ;
         break ;        
     case EventResetPairedDeviceList:          
-		if (theHeadset.buttons_locked)
-		{
-			lIndicateEvent = FALSE ;
-			break;
-		}
 		EVENTS_DEBUG(("EventResetPairedDeviceList\n")) ;  
         if ( stateManagerIsHfpConnected () )
         {
@@ -587,94 +349,15 @@ void handleUEMessage( Task task, MessageId id, Message message )
         }
 		MessageSendLater( task , APP_TX_TEST_MODE, 0, 1000 ) ;
 		break;
-    case (EventAutoSwitchOff):
-        EVENTS_DEBUG(("EventAutoSwitchOff [%d] sec elapsed\n" , theHeadset.Timeouts.AutoSwitchOffTime_s )) ;
-        switch ( lState )
-            {                   
-                case headsetHfpConnectable:
-                case headsetConnDiscoverable:
-					if (!stateManagerIsA2dpConnected() && !stateManagerIsAvrcpConnected())
-					{
-						theHeadset.buttons_locked = FALSE;
-	                    MessageSend ( &theHeadset.task , EventPowerOff , 0) ;
-					}
-                    break;
-
-				case headsetPoweringOn:
-                case headsetHfpConnected:
-                case headsetOutgoingCallEstablish:   
-                case headsetIncomingCallEstablish:   
-                case headsetActiveCall:            
-                case headsetTestMode:
-                    break ;
-                default:
-                    break ;
-            }
-        break;
     case EventResetComplete:
         EVENTS_DEBUG(("EventResetComplete\n"));
         break;
     case EventError:        
         EVENTS_DEBUG(("EventError\n")) ;
         break;
-    case EventEnableLEDS:     
-		if (theHeadset.buttons_locked)
-		{
-			lIndicateEvent = FALSE ;
-			break;
-		}
-		EVENTS_DEBUG(("EventEnableLEDS\n")) ;
-		
-#ifdef ROM_LEDS		
-        LedManagerEnableLEDS() ;        
-#endif
-		
-        break ;
-    case EventDisableLEDS:            
-		if (theHeadset.buttons_locked)
-		{
-			lIndicateEvent = FALSE ;
-			break;
-		}
-		EVENTS_DEBUG(("EventDisableLEDS\n")) ;
-		
-#ifdef ROM_LEDS			
-        LedManagerDisableLEDS() ;            
-#endif
-		
-        break ;
-    case EventChargeError:
-        EVENTS_DEBUG(("EventChargeError\n")) ;  
-        break;
     case EventEndOfCall :        
         EVENTS_DEBUG(("EventEndOfCall\n")) ;
         break;    
-	case EventEstablishA2dp:		
-		if (theHeadset.buttons_locked)
-		{
-			lIndicateEvent = FALSE ;
-			break;
-		}
-		EVENTS_DEBUG(("EventEstablishA2dp\n")) ;
-		
-		/* This is a manual connect */
-		if (theHeadset.features.ManualConnectToDevices == Connect_List)
-		{
-			/* Connect to devices in list order */				
-			if (!a2dpListConnection())
-				lIndicateEvent = FALSE ;
-		}
-		else
-		{
-			/* Try connection to last A2DP device */
-			if (!a2dpEstablishConnection(FALSE, TRUE))
-        	{
-            	/*do not perform the action*/
-            	lIndicateEvent = FALSE ;
-        	}	 
-		}
-		
-        break;
 	case EventA2dpConnected:
         EVENTS_DEBUG(("EventA2dpConnected\n")) ;		
         break;    
@@ -690,39 +373,19 @@ void handleUEMessage( Task task, MessageId id, Message message )
 		EVENTS_DEBUG(("EventVolumeMin\n"));
 		break;
 	case EventPlay:		
-		if (theHeadset.buttons_locked)
-		{
-			lIndicateEvent = FALSE ;
-			break;
-		}
 		EVENTS_DEBUG(("EventPlay\n"));
 		/* Always indicate play event as will try to connect A2DP if not already connected */
 		avrcpEventPlay();		
 		break;
 	case EventPause:		
-		if (theHeadset.buttons_locked)
-		{
-			lIndicateEvent = FALSE ;
-			break;
-		}
 		EVENTS_DEBUG(("EventPause\n"));
 		avrcpEventPause();		
 		break;
 	case EventStop:		
-		if (theHeadset.buttons_locked)
-		{
-			lIndicateEvent = FALSE ;
-			break;
-		}
 		EVENTS_DEBUG(("EventStop\n"));
 		avrcpEventStop();		
 		break;
 	case EventSkipForward:		
-		if (theHeadset.buttons_locked)
-		{
-			lIndicateEvent = FALSE ;
-			break;
-		}		
 		/* Only indicate event if AVRCP connected */
 		if ( stateManagerIsAvrcpConnected() )
 		{
@@ -735,11 +398,6 @@ void handleUEMessage( Task task, MessageId id, Message message )
 		}
 		break;
 	case EventSkipBackward:		
-		if (theHeadset.buttons_locked)
-		{
-			lIndicateEvent = FALSE ;
-			break;
-		}
 		/* Only indicate event if AVRCP connected */
 		if ( stateManagerIsAvrcpConnected() )
 		{
@@ -752,11 +410,6 @@ void handleUEMessage( Task task, MessageId id, Message message )
 		}
 		break;
 	case EventFFWDPress:		
-		if (theHeadset.buttons_locked)
-		{
-			lIndicateEvent = FALSE ;
-			break;
-		}
 		if ( stateManagerIsAvrcpConnected() )
 		{
 			EVENTS_DEBUG(("EventFFWDPress\n"));
@@ -768,11 +421,6 @@ void handleUEMessage( Task task, MessageId id, Message message )
 		}
 		break;
 	case EventFFWDRelease:		
-		if (theHeadset.buttons_locked)
-		{
-			lIndicateEvent = FALSE ;
-			break;
-		}
 		if ( stateManagerIsAvrcpConnected() )
 		{
 			EVENTS_DEBUG(("EventFFWDRelease\n"));
@@ -784,11 +432,6 @@ void handleUEMessage( Task task, MessageId id, Message message )
 		}
 		break;
 	case EventRWDPress:		
-		if (theHeadset.buttons_locked)
-		{
-			lIndicateEvent = FALSE ;
-			break;
-		}
 		if ( stateManagerIsAvrcpConnected() )
 		{
 			EVENTS_DEBUG(("EventRWDPress\n"));
@@ -800,11 +443,6 @@ void handleUEMessage( Task task, MessageId id, Message message )
 		}
 		break;
 	case EventRWDRelease:		
-		if (theHeadset.buttons_locked)
-		{
-			lIndicateEvent = FALSE ;
-			break;
-		}
 		if ( stateManagerIsAvrcpConnected() )
 		{
 			EVENTS_DEBUG(("EventRWDRelease\n"));
@@ -819,26 +457,6 @@ void handleUEMessage( Task task, MessageId id, Message message )
 		EVENTS_DEBUG(("EventEnterDFUMode\n"));
 		BootSetMode(0);
 		break;		
-	case EventToggleButtonLocking:
-		EVENTS_DEBUG(("EventToggleButtonLocking\n"));
-		if (theHeadset.buttons_locked)
-		{
-			theHeadset.buttons_locked = FALSE;
-			MessageSend( &theHeadset.task , EventButtonLockingOff , 0 ) ;
-		}
-		else
-		{
-			theHeadset.buttons_locked = TRUE;	
-			MessageSend( &theHeadset.task , EventButtonLockingOn , 0 ) ;
-		}
-		break;
-	case EventButtonLockingOn:
-		EVENTS_DEBUG(("EventButtonLockingOn\n"));
-		break;
-	case EventButtonLockingOff:
-		EVENTS_DEBUG(("EventButtonLockingOff\n"));
-		break;    
-		
 	case EventSwitchA2dpSource:
 		EVENTS_DEBUG(("EventSwitchA2dpSource\n"));
 		a2dpSwitchSource();
@@ -915,7 +533,5 @@ void handleUEMessage( Task task, MessageId id, Message message )
     if ( lIndicateEvent )
     {
         LEDManagerIndicateEvent ( id ) ;
-                 
-        TonesPlayEvent ( id ) ;		
     }   
 }

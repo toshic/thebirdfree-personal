@@ -11,7 +11,6 @@ Copyright (C) Cambridge Silicon Radio Ltd. 2004-2009
 #include "headset_a2dp_stream_control.h"
 #include "headset_auth.h"
 #include "headset_avrcp_event_handler.h"
-#include "headset_buttonmanager.h"
 #include "headset_configmanager.h"
 #include "headset_debug.h"
 #include "headset_hfp_slc.h"
@@ -20,6 +19,7 @@ Copyright (C) Cambridge Silicon Radio Ltd. 2004-2009
 #include "headset_scan.h"
 #include "headset_statemanager.h"
 #include "headset_volume.h"
+#include "uart.h"
 
 #include <audio.h>
 #include <bdaddr.h>
@@ -164,25 +164,6 @@ void stateManagerEnterHfpConnectableState ( bool req_disc )
         headsetDisableDiscoverable () ;
         MessageCancelAll ( &theHeadset.task , EventPairingFail ) ;        
     }
-	
-	if (theHeadset.connect_a2dp_when_no_call)
-	{
-		bdaddr ag_addr, a2dp_addr;
-		/* Only connect A2DP here if the A2DP device is separate from the HFP device. */
-		theHeadset.connect_a2dp_when_no_call = FALSE;
-		if (!BdaddrIsZero(&theHeadset.LastDevices->lastA2dpConnected))
-		{
-			a2dp_addr = theHeadset.LastDevices->lastA2dpConnected;
-			if (!BdaddrIsZero(&theHeadset.LastDevices->lastHfpConnected))
-			{
-				ag_addr = theHeadset.LastDevices->lastHfpConnected;
-				if (BdaddrIsSame(&ag_addr, &a2dp_addr))
-					return;
-			}
-			
-			a2dpEstablishConnection(FALSE, FALSE);
-		}
-	}
 }
 
 
@@ -219,7 +200,7 @@ void stateManagerEnterA2dpConnectedState(void)
 	{
    		stateManagerSetA2dpState(headsetA2dpConnected);
 		
-		if ( stateManagerIsHfpConnected() || !theHeadset.features.UseHFPprofile)
+		if ( stateManagerIsHfpConnected())
             headsetDisableConnectable() ;
 	}
 	
@@ -274,11 +255,6 @@ void stateManagerEnterConnDiscoverableState ( void )
     /* The headset is now in the connectable/discoverable state */
     stateManagerSetHfpState ( headsetConnDiscoverable ) ;
            
-    /* Cancel Pairing mode after a configurable number of secs */
-	if (theHeadset.Timeouts.PairModeTimeout_s != 0)
-	{
-    	MessageSendLater ( &theHeadset.task , EventPairingFail , 0 , D_SEC(theHeadset.Timeouts.PairModeTimeout_s) ) ;
-	}
 }
 
 
@@ -291,7 +267,7 @@ void stateManagerEnterHfpConnectedState ( void )
     {
         headsetDisableDiscoverable() ;
         
-        if ( stateManagerIsA2dpSignallingActive() || !theHeadset.features.UseA2DPprofile )
+        if ( stateManagerIsA2dpSignallingActive() )
             headsetDisableConnectable() ;
 		
 		if ( (hfpState == headsetActiveCall) && (theHeadset.dsp_process == dsp_process_sco) && theHeadset.features.audio_plugin )
@@ -323,15 +299,6 @@ void stateManagerEnterHfpConnectedState ( void )
         MessageCancelAll ( &theHeadset.task , EventPairingFail ) ;
         
         stateManagerSetHfpState ( headsetHfpConnected ) ;
-		
-		if (theHeadset.connect_a2dp_when_no_call)
-		{
-			/* Connect A2DP after a call. The flag will be set 
-	 			if the headset connected HFP while in a call. */
-			theHeadset.connect_a2dp_when_no_call = FALSE;
-			theHeadset.slcConnectFromPowerOn = TRUE;
-			a2dpEstablishConnection(TRUE, FALSE);
-		}
     }
 }
 
@@ -414,24 +381,10 @@ void stateManagerPowerOn ( void )
                              FALSE,
                              TRUE);
 	
-	/* If feature bit is set to enter pairing if the number of PDL entries is less than a certain value,
-		   		then send the enter pairing event */
-	if (theHeadset.PDLEntries < theHeadset.features.DiscoIfPDLLessThan)
-	{
-		MessageSend ( &theHeadset.task , EventEnterPairing , 0 );
-		return;
-	}
-	
-	if (theHeadset.PDLEntries < theHeadset.features.PairIfPDLLessThan)
-    {
-    	MessageSend(&theHeadset.task, EventEnterPairing, 0);
-        MessageSend(&theHeadset.task, EventRssiPair, 0);
-		return;
-    }
-			
 	theHeadset.slcConnectFromPowerOn = TRUE;
 					
 	stateManagerEnterHfpConnectableState ( TRUE );
+    UartPrintf("\r\nReady\r\n");
 }
 
 
@@ -461,24 +414,7 @@ void stateManagerEnterLimboState ( void )
 void stateManagerUpdateLimboState ( void ) 
 {
      /* We are entering here as a result of a power off */
-     switch (theHeadset.charger_state)
-        {
-            case disconnected :
-                /* Power has been removed and we are logically off so switch off */
-                SM_DEBUG(("SM: LimboDiscon\n")) ;
-                stateManagerPowerOff() ;
-            break ;    
-                /* This means connected */
-            case trickle_charge:
-            case fast_charge:
-			case charge_error:
-                SM_DEBUG(("SM: LimboConn\n")) ;
-                /* Stay in this state until a charger event or a power on occurs */
-            break ;
-               
-            default:
-            break ;
-        }  
+    stateManagerPowerOff() ;
 }
 
 
@@ -655,15 +591,6 @@ static void stateManagerSetHfpState ( headsetHfpState pNewState )
     {
         SM_DEBUG(("SM (HFP): ? [%s] [%x]\n",gHSStateStrings[ pNewState] , pNewState)) ;
     }
-    
-    /*if we are in chargererror then reset the leds and reset the error*/
-    if (theHeadset.charger_state == charge_error )
-    {
-       /* Cancel current LED indication */
-	   MessageSend(&theHeadset.task, EventCancelLedIndication, 0);
-	   /* Indicate charger error */
-	   MessageSend(&theHeadset.task, EventChargeError, 0);
-    }
 }
 
 
@@ -696,15 +623,6 @@ static void stateManagerSetA2dpState ( headsetA2dpState pNewState )
 	
     SM_DEBUG(("SM (A2DP):[%s]->[%s][%d]\n",gA2DPStateStrings[stateManagerGetA2dpState()] , gA2DPStateStrings[pNewState] , pNewState ));
 	appStates.gTheA2dpState = pNewState ;
-	
-	/*if we are in chargererror then reset the leds and reset the error*/
-    if (theHeadset.charger_state == charge_error )
-    {
-       /* Cancel current LED indication */
-	   MessageSend(&theHeadset.task, EventCancelLedIndication, 0);
-	   /* Indicate charger error */
-	   MessageSend(&theHeadset.task, EventChargeError, 0);
-    }
 }
 
 

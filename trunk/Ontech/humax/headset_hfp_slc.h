@@ -55,16 +55,6 @@ DESCRIPTION
 bool hfpSlcConnectFail( void );
         
 
-/****************************************************************************
-NAME    
-    hfpSlcLastConnectRequest
-    
-DESCRIPTION
-    Request to create a connection to a remote AG.
-
-*/
-bool hfpSlcLastConnectRequest( hfp_profile pProfile );
-
 
 /****************************************************************************
 NAME    
@@ -98,53 +88,6 @@ DESCRIPTION
 */
 void hfpSlcDisconnect(void);
 
-
-/****************************************************************************
-NAME    
-    hfpSlcGetLastUsedAG
-    
-DESCRIPTION
-    Retrieve the bdaddr of the last used AG (paired or connected). 
-	
-RETURNS
-	If the return value is TRUE then the function will have returned a valid bdaddr. 
-	If the return value is FALSE then there is no last used AG.
-*/
-bool hfpSlcGetLastUsedAG(bdaddr *addr, uint16 *profile);
-		
-
-/****************************************************************************
-NAME    
-    hfpSlcGetLastConnectedAG
-    
-DESCRIPTION
-    Retrieve the bdaddr of the last connected AG. 
-	
-RETURNS
-	If the return value is TRUE then the function will have returned a valid bdaddr. 
-	If the return value is FALSE then there is no last connected AG.
-*/
-bool hfpSlcGetLastConnectedAG(bdaddr *addr);
-
-
-/****************************************************************************
-NAME    
-    hfpSlcGetListNextAG
-    
-DESCRIPTION
-    Retrieve the next AG in the device list. 
-*/
-bool hfpSlcGetListNextAG(uint16 *current_index, bdaddr *addr, uint16 *profile);
-
-
-/****************************************************************************
-NAME    
-    hfpSlcListConnection
-    
-DESCRIPTION
-    Continue connecting to HFP devices from the device list. 
-*/
-bool hfpSlcListConnection(void);
 
 
 #endif
