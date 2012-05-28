@@ -12,7 +12,6 @@ Copyright (C) Cambridge Silicon Radio Ltd. 2004-2009
 #include "headset_debug.h"
 #include "headset_hfp_call.h"
 #include "headset_statemanager.h"
-#include "headset_tones.h"
 
 #include <hfp.h>
 #include <panic.h>
@@ -131,9 +130,6 @@ void hfpCallAnswer ( void )
     if ( theHeadset.profile_connected == hfp_handsfree_profile )
     {
         HfpAnswerCall ( theHeadset.hfp );
-        
-        /* Terminate the ring tone */
-        ToneTerminate()  ;
     }
     else
     {
@@ -159,9 +155,6 @@ void hfpCallReject ( void )
     if ( theHeadset.profile_connected == hfp_handsfree_profile )
     {
         HfpRejectCall ( theHeadset.hfp );
-        
-        /* Terminate the ring tone */
-        ToneTerminate() ;        
     }
     else
     {
@@ -189,7 +182,7 @@ void hfpCallHangUp ( void )
 /****************************************************************************/
 void hfpCallTransferToggle ( void )
 {
-	hfp_audio_params audio_params_data, *audio_params = 0;
+	hfp_audio_params *audio_params = 0;
     hfp_audio_transfer_direction lTransferDirection = hfp_audio_to_ag ;
 
 	if ( !HfpGetAudioSink(theHeadset.hfp_hsp) )
@@ -197,32 +190,6 @@ void hfpCallTransferToggle ( void )
         lTransferDirection = hfp_audio_to_hfp ;
     }
 	
-	/* If the most recent codec connection that has been established was for Auristream we need
-	   to set up the same Auristream link again. Set the audio parameters appropriately. */
-	switch(theHeadset.SCO_codec_selected)
-	{
-		case(audio_codec_auristream_2_bit):
-		case(audio_codec_auristream_4_bit):
-			if(theHeadset.SCO_codec_selected == audio_codec_auristream_2_bit)
-			{
-				audio_params_data.bandwidth = theHeadset.config->Auristream.bw_2bits;
-			}
-			else
-			{
-				audio_params_data.bandwidth = theHeadset.config->Auristream.bw_4bits;
-			}
-
-			audio_params_data.max_latency = theHeadset.config->Auristream.max_latency;
-			audio_params_data.voice_settings = theHeadset.config->Auristream.voice_settings;
-			audio_params_data.retx_effort = theHeadset.config->Auristream.retx_effort;
-			
-			audio_params = &audio_params_data;
-			break;
-		default:
-			/* Default SCO will be opened. */
-			break;
-	}
-   
 	/* call the transfer function - a hsp transfer call will generate the HSP button press */
 	if ((!theHeadset.features.UseSCOforAudioTransfer) || (lTransferDirection != hfp_audio_to_hfp)) 
     {
@@ -293,34 +260,7 @@ void headsetCheckForAudioTransfer ( void )
             if (!HfpGetAudioSink(theHeadset.hfp_hsp) && (theHeadset.profile_connected == hfp_handsfree_profile))
             {
 				{
-					hfp_audio_params audio_params_data, *audio_params = 0;
-
-					/* If the most recent codec connection that has been established was for Auristream we need
-						   to set up the same Auristream link again. Set the audio parameters appropriately. */
-					switch(theHeadset.SCO_codec_selected)
-					{
-						case(audio_codec_auristream_2_bit):
-						case(audio_codec_auristream_4_bit):
-							if(theHeadset.SCO_codec_selected == audio_codec_auristream_2_bit)
-							{
-								audio_params_data.bandwidth = theHeadset.config->Auristream.bw_2bits;
-							}
-							else
-							{
-								audio_params_data.bandwidth = theHeadset.config->Auristream.bw_4bits;
-							}
-						
-							audio_params_data.max_latency = theHeadset.config->Auristream.max_latency;
-							audio_params_data.voice_settings = theHeadset.config->Auristream.voice_settings;
-							audio_params_data.retx_effort = theHeadset.config->Auristream.retx_effort;
-								
-							audio_params = &audio_params_data;
-							break;
-						default:
-							/* Default SCO will be opened. */
-							break;
-					}
-
+					hfp_audio_params *audio_params = 0;
                     HfpAudioTransferConnection(theHeadset.hfp, hfp_audio_to_hfp , theHeadset.HFP_features.supportedSyncPacketTypes, audio_params);
                 }
             }    

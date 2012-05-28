@@ -9,7 +9,6 @@ Copyright (C) Cambridge Silicon Radio Ltd. 2004-2009
 
 #include "headset_a2dp_connection.h"
 #include "headset_a2dp_stream_control.h"
-#include "headset_amp.h"
 #include "headset_configmanager.h"
 #include "headset_debug.h"
 #include "headset_hfp_handler.h"
@@ -20,10 +19,7 @@ Copyright (C) Cambridge Silicon Radio Ltd. 2004-2009
 #include "headset_link_policy.h"
 #include "headset_pio.h"
 #include "headset_statemanager.h"
-#include "headset_tones.h"
 #include "headset_volume.h"
-
-#include "headset_csr_features.h"
 
 #include <audio.h>
 #include <bdaddr.h>
@@ -41,20 +37,10 @@ Copyright (C) Cambridge Silicon Radio Ltd. 2004-2009
 #define NODSPCVSD		(TaskData *)&csr_cvsd_no_dsp_plugin 			
 #define CVC1MIC	    	(TaskData *)&csr_cvsd_cvc_1mic_headset_plugin		
 #define CVC2MIC     	(TaskData *)&csr_cvsd_cvc_2mic_headset_plugin			
-#define CVC1MICAURI2BIT (TaskData *)&csr_auristream_2bit_cvc_1mic_headset_plugin
-#define CVC2MICAURI2BIT (TaskData *)&csr_auristream_2bit_cvc_2mic_headset_plugin
-#define CVC1MICAURI4BIT (TaskData *)&csr_auristream_4bit_cvc_1mic_headset_plugin
-#define CVC2MICAURI4BIT (TaskData *)&csr_auristream_4bit_cvc_2mic_headset_plugin
-
 
 /* The row to use is selected by user PSKEY.
    The column depends upon the audio link negotiated. */
-TaskData * const gPlugins [ 3 ] [ AUDIO_CODEC_NUM_CODEC_SPACES ] = 
-{   /*			CVSD			AURI2				AURI4	 */
-	/*0*/		{NODSPCVSD, 	NULL, 				NULL},
-	/*1*/		{CVC1MIC,		CVC1MICAURI2BIT,	CVC1MICAURI4BIT},
-	/*2*/		{CVC2MIC,		CVC2MICAURI2BIT,	CVC2MICAURI4BIT}
-};  
+TaskData * const gPlugins = NODSPCVSD;  
 	
 	
 #ifdef DEBUG_HFP
@@ -91,13 +77,7 @@ void hfpHandlerInitCfm( const HFP_INIT_CFM_T *cfm )
             theHeadset.hsp = cfm->hfp;
             /* HFP/HSP Library initialisation was a success, initailise the 
                next library. */
-            if (theHeadset.features.UseA2DPprofile)
-				InitA2dp();
-			else if (theHeadset.features.UseAVRCPprofile)
-				InitAvrcp();
-			else
-				/* All profile libraries are now initialised */
-				theHeadset.ProfileLibrariesInitialising = FALSE;
+			InitA2dp();
         }
     }
     else
@@ -166,9 +146,6 @@ void hfpHandlerConnectCfm( const HFP_SLC_CONNECT_CFM_T *cfm )
         hfpSlcConnectSuccess(cfm->hfp, cfm->sink);
 		/* Update Link Policy as HFP has connected. */
 		linkPolicySLCconnect();
-		
-		/* Enable CSR 2 CSR Extensions */
-		csr2csrEnable(cfm->hfp);
     }
     else if (cfm->status == hfp_connect_sdp_fail)
     {
@@ -185,21 +162,10 @@ void hfpHandlerConnectCfm( const HFP_SLC_CONNECT_CFM_T *cfm )
 						inquiryContinue();
 					}
 				}
-				else
-				{
-                	hfpSlcLastConnectRequest ( hfp_headset_profile );
-				}
             }
             else if (cfm->hfp == theHeadset.hsp)
             {
                 HFP_DEBUG(("SLC: CFM HSP Fail\n")) ;
-                /* We try the HSP after we've tried HFP so this AG supports neither, give up */
-                if (!hfpSlcConnectFail())
-				{
-					/* try next reconnect in 10 secs */
-					MessageSendLater(&theHeadset.task, APP_CONNECT_HFP_LINK_LOSS, 0, D_SEC(LINK_LOSS_RETRY_TIME_SECS));
-				}
-				
 				/* This connection failed so check if inquiry needs to resume */
 				inquiryContinue();
             }
@@ -217,9 +183,6 @@ void hfpHandlerConnectCfm( const HFP_SLC_CONNECT_CFM_T *cfm )
     {
         if ( !stateManagerIsHfpConnected() )  /*only continue if not already connected*/
         {    /* Failed to connect */    
-            if (!hfpSlcConnectFail())
-				/* try next reconnect in 10 secs */
-				MessageSendLater(&theHeadset.task, APP_CONNECT_HFP_LINK_LOSS, 0, D_SEC(LINK_LOSS_RETRY_TIME_SECS));
         }
 		else
 		{			
@@ -234,22 +197,8 @@ void hfpHandlerConnectCfm( const HFP_SLC_CONNECT_CFM_T *cfm )
 /*****************************************************************************/
 void hfpHandlerDisconnectInd(const HFP_SLC_DISCONNECT_IND_T *ind)
 {	
-	bdaddr ag_addr, a2dp_addr;
-	bool last_ag = FALSE, last_a2dp = FALSE;
-	
-	if (!BdaddrIsZero(&theHeadset.LastDevices->lastHfpConnected))
-	{
-		ag_addr = theHeadset.LastDevices->lastHfpConnected;
-		last_ag = TRUE;
-	}
-	if (!BdaddrIsZero(&theHeadset.LastDevices->lastA2dpConnected))
-	{
-		a2dp_addr = theHeadset.LastDevices->lastA2dpConnected;
-		last_a2dp = TRUE;
-	}
-	
-	/* Reset codec selection */
-	theHeadset.SCO_codec_selected = audio_codec_cvsd;
+	bdaddr ag_addr;
+	bool last_ag = FALSE;
 	
 	/* Check if this was the result of an abnormal link loss */
     if (ind->status == hfp_disconnect_link_loss ) 
@@ -257,31 +206,6 @@ void hfpHandlerDisconnectInd(const HFP_SLC_DISCONNECT_IND_T *ind)
         HFP_DEBUG(("HFP: Link Loss Detect\n")) ;
                
         MessageSend( &theHeadset.task , EventLinkLoss , 0 ) ;
-		
-		/* Decide on reconnection behaviour, only if the headset is configured to reconnect on link loss */
-		if (theHeadset.features.LinkLossRetries)
-		{
-			if (!stateManagerIsA2dpStreaming())
-			{			
-				/* If A2DP disconnected already then reconnect it once HFP established */
-				if (theHeadset.combined_link_loss)
-					theHeadset.slcConnectFromPowerOn = TRUE;
-				/* A Link Loss has occured - attempt 1st reconnection to AG */
-				theHeadset.LinkLossAttemptHfp = 1;
-        		hfpSlcLastConnectRequest( hfp_handsfree_profile ) ;			
-			}
-			else
-			{
-				/* If link loss has occured on a combined device then it's probable that the A2DP will suffer link
-			  	 loss shortly, so wait for this to happen.
-			  	*/
-				if (A2dpGetSignallingSink(theHeadset.a2dp) && last_ag && last_a2dp)
-				{
-					if (BdaddrIsSame(&ag_addr, &a2dp_addr))
-						theHeadset.combined_link_loss = TRUE;
-				}				
-			}
-		}
     }
     else
     {
@@ -376,7 +300,6 @@ void hfpHandlerCallInd ( const HFP_CALL_IND_T * pInd )
 
     case 1:
         stateManagerEnterActiveCallState() ;  
-		ToneTerminate()  ;
         break;
 
     default:
@@ -401,7 +324,6 @@ void hfpHandlerCallSetupInd ( const HFP_CALL_SETUP_IND_T * pInd )
         if ( stateManagerIsHfpConnected() )
         {
             stateManagerEnterHfpConnectedState() ;
-			ToneTerminate() ;
         }
                
         break;
@@ -440,7 +362,6 @@ void hfpHandlerRingInd ( void )
     	HFP_DEBUG(("HFP_DEBUG: OutBandRing\n")) ;
 		
         /* Play ring tone from configuration */
-	    TonesPlayTone ( theHeadset.RingTone , FALSE, FALSE);    
     }    
 	
 	if ( (theHeadset.profile_connected == hfp_headset_profile) && !theHeadset.HSPCallAnswered )
@@ -539,32 +460,13 @@ void hfpHandlerAudioConnectInd( const HFP_AUDIO_CONNECT_IND_T *ind )
     {
         /* Accept the audio connection */		
 		{
-			if (theHeadset.SCO_codec_selected == audio_codec_cvsd)
+			/* CVSD codec */
+			if (theHeadset.HFP_features.eSCO_Parameters_Enabled )
 			{
-				/* CVSD codec */
-    			if (theHeadset.HFP_features.eSCO_Parameters_Enabled )
-    			{
-	        		audio_params_data.bandwidth       = theHeadset.HFP_features.bandwidth ;     
-    	    		audio_params_data.max_latency     = theHeadset.HFP_features.max_latency ;
-        			audio_params_data.voice_settings  = theHeadset.HFP_features.voice_settings ;
-	        		audio_params_data.retx_effort     = theHeadset.HFP_features.retx_effort ;  
-					audio_params = &audio_params_data;
-				}
-			}
-			else
-			{
-				/* Auristream codec */
-				if (theHeadset.SCO_codec_selected == audio_codec_auristream_2_bit) 
-				{
-					audio_params_data.bandwidth = theHeadset.config->Auristream.bw_2bits;
-				}
-				else
-				{
-					audio_params_data.bandwidth = theHeadset.config->Auristream.bw_4bits;
-				}
-				audio_params_data.max_latency = theHeadset.config->Auristream.max_latency;
-        		audio_params_data.voice_settings = theHeadset.config->Auristream.voice_settings;
-        		audio_params_data.retx_effort = theHeadset.config->Auristream.retx_effort;
+        		audio_params_data.bandwidth       = theHeadset.HFP_features.bandwidth ;     
+	    		audio_params_data.max_latency     = theHeadset.HFP_features.max_latency ;
+    			audio_params_data.voice_settings  = theHeadset.HFP_features.voice_settings ;
+        		audio_params_data.retx_effort     = theHeadset.HFP_features.retx_effort ;  
 				audio_params = &audio_params_data;
 			}
 			
@@ -643,9 +545,6 @@ void hfpHandlerAudioDisconnectInd( const HFP_AUDIO_DISCONNECT_IND_T *ind )
     {
         AudioDisconnect() ;
 
-        /* Turn the audio amp off after a delay */
-        AmpOffLater();
-
         theHeadset.dsp_process = dsp_process_none;
     }
 
@@ -705,9 +604,6 @@ static bool audioConnectSco(AUDIO_SINK_T sink_type, uint32 bandwidth)
 	/* Disconnect A2DP audio if it was active */
 	streamControlCeaseA2dpStreaming(TRUE);
     
-	/* Turn the audio amp on */
-	AmpOn();
-    
     /* Mute control */
     if (theHeadset.gMuted )
     {
@@ -724,7 +620,7 @@ static bool audioConnectSco(AUDIO_SINK_T sink_type, uint32 bandwidth)
 	if (HfpGetAudioSink(theHeadset.hfp_hsp))
 	{
 		HFP_DEBUG(("HFP: Route SCO mode=%d mic_mute=%d volindex=%d volgain=%d\n",lMode,theHeadset.gMuted,theHeadset.gHfpVolumeLevel,theHeadset.config->gVolLevels.volumes[theHeadset.gHfpVolumeLevel].hfpGain));
-		lResult = AudioConnect((TaskData*)gPlugins[theHeadset.features.audio_plugin][theHeadset.SCO_codec_selected],
+		lResult = AudioConnect((TaskData*)gPlugins,
 		 				     HfpGetAudioSink(theHeadset.hfp_hsp),
 		 				     sink_type,
 							 theHeadset.theCodecTask,

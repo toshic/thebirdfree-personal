@@ -214,7 +214,7 @@ void avrcpEventPlay(void)
 		/* If no media channel connected, then connect it now */
 		if (!A2dpGetMediaSink(theHeadset.a2dp))
 		{
-			a2dpConnectRequest(TRUE, FALSE, TRUE);
+			a2dpConnectRequest(FALSE, TRUE);
 		}
 		else
 		{		
@@ -247,7 +247,7 @@ void avrcpEventPlay(void)
 			else
 			{
 				/* No media connection so connect it now. */
-				a2dpConnectRequest(TRUE, FALSE, TRUE);	
+				a2dpConnectRequest(FALSE, TRUE);	
 			}
 		}
 		else if ( (stateManagerGetA2dpState () == headsetA2dpStreaming ) || (stateManagerGetA2dpState () == headsetA2dpPaused) )
@@ -287,7 +287,7 @@ void avrcpEventPause(void)
 			else
 			{
 				/* No media connection so connect it now. */
-				a2dpConnectRequest(TRUE, FALSE, TRUE);	
+				a2dpConnectRequest(FALSE, TRUE);	
 			}
 		}
 		else if ( (stateManagerGetA2dpState () == headsetA2dpStreaming ) || (stateManagerGetA2dpState () == headsetA2dpPaused) )
@@ -432,7 +432,7 @@ void avrcpSendStop(void)
 /*************************************************************************/
 void handleAVRCPConnectReq(APP_AVRCP_CONNECT_REQ_T *msg)
 {
-    if ((stateManagerGetAvrcpState() == avrcpReady) && (stateManagerGetHfpState() != headsetPoweringOn) && theHeadset.features.UseAVRCPprofile)
+    if ((stateManagerGetAvrcpState() == avrcpReady) && (stateManagerGetHfpState() != headsetPoweringOn))
     {
         MessageCancelAll(&theHeadset.task, APP_AVRCP_CONNECT_REQ);
         /* Change to connecting state */

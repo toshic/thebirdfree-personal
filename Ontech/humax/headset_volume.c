@@ -12,7 +12,6 @@ Copyright (C) Cambridge Silicon Radio Ltd. 2004-2009
 #include "headset_pio.h"
 #include "headset_volume.h"
 #include "headset_statemanager.h"
-#include "headset_tones.h"
 #include "headset_configmanager.h"
 
 #include <stdlib.h>

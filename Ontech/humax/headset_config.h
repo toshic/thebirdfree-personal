@@ -24,26 +24,6 @@ typedef struct
 
 typedef struct
 {
-  	uint16         length;
-  	uint16         value[sizeof(battery_config_type)];
-}config_battery_type;
-
-
-typedef struct
-{
-   	uint16         length;
-   	uint16         value[sizeof(button_config_type)];
-}config_button_type;
-
-typedef struct
-{
-    uint16         length ;
-    uint16         value[sizeof(button_pattern_config_type) * BM_NUM_BUTTON_MATCH_PATTERNS]; 
-}config_button_pattern_type ;
-
-
-typedef struct
-{
     uint16 blank;   
 }HFP_1_5_features_type;
 
@@ -85,29 +65,9 @@ typedef struct
 
 typedef struct
 {
- 	uint16     length;
- 	uint16     value[sizeof(event_config_type) * MAX_EVENTS]; 
-}config_events_type;
-
-
-typedef struct
-{
- 	uint16     length;
- 	uint16     value[sizeof(tone_config_type) * MAX_EVENTS]; 
-}config_tone_events_type;
-
-
-typedef struct
-{
 	uint16     length;
 	uint16     value[sizeof(Timeouts_t)] ; 
 }config_timeouts ;
-
-typedef struct
-{
-	uint16     length;
-	uint16     value[sizeof(Amp_t)] ; 
-}config_amp ;
 
 typedef struct
 {
@@ -129,12 +89,6 @@ typedef struct
 
 typedef struct
 {
-	uint16		length;
-	uint16		value[sizeof(auristream_t)];
-} config_auristream_type;
-
-typedef struct
-{
     uint16         length ;
     uint16         value[sizeof(rssi_pairing_t)]; 
 } config_rssi_type ;
@@ -143,13 +97,8 @@ typedef struct
 typedef struct
 {
 
-    const config_battery_type*  	battery_config;     	    /* Battery configuration */
- 	const config_button_type*  		button_config;     		    /* Button configuration */
- 	const config_button_pattern_type*   button_pattern_config;  /* Button Sequence Patterns*/
 	const config_hfp_features_params_type*   hfp_features_config;/* HFP features */
-	const config_auristream_type*  	auristream;			        /* Auristream parameters */
     const config_timeouts*  		timeouts_config;  		    /* Timeouts */
-	const config_amp* 				amp_config;   		    	/* Amp configuration */
  	const config_uint16_type*  		no_led_filters;         	/* Number of LED filters */
  	const config_led_filters_type* 	led_filters;     	    	/* LED filter configuration */
  	const config_uint16_type*  		no_led_states_a;   	    	/* Number of LED states */
@@ -158,10 +107,7 @@ typedef struct
  	const config_led_states_type* 	led_states_b;      	    	/* LED state configuration */
  	const config_uint16_type*  		no_led_events;     		    /* Number of LED events */
  	const config_led_events_type* 	led_events;      		    /* LED event configuration */
- 	const config_events_type*  		events_a;     			    /* System event configuration */
- 	const config_events_type*  		events_b;       	        /* System event configuration */
  	const config_uint16_type*  		no_tone_events;         	/* Number of tone events */
- 	const config_tone_events_type* 	tones;       		    	/* Tone event configuration */
  	const config_volume_type* 		vol_gains;       		    /* Volume Gains */
 	const config_features* 			features;       		    /* Features */
     const config_ssr_params_type*   ssr_config;                 /* Sniff Subrate parameters */

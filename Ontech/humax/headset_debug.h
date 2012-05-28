@@ -31,7 +31,7 @@ Copyright (C) Cambridge Silicon Radio Ltd. 2004-2009
 /*The avrcp event handling*/
 #define DEBUG_AVRCP_EVENTx
 /*The authorisation handling*/
-#define DEBUG_AUTHx
+#define DEBUG_AUTH
 /*The avrcp library messages*/
 #define DEBUG_AVRCP_MSGx
 /*The battery handling*/
@@ -53,7 +53,7 @@ Copyright (C) Cambridge Silicon Radio Ltd. 2004-2009
 /* The events received */
 #define DEBUG_EVENTS
 /*The hfp handling*/
-#define DEBUG_HFPx
+#define DEBUG_HFP
 /*The call functionality*/
 #define DEBUG_HFP_CALLx
 /*The hfp library messages*/

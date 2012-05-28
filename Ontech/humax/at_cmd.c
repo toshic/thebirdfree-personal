@@ -6,6 +6,7 @@
 #include "at_cmd.h"
 #include "uart.h"
 #include "WritePSKey.h"
+#include "headset_a2dp_connection.h"
 
 #include <ctype.h>
 #include <codec.h>
@@ -14,6 +15,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <util.h> /* hash and compare */
+#include <bdaddr.h>
 
 #if (defined TEST_HARNESS || defined DISPLAY_UART_CMDS)
 #include <stdio.h>
@@ -94,16 +96,6 @@ static ptr getString(ptr p, ptr e, struct sequence *res)
   res->data = 0;
   res->length = 0;
   return 0;
-}
-
-static ptr skipOnce1(ptr s, ptr e)
-{
-  if(s)
-  {
-    if(s != e && (*s == ',' || *s == ';'))
-      ++s;
-  }
-  return s;
 }
 
 static ptr getWildString(ptr p, ptr e, struct sequence *res)
@@ -213,214 +205,140 @@ static const Arc arcs[] = {
   { '+', 3 },
   { '\t', 3 },
   { ' ', 3 },
-  { 'A', 4 },
-  { 'C', 5 },
-  { 'I', 6 },
-  { 'M', 7 },
-  { 'R', 8 },
-  { 'S', 9 },
-  { 'V', 10 },
-  { 'W', 11 },
-  { 'C', 12 },
-  { 'D', 13 },
-  { 'I', 14 },
-  { 'M', 15 },
-  { 'B', 16 },
-  { 'C', 17 },
-  { 'D', 18 },
-  { 'P', 19 },
-  { 'R', 20 },
+  { 'M', 4 },
+  { 'R', 5 },
+  { 'S', 6 },
+  { 'V', 7 },
+  { 'W', 8 },
+  { 'C', 9 },
+  { 'D', 10 },
+  { 'P', 11 },
+  { 'R', 12 },
+  { 'S', 13 },
+  { 'D', 14 },
+  { 'C', 15 },
+  { 'P', 16 },
+  { 'T', 17 },
+  { 'G', 18 },
+  { 'R', 19 },
+  { 'O', 20 },
   { 'S', 21 },
-  { 'D', 22 },
-  { 'C', 23 },
-  { 'D', 24 },
-  { 'P', 25 },
-  { 'T', 26 },
-  { 'G', 27 },
-  { 'I', 28 },
-  { 'R', 29 },
-  { 'O', 30 },
-  { 'S', 31 },
-  { 'N', 32 },
-  { 'T', 33 },
-  { 'R', 34 },
-  { 'O', 35 },
-  { 'S', 36 },
-  { 'L', 37 },
-  { 'S', 38 },
-  { 'P', 39 },
-  { 'B', 40 },
-  { 'N', 41 },
-  { 'S', 42 },
-  { 'A', 43 },
-  { 'O', 44 },
-  { 'S', 45 },
-  { 'B', 46 },
-  { 'I', 47 },
-  { 'A', 48 },
-  { 'M', 49 },
-  { 'S', 50 },
-  { 'N', 51 },
-  { 'N', 52 },
-  { 'N', 53 },
-  { 'C', 54 },
-  { 'C', 55 },
-  { 'I', 56 },
-  { '\t', 34 },
-  { ' ', 34 },
+  { 'L', 22 },
+  { 'S', 23 },
+  { 'P', 24 },
+  { 'B', 25 },
+  { 'N', 26 },
+  { 'S', 27 },
+  { 'A', 28 },
+  { 'I', 29 },
+  { 'A', 30 },
+  { 'M', 31 },
+  { 'S', 32 },
+  { 'N', 33 },
+  { 'N', 34 },
+  { 'C', 35 },
+  { 'Y', 36 },
+  { 'T', 37 },
+  { 'D', 38 },
+  { 'D', 39 },
+  { 'M', 40 },
+  { 'S', 41 },
+  { 'N', 42 },
+  { 'N', 43 },
+  { 'T', 44 },
+  { '\t', 31 },
+  { ' ', 31 },
   { ':', -1 },
   { '=', -1 },
-  { 'N', 57 },
-  { 'C', 58 },
-  { 'Y', 59 },
-  { 'T', 60 },
-  { 'D', 61 },
-  { 'D', 62 },
-  { 'M', 63 },
-  { 'S', 64 },
-  { 'N', 65 },
-  { 'N', 66 },
-  { 'C', 67 },
-  { 'N', 68 },
-  { 'N', 69 },
-  { 'T', 70 },
-  { '\t', 49 },
-  { ' ', 49 },
+  { '\t', 32 },
+  { ' ', 32 },
   { ':', -2 },
   { '=', -2 },
-  { '\t', 50 },
-  { ' ', 50 },
+  { 'M', 45 },
+  { '\t', 34 },
+  { ' ', 34 },
   { ':', -3 },
   { '=', -3 },
-  { '\t', 51 },
-  { ' ', 51 },
-  { ':', 71 },
-  { '=', 71 },
-  { 'M', 72 },
-  { '\t', 53 },
+  { '\t', 35 },
   { '\n', -4 },
   { '\r', -4 },
-  { ' ', 53 },
-  { '\t', 54 },
+  { ' ', 35 },
+  { '\t', 36 },
   { '\n', -5 },
   { '\r', -5 },
-  { ' ', 54 },
-  { '\t', 55 },
-  { ' ', 55 },
-  { ':', -6 },
-  { '=', -6 },
-  { '\t', 56 },
-  { ' ', 56 },
-  { ':', -7 },
-  { '=', -7 },
-  { '\t', 57 },
+  { ' ', 36 },
+  { '\t', 37 },
+  { '\n', -6 },
+  { '\r', -6 },
+  { ' ', 37 },
+  { '\t', 38 },
+  { '\n', -7 },
+  { '\r', -7 },
+  { ' ', 38 },
+  { '\t', 39 },
   { '\n', -8 },
   { '\r', -8 },
-  { ' ', 57 },
-  { ':', -9 },
-  { '=', -9 },
-  { '\t', 58 },
+  { ' ', 39 },
+  { '\t', 40 },
+  { '\n', -9 },
+  { '\r', -9 },
+  { ' ', 40 },
+  { '\t', 41 },
   { '\n', -10 },
   { '\r', -10 },
-  { ' ', 58 },
-  { '\t', 59 },
-  { '\n', -11 },
-  { '\r', -11 },
-  { ' ', 59 },
-  { '\t', 60 },
-  { '\n', -12 },
-  { '\r', -12 },
-  { ' ', 60 },
-  { '\t', 61 },
-  { '\n', -13 },
-  { '\r', -13 },
-  { ' ', 61 },
-  { '\t', 62 },
+  { ' ', 41 },
+  { '\t', 42 },
+  { ' ', 42 },
+  { ':', -11 },
+  { '=', -11 },
+  { '\t', 43 },
+  { ' ', 43 },
+  { ':', -12 },
+  { '=', -12 },
+  { '\t', 44 },
+  { ' ', 44 },
+  { ':', 46 },
+  { '=', 46 },
+  { '\t', 45 },
+  { ' ', 45 },
+  { ':', -13 },
+  { '=', -13 },
+  { '\t', 46 },
   { '\n', -14 },
   { '\r', -14 },
-  { ' ', 62 },
-  { '\t', 63 },
-  { '\n', -15 },
-  { '\r', -15 },
-  { ' ', 63 },
-  { '\t', 64 },
-  { '\n', -16 },
-  { '\r', -16 },
-  { ' ', 64 },
-  { '\t', 65 },
-  { ' ', 65 },
-  { ':', -17 },
-  { '=', -17 },
-  { '\t', 66 },
-  { ' ', 66 },
-  { ':', -18 },
-  { '=', -18 },
-  { '\t', 67 },
-  { '\n', -19 },
-  { '\r', -19 },
-  { ' ', 67 },
-  { '\t', 68 },
-  { ' ', 68 },
-  { ':', -20 },
-  { '=', -20 },
-  { '\t', 69 },
-  { ' ', 69 },
-  { ':', -21 },
-  { '=', -21 },
-  { '\t', 70 },
-  { ' ', 70 },
-  { ':', 73 },
-  { '=', 73 },
-  { '\t', 71 },
-  { '\n', -22 },
-  { '\r', -22 },
-  { ' ', 71 },
-  { '?', 74 },
-  { '\t', 72 },
-  { ' ', 72 },
-  { ':', -23 },
-  { '=', -23 },
-  { '\t', 73 },
-  { '\n', -24 },
-  { '\r', -24 },
-  { ' ', 73 },
-  { '?', 75 },
-  { '\t', 76 },
-  { '\n', -22 },
-  { '\r', -22 },
-  { ' ', 76 },
-  { '?', 74 },
-  { '\t', 77 },
-  { '\n', -24 },
-  { '\r', -24 },
-  { ' ', 77 },
-  { '?', 75 },
-  { '\t', 76 },
-  { '\n', -22 },
-  { '\r', -22 },
-  { ' ', 76 },
-  { '\t', 77 },
-  { '\n', -24 },
-  { '\r', -24 },
-  { ' ', 77 },
+  { ' ', 46 },
+  { '?', 47 },
+  { '\t', 48 },
+  { '\n', -14 },
+  { '\r', -14 },
+  { ' ', 48 },
+  { '?', 47 },
+  { '\t', 48 },
+  { '\n', -14 },
+  { '\r', -14 },
+  { ' ', 48 },
 };
 
-static const Arc *const states[79] = {
+static const Arc *const states[50] = {
   &arcs[0],
   &arcs[3],
   &arcs[4],
   &arcs[7],
-  &arcs[17],
+  &arcs[14],
   &arcs[19],
-  &arcs[21],
-  &arcs[22],
+  &arcs[20],
+  &arcs[23],
+  &arcs[24],
+  &arcs[25],
+  &arcs[26],
   &arcs[27],
   &arcs[28],
-  &arcs[32],
+  &arcs[29],
+  &arcs[30],
+  &arcs[33],
   &arcs[34],
   &arcs[35],
   &arcs[36],
-  &arcs[37],
   &arcs[38],
   &arcs[39],
   &arcs[40],
@@ -429,62 +347,29 @@ static const Arc *const states[79] = {
   &arcs[43],
   &arcs[44],
   &arcs[45],
+  &arcs[46],
+  &arcs[47],
   &arcs[48],
+  &arcs[49],
   &arcs[50],
-  &arcs[51],
-  &arcs[53],
   &arcs[54],
-  &arcs[56],
-  &arcs[57],
   &arcs[58],
   &arcs[59],
-  &arcs[60],
-  &arcs[61],
-  &arcs[62],
-  &arcs[66],
+  &arcs[63],
   &arcs[67],
-  &arcs[68],
-  &arcs[69],
-  &arcs[70],
   &arcs[71],
-  &arcs[72],
-  &arcs[73],
-  &arcs[74],
   &arcs[75],
-  &arcs[76],
-  &arcs[77],
-  &arcs[78],
   &arcs[79],
-  &arcs[80],
-  &arcs[84],
-  &arcs[88],
-  &arcs[92],
-  &arcs[93],
-  &arcs[97],
-  &arcs[101],
-  &arcs[105],
-  &arcs[109],
-  &arcs[115],
-  &arcs[119],
-  &arcs[123],
-  &arcs[127],
-  &arcs[131],
-  &arcs[135],
-  &arcs[139],
-  &arcs[143],
-  &arcs[147],
-  &arcs[151],
-  &arcs[155],
-  &arcs[159],
-  &arcs[163],
-  &arcs[167],
-  &arcs[172],
-  &arcs[176],
-  &arcs[181],
-  &arcs[186],
-  &arcs[191],
-  &arcs[195],
-  &arcs[199],
+  &arcs[83],
+  &arcs[87],
+  &arcs[91],
+  &arcs[95],
+  &arcs[99],
+  &arcs[103],
+  &arcs[107],
+  &arcs[112],
+  &arcs[117],
+  &arcs[121],
 };
 
 static uint16 matchLiteral(ptr s, ptr e, Task task)
@@ -526,15 +411,10 @@ static ptr parseData(ptr s, ptr e, Task task)
     else
     {
       union {
-        struct inband_ring_enable inband_ring_enable;
         struct set_volume_microphone set_volume_microphone;
         struct set_volume_speaker set_volume_speaker;
-        struct virtual_incoming_call virtual_incoming_call;
-        struct sms_new_message_ind sms_new_message_ind;
         struct a2dp_signal_connect_req a2dp_signal_connect_req;
         struct set_scan_mode set_scan_mode;
-        struct slc_connect_req slc_connect_req;
-        struct set_phonebook_index set_phonebook_index;
         struct write_pin write_pin;
         struct write_local_name write_local_name;
       } u, *uu = &u;
@@ -559,20 +439,6 @@ static ptr parseData(ptr s, ptr e, Task task)
       switch(-state)
       {
         case 1:
-          if(match1(skip1(UtilGetNumber(skip1(t, e), e, &uu->inband_ring_enable.enable), e), e))
-          {
-#ifndef TEST_HARNESS
-            inband_ring_enable(task, &uu->inband_ring_enable);
-#endif
-#ifdef TEST_HARNESS
-            printf("Called inband_ring_enable");
-            printf(" enable=%d", uu->inband_ring_enable.enable);
-            putchar('\n');
-#endif
-            continue;
-          }
-          break;
-        case 2:
           if(match1(skip1(UtilGetNumber(skip1(t, e), e, &uu->set_volume_microphone.volume), e), e))
           {
 #ifndef TEST_HARNESS
@@ -586,7 +452,7 @@ static ptr parseData(ptr s, ptr e, Task task)
             continue;
           }
           break;
-        case 3:
+        case 2:
           if(match1(skip1(UtilGetNumber(skip1(t, e), e, &uu->set_volume_speaker.volume), e), e))
           {
 #ifndef TEST_HARNESS
@@ -600,75 +466,7 @@ static ptr parseData(ptr s, ptr e, Task task)
             continue;
           }
           break;
-        case 4:
-          if(t)
-          {
-#ifndef TEST_HARNESS
-            audio_connect_req(task);
-#endif
-#ifdef TEST_HARNESS
-            printf("Called audio_connect_req");
-            putchar('\n');
-#endif
-            continue;
-          }
-          break;
-        case 5:
-          if(t)
-          {
-#ifndef TEST_HARNESS
-            audio_disconnect_req(task);
-#endif
-#ifdef TEST_HARNESS
-            printf("Called audio_disconnect_req");
-            putchar('\n');
-#endif
-            continue;
-          }
-          break;
-        case 6:
-          if(match1(skip1(getString(skip1(t, e), e, &uu->virtual_incoming_call.callerid), e), e))
-          {
-#ifndef TEST_HARNESS
-            virtual_incoming_call(task, &uu->virtual_incoming_call);
-#endif
-#ifdef TEST_HARNESS
-            printf("Called virtual_incoming_call");
-            printString("callerid", &uu->virtual_incoming_call.callerid);
-            putchar('\n');
-#endif
-            continue;
-          }
-          break;
-        case 7:
-          if(match1(skip1(getWildString(skip1(skipOnce1(skip1(getString(skip1(t, e), e, &uu->sms_new_message_ind.sender), e), e), e), e, &uu->sms_new_message_ind.text), e), e))
-          {
-#ifndef TEST_HARNESS
-            sms_new_message_ind(task, &uu->sms_new_message_ind);
-#endif
-#ifdef TEST_HARNESS
-            printf("Called sms_new_message_ind");
-            printString("sender", &uu->sms_new_message_ind.sender);
-            printString("text", &uu->sms_new_message_ind.text);
-            putchar('\n');
-#endif
-            continue;
-          }
-          break;
-        case 8:
-          if(t)
-          {
-#ifndef TEST_HARNESS
-            a2dp_signal_connect_req_to_ags(task);
-#endif
-#ifdef TEST_HARNESS
-            printf("Called a2dp_signal_connect_req_to_ags");
-            putchar('\n');
-#endif
-            continue;
-          }
-          break;
-        case 9:
+        case 3:
           if(match1(skip1(getString(skip1(t, e), e, &uu->a2dp_signal_connect_req.bdaddr), e), e))
           {
 #ifndef TEST_HARNESS
@@ -682,7 +480,7 @@ static ptr parseData(ptr s, ptr e, Task task)
             continue;
           }
           break;
-        case 10:
+        case 4:
           if(t)
           {
 #ifndef TEST_HARNESS
@@ -695,7 +493,7 @@ static ptr parseData(ptr s, ptr e, Task task)
             continue;
           }
           break;
-        case 11:
+        case 5:
           if(t)
           {
 #ifndef TEST_HARNESS
@@ -708,7 +506,7 @@ static ptr parseData(ptr s, ptr e, Task task)
             continue;
           }
           break;
-        case 12:
+        case 6:
           if(t)
           {
 #ifndef TEST_HARNESS
@@ -721,7 +519,7 @@ static ptr parseData(ptr s, ptr e, Task task)
             continue;
           }
           break;
-        case 13:
+        case 7:
           if(t)
           {
 #ifndef TEST_HARNESS
@@ -734,7 +532,7 @@ static ptr parseData(ptr s, ptr e, Task task)
             continue;
           }
           break;
-        case 14:
+        case 8:
           if(t)
           {
 #ifndef TEST_HARNESS
@@ -747,7 +545,7 @@ static ptr parseData(ptr s, ptr e, Task task)
             continue;
           }
           break;
-        case 15:
+        case 9:
           if(t)
           {
 #ifndef TEST_HARNESS
@@ -760,7 +558,7 @@ static ptr parseData(ptr s, ptr e, Task task)
             continue;
           }
           break;
-        case 16:
+        case 10:
           if(t)
           {
 #ifndef TEST_HARNESS
@@ -773,7 +571,7 @@ static ptr parseData(ptr s, ptr e, Task task)
             continue;
           }
           break;
-        case 17:
+        case 11:
           if(match1(skip1(UtilGetNumber(skip1(t, e), e, &uu->set_scan_mode.mode), e), e))
           {
 #ifndef TEST_HARNESS
@@ -787,48 +585,7 @@ static ptr parseData(ptr s, ptr e, Task task)
             continue;
           }
           break;
-        case 18:
-          if(match1(skip1(getString(skip1(t, e), e, &uu->slc_connect_req.bdaddr), e), e))
-          {
-#ifndef TEST_HARNESS
-            slc_connect_req(task, &uu->slc_connect_req);
-#endif
-#ifdef TEST_HARNESS
-            printf("Called slc_connect_req");
-            printString("bdaddr", &uu->slc_connect_req.bdaddr);
-            putchar('\n');
-#endif
-            continue;
-          }
-          break;
-        case 19:
-          if(t)
-          {
-#ifndef TEST_HARNESS
-            slc_disconnect_req(task);
-#endif
-#ifdef TEST_HARNESS
-            printf("Called slc_disconnect_req");
-            putchar('\n');
-#endif
-            continue;
-          }
-          break;
-        case 20:
-          if(match1(skip1(UtilGetNumber(skip1(t, e), e, &uu->set_phonebook_index.index), e), e))
-          {
-#ifndef TEST_HARNESS
-            set_phonebook_index(task, &uu->set_phonebook_index);
-#endif
-#ifdef TEST_HARNESS
-            printf("Called set_phonebook_index");
-            printf(" index=%d", uu->set_phonebook_index.index);
-            putchar('\n');
-#endif
-            continue;
-          }
-          break;
-        case 21:
+        case 12:
           if(match1(skip1(getString(skip1(t, e), e, &uu->write_pin.pin), e), e))
           {
 #ifndef TEST_HARNESS
@@ -842,20 +599,7 @@ static ptr parseData(ptr s, ptr e, Task task)
             continue;
           }
           break;
-        case 22:
-          if(t)
-          {
-#ifndef TEST_HARNESS
-            vin_request(task);
-#endif
-#ifdef TEST_HARNESS
-            printf("Called vin_request");
-            putchar('\n');
-#endif
-            continue;
-          }
-          break;
-        case 23:
+        case 13:
           if(match1(skip1(getWildString(skip1(t, e), e, &uu->write_local_name.name), e), e))
           {
 #ifndef TEST_HARNESS
@@ -869,7 +613,7 @@ static ptr parseData(ptr s, ptr e, Task task)
             continue;
           }
           break;
-        case 24:
+        case 14:
           if(t)
           {
 #ifndef TEST_HARNESS
@@ -912,138 +656,11 @@ static void SendError(void)
     UartPrintf("\r\nERROR\r\n");
 }
 
-
-/* handler functions */
-void audio_connect_req(Task task)
-{
-	if(the_app->dev_inst[0] && the_app->dev_inst[0]->aghfp_sink)
-	{
-		aghfpSlcAudioOpen(the_app->dev_inst[0]);
-	}
-	else
-		SendError();
-    
-}
-
-void audio_disconnect_req(Task task)
-{
-	if(the_app->dev_inst[0] && the_app->dev_inst[0]->aghfp_sink)
-	{
-		aghfpSlcAudioClose();
-	}
-	else
-		SendError();
-    
-}
-void virtual_incoming_call(Task task, const struct virtual_incoming_call *req)
-{
-	if(the_app->dev_inst[0] && the_app->dev_inst[0]->aghfp_sink)
-	{
-		AghfpSetCallerIdDetails(the_app->aghfp, 129, req->callerid.length, req->callerid.data, 0,0);
-
-		/* store incoming number */
-		if(the_app->remote_number)
-			free(the_app->remote_number);
-		the_app->remote_number = malloc(req->callerid.length);
-		if(the_app->remote_number)
-		{
-			the_app->size_remote_number = req->callerid.length;
-			memcpy(the_app->remote_number,req->callerid.data,req->callerid.length);
-		}
-
-		MessageSend(task,APP_VOIP_CALL_INCOMING,0);
-	}
-	else
-		SendError();
-}
-void a2dp_signal_connect_req_to_ags(Task task)
-{
-}
-void a2dp_signal_connect_req(Task task, const struct a2dp_signal_connect_req *req)
-{
-}
-void a2dp_signal_disconnect_req(Task task)
-{
-}
-void a2dp_start_req(Task task)
-{
-	MessageSend(&the_app->task,APP_AUDIO_STREAMING_ACTIVE,0);
-
-}
-void a2dp_suspend_req(Task task)
-{
-	MessageSend(&the_app->task,APP_AUDIO_STREAMING_TIMER,0);
-}
-void read_local_bdaddr(Task task)
-{
-
-}
-
-void set_phonebook_index(Task task, const struct set_phonebook_index *index)
-{
-	/* we will support only 3 phonebook index */
-	if(index->index >= 0 && index->index <=2)
-	{
-		the_app->pb_index = index->index;
-		SendOk();
-	}
-	else
-		SendError();
-}
-void write_pin(Task task, const struct write_pin *pin)
-{
-	memcpy(the_app->pin,pin->pin.data,pin->pin.length);
-	the_app->pin[pin->pin.length] = 0;
-	SendOk();
-}
-void read_remote_name(Task task)
-{
-	if(aghfpSlcGetConnectedHF())
-	{
-		ConnectionReadRemoteName(&the_app->task, &the_app->connect_bdaddr);
-	}
-	else
-	{
-        SendError();
-	}
-}
-
-void write_local_name(Task task, const struct write_local_name *name)
-{
-    unsigned int i;
-    unsigned int len = name->name.length/2 + (name->name.length % 2);
-    uint16 *name_ptr = (uint16*)PanicUnlessMalloc(len);
-
-    memset(name_ptr,0,len);
-    for(i=0;i<name->name.length;i++){
-        if(i%2){
-            name_ptr[i/2] |= (name->name.data[i])<<8;
-        }else{
-            name_ptr[i/2] = name->name.data[i];
-        }
-    }
-    WritePsKeys(PSKEY_DEVICE_NAME,name_ptr,len);
-    free(name_ptr);
-	SendOk();
-}
-
-void read_remote_rssi(Task task)
-{
-	if(the_app->dev_inst[0] && the_app->dev_inst[0]->aghfp_sink)
-	{
-		ConnectionGetRssi(task, the_app->dev_inst[0]->aghfp_sink);
-	}
-	else
-		SendError();
-}
-
 static bool fill_bdaddr(bdaddr *addr,const struct sequence *src)
 {
     uint8 c;
     uint16 i;
 
-	DEBUG(("addr length %d\n",src->length));
-    
     if(src->length != 12)
         return FALSE;
     
@@ -1079,82 +696,130 @@ static bool fill_bdaddr(bdaddr *addr,const struct sequence *src)
     return TRUE;
 }
 
-void slc_connect_req(Task task, const struct slc_connect_req *req)
+/* handler functions */
+void a2dp_signal_connect_req(Task task, const struct a2dp_signal_connect_req *req)
 {
-    DEBUG(("AT+SCON received\n"));
-    memset(&the_app->connect_bdaddr,0,sizeof(bdaddr));
-     
-    if(fill_bdaddr(&the_app->connect_bdaddr,&req->bdaddr))
-    {
-    	DEBUG(("ADDR = (%x:%x:%lx)\n",the_app->connect_bdaddr.nap,the_app->connect_bdaddr.uap,the_app->connect_bdaddr.lap));
+    bdaddr connect_bdaddr;
+    if(fill_bdaddr(&connect_bdaddr,&req->bdaddr)){
+        a2dpConnectBdaddrRequest(&connect_bdaddr,FALSE);
         SendOk();
-        kickCommAction(CommActionConnect);
-    }
-    else
+    }else
+        SendError();
+}
+void a2dp_signal_disconnect_req(Task task)
+{
+    a2dpDisconnectRequest();
+}
+void a2dp_start_req(Task task)
+{
+}
+void a2dp_suspend_req(Task task)
+{
+}
+
+static char *byte2str(uint8 uc)
+{
+    static char str[3];
+    uint8 digit = (uc >> 4) & 0x0f;
+
+    if(digit < 10)
+        str[0] = '0' + digit;
+    else 
+        str[0] = 'A' + digit - 10;
+
+    digit = uc & 0x0f;
+
+    if(digit < 10)
+        str[1] = '0' + digit;
+    else 
+        str[1] = 'A' + digit - 10;
+
+    str[2] = 0;
+    return str;    
+}
+
+void read_local_bdaddr(Task task)
+{
+    /* I will use this for remote addr */
+	Sink sink = A2dpGetSignallingSink(theHeadset.a2dp);
+	bdaddr addr;
+
+	char *bdaddr_str = malloc(12 + 5 + 4 + 1);
+	
+ 	if (bdaddr_str && sink && SinkGetBdAddr(sink, &addr) && !BdaddrIsZero(&addr))
+ 	{
+ 	    /* print nap */
+ 	    strcpy(bdaddr_str,"\r\n+RBD=");
+ 	    strcat(bdaddr_str,byte2str(addr.nap >> 8));
+ 	    strcat(bdaddr_str,byte2str(addr.nap & 0xFF));
+ 	    /* print uap */
+ 	    strcat(bdaddr_str,byte2str(addr.uap));
+ 	    /* print lap */
+ 	    strcat(bdaddr_str,byte2str((addr.lap >> 16) & 0xFF ));
+ 	    strcat(bdaddr_str,byte2str((addr.lap >> 8) & 0xFF));
+ 	    strcat(bdaddr_str,byte2str(addr.lap & 0xFF));
+ 	    strcat(bdaddr_str,"\r\n");
+ 	    UartPrintf(bdaddr_str);
+ 	}
+ 	else
+        SendError();
+    free(bdaddr_str);
+}
+
+void write_pin(Task task, const struct write_pin *pin)
+{
+}
+void read_remote_name(Task task)
+{
+	Sink sink = A2dpGetSignallingSink(theHeadset.a2dp);
+	bdaddr addr;
+	
+ 	if (sink && SinkGetBdAddr(sink, &addr))
+ 	{
+		ConnectionReadRemoteName(task, &addr);
+		SendOk();
+	}
+	else
         SendError();
 }
 
-void slc_disconnect_req(Task task)
+void write_local_name(Task task, const struct write_local_name *name)
 {
-    /* disconnect spp first */
-    SppDisconnectReq();
-    kickCommAction(CommActionDisconnect);
+    unsigned int i;
+    unsigned int len = name->name.length/2 + (name->name.length % 2);
+    uint16 *name_ptr = (uint16*)PanicUnlessMalloc(len);
+
+    memset(name_ptr,0,len);
+    for(i=0;i<name->name.length;i++){
+        if(i%2){
+            name_ptr[i/2] |= (name->name.data[i])<<8;
+        }else{
+            name_ptr[i/2] = name->name.data[i];
+        }
+    }
+    WritePsKeys(PSKEY_DEVICE_NAME,name_ptr,len);
+    free(name_ptr);
+	SendOk();
 }
 
-void sms_new_message_ind(Task task, const struct sms_new_message_ind *cmti)
+void read_remote_rssi(Task task)
 {
-	uint16 i;
-	
-	if(the_app->dev_inst[0] && the_app->dev_inst[0]->aghfp_sink)
-		AghfpSendNewMessageIndex( the_app->dev_inst[0]->aghfp);
-	/* store last message */
-	if(the_app->message_sender)
+	Sink sink = A2dpGetSignallingSink(theHeadset.a2dp);
+
+ 	if (sink)
 	{
-		free(the_app->message_sender);
+		ConnectionGetRssi(task, sink);
 	}
-	if(the_app->message_body)
-	{
-		free(the_app->message_body);
-	}
-
-	the_app->message_sender= PanicUnlessMalloc(cmti->sender.length + 1);
-	memcpy(the_app->message_sender,cmti->sender.data,cmti->sender.length);
-	the_app->message_sender[cmti->sender.length] = '\0';
-
-	the_app->message_body = PanicUnlessMalloc(cmti->text.length);
-	memcpy(the_app->message_body,cmti->text.data + 1,cmti->text.length - 1);
-	the_app->message_body[cmti->text.length - 1] = '\0';
-
-	for(i=cmti->text.length - 1 ; i > 0 ;i--)
-	{
-		if(the_app->message_body[i] == '\"')
-		{
-			the_app->message_body[i] = '\0';
-			break;
-		}
-	}
-
-	DEBUG_AGHFP(("New Message Arrived : \n"));
-	DEBUG_AGHFP(("Sender : %s\n",the_app->message_sender));
-	DEBUG_AGHFP(("Body : %s\n",the_app->message_body));
+	else
+		SendError();
 }
 
 void set_volume_speaker(Task task, const struct set_volume_speaker *vgs)
 {
-	if(vgs->volume >= 0 && vgs->volume <=15)
-	{
-		the_app->vgs = vgs->volume;
-		AudioSetVolume(the_app->vgs,the_app->codecTask);
-	}
 }
 
 void set_volume_microphone(Task task, const struct set_volume_microphone *vgm)
 {
-	if(vgm->volume >= 0 && vgm->volume <=15)
-	{
-		the_app->vgm = vgm->volume;
-		CodecSetInputGainNow(the_app->codecTask,the_app->vgm,left_and_right_ch);
-	}
 }
 
 void master_reset(Task task)
@@ -1163,20 +828,9 @@ void master_reset(Task task)
 	Panic();
 }
 
-void vin_request(Task task)
-{
-    SppVinInfoPrint();
-}
-
-void inband_ring_enable(Task task, const struct inband_ring_enable *inband)
-{
-    WritePsKey(PSKEY_USR0,inband->enable);
-	SendOk();
-}
-
 void query_status(Task task)
 {
-    uint16 *pv = (uint16 *)&the_app->conn_status;
+    uint16 *pv = 0;
 	SendEventHex(EVT_CONN_STATUS,*pv);
 }
 
@@ -1193,7 +847,6 @@ void set_scan_mode(Task task, const struct set_scan_mode *mode)
 
 void handleUnrecognisedCmd(const uint8 *data, uint16 length, Task task)
 {
-	DEBUG_AGHFP(("Unhandled UART command\n"));
 	SendError();
 }
 

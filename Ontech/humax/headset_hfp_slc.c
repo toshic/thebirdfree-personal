@@ -111,9 +111,6 @@ void hfpSlcConnectSuccess ( HFP * pProfile, Sink sink )
 		}
     	/* always shuffle the pdl into mru order */        
     	ConnectionSmUpdateMruDevice(&ag_addr) ;
-		/* Store last used AG */
-		theHeadset.LastDevices->lastHfpConnected = ag_addr;
-		theHeadset.LastDevices->lastHfpHsp = ATTRIBUTE_GET_HF_PROFILE(theHeadset.profile_connected);
 	}
 	
 	/* Send retrieved volumes to AG */
@@ -176,21 +173,8 @@ bool hfpSlcConnectFail( void )
 	{
 		/* No link loss reconnection */
 		theHeadset.LinkLossAttemptHfp = 0;
-		
-		if (theHeadset.hfp_list_index != 0xf)
-		{
-			/* Attempt to connect to next HFP device in list */	
-			MessageSendLater(&theHeadset.task, APP_CONTINUE_HFP_LIST_CONNECTION , 0, 0);
-			return TRUE;
-		}
 	}
 		
-	/* Connect to last used A2DP source if flagged to do so. */
-	if (theHeadset.slcConnectFromPowerOn)
-	{
-		a2dpEstablishConnection(TRUE, FALSE);
-	}
-
     theHeadset.slcConnecting = FALSE; /*reset the connecting flag*/ 
 	theHeadset.slcConnectFromPowerOn = FALSE;
 	
@@ -211,44 +195,6 @@ bool hfpSlcConnectFail( void )
 	return TRUE;
 }
 
-
-/****************************************************************************/
-bool hfpSlcLastConnectRequest( hfp_profile pProfile )
-{
-    bdaddr lLastAddr ;   
-	uint16 profile = attribute_hf_hfp_profile;;
-	
-	if (hfpSlcIsConnecting () ||		
-		(stateManagerGetHfpState() == headsetPoweringOn))
-	{
-		HFP_SLC_DEBUG(("SLC: Invalid state for connection\n"));
-		return FALSE;
-	}
-	
-    /* Retrieve the address of the last used AG from PS */
-	if (!hfpSlcGetLastUsedAG(&lLastAddr, &profile) || !theHeadset.features.UseHFPprofile)
-	{
-		/* We have failed to connect as we don't have a valid address */
-        HFP_SLC_DEBUG(("SLC: No Last Addr \n"));
-		hfpSlcConnectFail();
-		return FALSE;
-	}
-	
-	theHeadset.slcConnecting = TRUE; 
-	
-	/* If HandsFree profile was requested then use the last profile stored (HFP or HSP),
- 		otherwise use HSP as requested.
-	*/
-	if ((pProfile != hfp_headset_profile) && (profile == attribute_hf_hsp_profile))
-	{
-		pProfile = hfp_headset_profile;
-	}
-	
-    HFP_SLC_DEBUG(("SLC: Connect Req [%x]\n" , pProfile));
-    hfpSlcAttemptConnect ( pProfile , &lLastAddr );	
-	
-	return TRUE;
-}
 
 
 /****************************************************************************/
@@ -310,114 +256,5 @@ void hfpSlcDisconnect(void)
 	if (theHeadset.hfp_hsp)
 	    HfpSlcDisconnect(theHeadset.hfp_hsp);
 }
-
-
-/****************************************************************************/
-bool hfpSlcGetLastUsedAG(bdaddr *addr, uint16 *profile)
-{
-	if (!BdaddrIsZero(&theHeadset.LastDevices->lastHfpConnected))
-	{
-		*addr = theHeadset.LastDevices->lastHfpConnected;
-		*profile = theHeadset.LastDevices->lastHfpHsp;
-	}
-	else if (!BdaddrIsZero(&theHeadset.LastDevices->lastPaired))
-	{
-		*addr = theHeadset.LastDevices->lastPaired;
-		*profile = attribute_hf_hfp_profile;
-	}
-	else
-	{
-		return FALSE;
-	}
-	
-	return TRUE;
-}
-
-
-/****************************************************************************/
-bool hfpSlcGetLastConnectedAG(bdaddr *addr)
-{
-	if (!BdaddrIsZero(&theHeadset.LastDevices->lastHfpConnected))
-	{
-		*addr = theHeadset.LastDevices->lastHfpConnected;
-		return TRUE;
-	}
-	
-	return FALSE;
-}
-
-
-/****************************************************************************/
-bool hfpSlcGetListNextAG(uint16 *current_index, bdaddr *addr, uint16 *profile)
-{
-	uint8 lAttributes[ATTRIBUTE_SIZE];
-	uint16 i;
-	
-	for (i=*current_index; i<MAX_PAIRED_DEVICES; i++)
-	{
-		if (ConnectionSmGetIndexedAttributeNow(PSKEY_ATTRIBUTE_BASE, i, ATTRIBUTE_SIZE, lAttributes, addr))
-		{
-			if (lAttributes[attribute_hfp_hsp_profile] || !lAttributes[attribute_a2dp_profile])
-			{
-				*current_index = i;
-				*profile = lAttributes[attribute_hfp_hsp_profile];
-				return TRUE;
-			}
-		}
-		else
-		{			
-			break;
-		}
-	}
-	return FALSE;
-}
-
-
-/****************************************************************************/
-bool hfpSlcListConnection(void)
-{
-	bdaddr addr;
-	uint16 index;
-	uint16 profile = attribute_hf_hfp_profile;
-	
-	HFP_SLC_DEBUG(("SLC: List connection\n")) ;    
-	
-	if (hfpSlcIsConnecting () ||		
-		((stateManagerGetHfpState() != headsetHfpConnectable) && (stateManagerGetHfpState() != headsetConnDiscoverable)) ||
-		!theHeadset.features.UseHFPprofile)
-	{
-		HFP_SLC_DEBUG(("	Invalid State\n")) ; 
-		return FALSE;
-	}
-	
-	if (theHeadset.hfp_list_index == 0xf)
-		theHeadset.hfp_list_index = 0;
-	else
-		theHeadset.hfp_list_index++;
-	
-	index = theHeadset.hfp_list_index;
-	
-	HFP_SLC_DEBUG(("	Index:%d\n",index)) ; 
-	
-	if (!hfpSlcGetListNextAG(&index, &addr, &profile))
-	{
-		theHeadset.hfp_list_index = 0xf;
-		HFP_SLC_DEBUG(("	End of list\n")) ;
-		hfpSlcConnectFail();
-		return FALSE;
-	}
-	
-	theHeadset.hfp_list_index = index;
-	
-    theHeadset.slcConnecting = TRUE;  
-	
-	if (profile == attribute_hf_hsp_profile)
-		hfpSlcAttemptConnect(hfp_headset_profile, &addr);	
-	else
-		hfpSlcAttemptConnect(hfp_handsfree_profile, &addr);	
-	
-	return TRUE;
-}
-
 
 

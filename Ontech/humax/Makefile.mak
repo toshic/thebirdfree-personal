@@ -18,7 +18,7 @@ DEFS=-DNO_DEBUG -DNO_SD_SUPPORT -DFLASH_LEDS -DNO_PROFILE -DNO_CHARGER_TRAPS
 DEBUGTRANSPORT=SPITRANS=LPT SPIPORT=1
 EXECUTION_MODE=native
 STACKSIZE=0
-TRANSPORT=none
+TRANSPORT=raw
 FIRMWARE=unified
 HARDWARE=kalimba
 FLASHSIZE=8192
@@ -27,21 +27,17 @@ PANIC_ON_PANIC=1
 FIRMWAREIMAGE=
 LIBRARY_VERSION=HumaxLib
 
-LIBS=-la2dp -laudio -lavrcp -lbdaddr -lcodec_nowolfson -lconnection -lcsr_common_no_dsp_plugin -lcsr_tone_plugin -lhfp -lregion -lservice -lcsr_a2dp_decoder_common_plugin -lcsr_cvc_common_plugin 
+LIBS=-la2dp -laudio -lavrcp -lbdaddr -lcodec_nowolfson -lconnection -lcsr_common_no_dsp_plugin -lcsr_tone_plugin -lhfp -lregion -lservice -lcsr_a2dp_decoder_common_plugin -lcsr_cvc_common_plugin -lcsr_sbc_encoder_plugin 
 INPUTS=\
       leds.led\
       humax.mak\
-      bc5_stereo.psr\
       main.c\
       headset_init.c\
-      headset_buttons.c\
-      headset_buttonmanager.c\
       headset_statemanager.c\
       headset_configmanager.c\
       headset_config.c\
       headset_pio.c\
       headset_event_handler.c\
-      headset_tones.c\
       headset_cl_msg_handler.c\
       headset_hfp_msg_handler.c\
       headset_a2dp_msg_handler.c\
@@ -55,11 +51,8 @@ INPUTS=\
       headset_codec_msg_handler.c\
       headset_a2dp_stream_control.c\
       headset_avrcp_event_handler.c\
-      headset_amp.c\
       headset_a2dp_connection.c\
       headset_link_policy.c\
-      headset_csr_features.c\
-      headset_config_csr_1645.c\
       headset_rom_led_manager.c\
       headset_flash_led_manager.c\
       leds.c\
@@ -67,12 +60,11 @@ INPUTS=\
       headset_inquiry.c\
       WritePSKey.c\
       uart.c\
+      at_cmd.c\
       headset_events.h\
       headset_states.h\
       headset_private.h\
       headset_init.h\
-      headset_buttons.h\
-      headset_buttonmanager.h\
       headset_statemanager.h\
       headset_configmanager.h\
       headset_config.h\
@@ -80,14 +72,10 @@ INPUTS=\
       headset_pio.h\
       headset_event_handler.h\
       headset_debug.h\
-      headset_tones.h\
       headset_cl_msg_handler.h\
       headset_hfp_msg_handler.h\
       headset_a2dp_msg_handler.h\
       headset_avrcp_msg_handler.h\
-      headset_powermanager.h\
-      headset_charger.h\
-      headset_battery.h\
       headset_scan.h\
       headset_auth.h\
       headset_hfp_handler.h\
@@ -97,16 +85,13 @@ INPUTS=\
       headset_codec_msg_handler.h\
       headset_a2dp_stream_control.h\
       headset_avrcp_event_handler.h\
-      headset_amp.h\
       headset_a2dp_connection.h\
       headset_link_policy.h\
       default_aac_service_record.h\
-      headset_csr_features.h\
       headset_dut.h\
       headset_led_manager.h\
       leds.h\
       headset_leds.h\
-      headset_sd.h\
       headset_inquiry.h
 
 -include humax.mak

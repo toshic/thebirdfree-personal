@@ -63,13 +63,10 @@ void inquiryContinue(void)
 		/* Decide if to change between HFP device inquiry and A2DP device inquiry */
 		if (theHeadset.inquiry_data[0].hfp_inquiry)
 		{
-			if (theHeadset.features.UseA2DPprofile)
-			{
-				theHeadset.inquiry_data[0].hfp_inquiry = FALSE;
-				INQUIRY_DEBUG(("INQUIRY: Inquiry Continue - A2DP device\n"));
-				ConnectionInquire(&theHeadset.task, INQUIRY_LAP, INQUIRY_MAX_RESPONSES, INQUIRY_TIMEOUT, theHeadset.config->rssi.a2dp_cod_filter);
-				return;
-			}
+			theHeadset.inquiry_data[0].hfp_inquiry = FALSE;
+			INQUIRY_DEBUG(("INQUIRY: Inquiry Continue - A2DP device\n"));
+			ConnectionInquire(&theHeadset.task, INQUIRY_LAP, INQUIRY_MAX_RESPONSES, INQUIRY_TIMEOUT, theHeadset.config->rssi.a2dp_cod_filter);
+			return;
 		}
 	
 		theHeadset.inquiry_data[0].hfp_inquiry = TRUE;
@@ -93,11 +90,7 @@ void inquiryStart( void )
         theHeadset.inquiry_data = PanicUnlessMalloc(2 * sizeof(inquiry_data_t));
 		
 		/* If HFP profile is enabled then try and find HFP devices first */ 
-		if (theHeadset.features.UseHFPprofile)			
-			theHeadset.inquiry_data[0].hfp_inquiry = TRUE;
-		else
-			theHeadset.inquiry_data[0].hfp_inquiry = FALSE;
-			
+		theHeadset.inquiry_data[0].hfp_inquiry = TRUE;
 
         inquiryClearData();
 	

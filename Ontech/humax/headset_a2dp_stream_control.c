@@ -13,7 +13,6 @@ Copyright (C) Cambridge Silicon Radio Ltd. 2005-2009
 
 
 #include "headset_a2dp_stream_control.h"
-#include "headset_amp.h"
 #include "headset_avrcp_event_handler.h"
 #include "headset_debug.h"
 #include "headset_hfp_slc.h"
@@ -55,8 +54,6 @@ void streamControlCeaseA2dpStreaming(bool send_suspend)
 		AudioDisconnect();
 		theHeadset.dsp_process = dsp_process_none;
 		STREAM_DEBUG(("CeaseStreaming - disconnect audio\n"));
-		/* Turn the audio amp off after a delay */
-		AmpOffLater();
 	
     	if (A2dpGetMediaSink(theHeadset.a2dp) && send_suspend && (stateManagerIsA2dpStreaming()))
     	{
@@ -94,9 +91,6 @@ void streamControlConnectA2dpAudio(void)
 	
 	STREAM_DEBUG(("streamControlConnectA2dpAudio vol index[%d] vol gain[%d]\n",theHeadset.gAvVolumeLevel, theHeadset.config->gVolLevels.volumes[theHeadset.gAvVolumeLevel].a2dpGain));
 	
-	/* Turn the audio amp on */
-	AmpOn();
-	
 	audio_plugin = InitA2dpPlugin(theHeadset.seid);
 	
 	switch (theHeadset.a2dp_rate)
@@ -132,7 +126,7 @@ void streamControlConnectA2dpAudio(void)
 		 				     A2dpGetMediaSink(theHeadset.a2dp) , 
 		 				     AUDIO_SINK_AV ,
 							 theHeadset.theCodecTask,
-							 theHeadset.config->gVolLevels.volumes[theHeadset.gAvVolumeLevel].a2dpGain,
+							 15,
 						   	 rate,
 						   	 theHeadset.features.mono ? FALSE : TRUE ,
 		 					 mode ,  
