@@ -29,6 +29,13 @@ NOTES
 
 #define MAX_AUDIO_SINKS	2
 
+#define KALIMBA_SET_BITPOOL_MESSAGE              0x7070
+#define KALIMBA_SET_POOR_LINK_BITPOOL_MESSAGE    0x7080
+#define KALIMBA_ENCODER_SELECT                   0x7300
+#define KALIMBA_AUDIO_USB_OUT_STATUS             0x7301
+#define KALIMBA_AUDIO_USB_IN_STATUS              0x7302
+#define KALIMBA_CODEC_TYPE_MESSAGE               0x7303
+
 typedef enum
 {
 	SourceUsb = 0,
@@ -55,16 +62,17 @@ void CsrSbcEncoderPluginConnect( Sink audio_sink , Task codec_task , uint16 volu
 	/* DSP Application loading and Transform starting is handled by a call to A2dpAudioCodecEnable
 		in the application, so should not be done here. */
 
+    const char sbc_encoder[]        = "sbc_encoder/sbc_encoder.kap";
+    FILE_INDEX index  = FILE_NONE;
+
 	typedef struct
 	{
-		unsigned source_type:4;
-		unsigned reserved:4;
 		uint8 content_protection;
 		uint32 voice_rate;
 		unsigned bitpool:8;
 		unsigned format:8;
 		uint16 packet_size;
-		Sink media_sink_b;
+        uint16 clock_mismatch;
 	} sbc_codec_data_type;
 
 	sbc_codec_data_type *sbc_codecData = (sbc_codec_data_type *) params;
@@ -72,11 +80,21 @@ void CsrSbcEncoderPluginConnect( Sink audio_sink , Task codec_task , uint16 volu
 	if (!sbc_codecData)
 		Panic();
 
+     index = FileFind(FILE_ROOT, sbc_encoder, sizeof(sbc_encoder)-1); 
+    
+     if (index == FILE_NONE)
+         Panic();
+     if (!KalimbaLoad(index))
+         Panic();
+     if (!KalimbaSendMessage(KALIMBA_CODEC_TYPE_MESSAGE, 0,0,0,0))
+         Panic();
+
+     CodecSetInputGainNow(codec_task,volume,left_and_right_ch);
+
     SBC = (SBC_t*)PanicUnlessMalloc (sizeof (SBC_t) ) ;
     
     SBC->media_sink[0] = audio_sink ;
     SBC->codec_task = codec_task ;
-	SBC->media_sink[1] = sbc_codecData->media_sink_b;
 	SBC->packet_size = sbc_codecData->packet_size;
     
     StreamDisconnect(StreamKalimbaSource(2), 0);
@@ -135,13 +153,6 @@ void CsrSbcEncoderPluginConnect( Sink audio_sink , Task codec_task , uint16 volu
 	}
 	
 	/* select the source type */
-	if(sbc_codecData->source_type == SourceUsb)
-	{
-		PRINT(("Audio Plugin: SourceUsb\n"));
-		/* Select the source type */
-		PanicFalse(KalimbaSendMessage(KALIMBA_ENCODER_SELECT, 0x0001, 0, 0, 0));
-	}
-	else
 	{
 		PRINT(("Audio Plugin: SourceAnalog\n"));
 		/* For analogue input source */
@@ -201,10 +212,10 @@ void CsrSbcEncoderPluginDisconnect( void )
     if (!SBC)
         Panic() ;
             
-  /*  StreamDisconnect(0, StreamKalimbaSink(0));
+    StreamDisconnect(0, StreamKalimbaSink(0));
 
     KalimbaPowerOff() ;
-  */
+  
     for (i = 0; i < MAX_AUDIO_SINKS; i++)
 	{
 		if (SBC->media_sink[i] != 0)

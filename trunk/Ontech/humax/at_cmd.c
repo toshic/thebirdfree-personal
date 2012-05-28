@@ -701,7 +701,7 @@ void a2dp_signal_connect_req(Task task, const struct a2dp_signal_connect_req *re
 {
     bdaddr connect_bdaddr;
     if(fill_bdaddr(&connect_bdaddr,&req->bdaddr)){
-        a2dpConnectBdaddrRequest(&connect_bdaddr,FALSE);
+        a2dpConnectBdaddrRequest(&connect_bdaddr,TRUE);
         SendOk();
     }else
         SendError();

@@ -53,6 +53,8 @@ bool a2dpConnectRequest(bool isSource, bool manual_connect)
 	*/
 	theHeadset.sendPlayOnConnection = TRUE;
 	theHeadset.manualA2dpConnect = manual_connect;
+
+	seids[0] = seid;
 	
 	if (!A2dpGetMediaSink(theHeadset.a2dp))
 	{
@@ -84,6 +86,8 @@ bool a2dpConnectBdaddrRequest(bdaddr *pAddr, bool isSource)
 		A2DP_CONNECTION_DEBUG(("A2DP_CONNECTION: Invalid state\n"));
 		return FALSE;
 	}
+	
+    seids[0] = seid;
 	
 	/* Open media channel. Call the correct API depending on whether signalling connected or not. */
     if (!A2dpGetSignallingSink(theHeadset.a2dp))
