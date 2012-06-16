@@ -56,7 +56,7 @@ DESCRIPTION
 /* ------------------------------------------------------------------------ */
 /* Debug print defines */ 
 
-#define ENABLE_DEBUG_MAIN
+#define ENABLE_DEBUG_MAINx
 #define ENABLE_DEBUG_A2DPx
 #define ENABLE_DEBUG_AGHFPx
 #define ENABLE_DEBUG_AVRCPx
@@ -76,6 +76,7 @@ DESCRIPTION
 #define ENABLE_DEBUG_CODECx
 #define ENABLE_DEBUG_PBAPx
 #define ENABLE_DEBUG_VGENx
+#define ENABLE_DEBUG_SPP
 
 #define print_debug UartPrintf
 
@@ -199,6 +200,12 @@ DESCRIPTION
     #define DEBUG_VGEN(x)    {print_debug x;}
 #else
     #define DEBUG_VGEN(x)
+#endif
+
+#if defined ENABLE_DEBUG && defined ENABLE_DEBUG_SPP
+    #define DEBUG_SPP(x)    {print_debug x;}
+#else
+    #define DEBUG_SPP(x)
 #endif
 
 /* ------------------------------------------------------------------------ */
