@@ -4,6 +4,7 @@
 #include <stdlib.h>
 
 #define FRAME_SIZE		0
+#define SHOW_SPP_MSG 0
 
 static Sink spp_sink;
 static SPP *spp;
@@ -69,16 +70,28 @@ static const uint8 pkt_connect[] =
     0x00,0x07,
     0x8d,0xb8,
     0x00,0x00,0x00,
-    0x4e,0xdf,0x4d,0x20,
-    0xd4,0xa0
+    0x4f,0xdb,0x2e,0x04,    /* time_t */
+    0x44,0x4b
 };
 
 static const uint8 pkt_activate[] = 
 {
+    0x00,0x01,0x02,
+    0x00,0x00,0x7f,0x10,
+    '0','1','1','3','4','7','5','2','4','3','0','0','0','0',
+};
+
+static const uint8 pkt_id[] = 
+{
     0x00,0x00,0x08,
-    0x00,0x00,0x00,0x00,
-    '0','1','1','3','4','7','5','2','4','3',
-    '0','0','0','0'
+    '0','1','0','0',0x00,0x00,0x00
+};
+
+static const uint8 pkt_chg[] = 
+{
+    0x00,0x14,0x02,
+    0x00,
+    '0','1','1','3','4','7','5','2','4','3'
 };
 
 static uint16 crcFast(uint16 *message, int nBytes)
@@ -182,13 +195,13 @@ typedef enum {
 
 static void SppWrite(uint8 *s, unsigned int n)
 {
-#if 0    
+#if SHOW_SPP_MSG    
     uint16 i;
-    DEBUG(("<<"));
+    DEBUG_SPP(("<<"));
     for(i=0;i<n;i++){
-        DEBUG(("%02x ",s[i]));
+        DEBUG_SPP(("%02x ",s[i]));
     }
-    DEBUG(("\n"));
+    DEBUG_SPP(("\n"));
 #endif    
 	if(spp_sink)
 	{
@@ -199,7 +212,7 @@ static void SppWrite(uint8 *s, unsigned int n)
 		}
 		else
 		{
-			DEBUG(("SppWrite Fail\n"));
+			DEBUG_SPP(("SppWrite Fail\n"));
 		}
 	}
 }
@@ -215,7 +228,7 @@ static void SppWriteZero(unsigned int n)
 		}
 		else
 		{
-			DEBUG(("SppWrite Fail\n"));
+			DEBUG_SPP(("SppWrite Fail\n"));
 		}
 	}
 }
@@ -232,7 +245,7 @@ static void SppSendPacket(uint8 dir, uint8 *pkt, uint16 len, uint8 is_ack)
     uint16 crc;
 
     if(!send_pkt){
-        DEBUG(("Send buffer error\n"));
+        DEBUG_SPP(("Send buffer error\n"));
         return;
     }
 
@@ -274,6 +287,13 @@ static void SppSendPacket(uint8 dir, uint8 *pkt, uint16 len, uint8 is_ack)
     free(send_pkt);
 }
 
+#define LEN_PAYLOAD_COUNT   2
+#define LEN_PAYLOAD_HEADER  5   /* 0x01 0xxx 0x11 0x11 0x02 */
+#define LEN_TIMESTAMP       12
+#define LEN_USERNAME        42
+#define LEN_USERID          32
+#define LEN_TEXT            282
+
 static void SppSendTwitter(uint8 index)
 {
     uint8 *send_pkt = (uint8*) malloc(16);
@@ -281,29 +301,24 @@ static void SppSendTwitter(uint8 index)
     uint16 len;
     uint8 crc_byte[2];
 
-    /* twitter Entry size is 780 byte
-            timestamp ? - 68byte
-            username - 84byte
-            userid - 64byte
-            text - 564byte
+    /* twitter Entry size is 368 byte
+            timestamp ? - 12byte
+            username - 42byte
+            userid - 32byte
+            text - 282byte
 
             first 2byte of packet indicate total Entry count 
         */
     static const uint8 twitter_1[] =
     {
-        0x00,0x01,0x2f,0x1b,0x1b,0xc4,0x31,0x34,0x36,0x35,0x31,0x31,0x34,0x34,0x31,0x34,
-        0x33,0x30,0x37,0x31,0x36,0x34,0x31,0x36
+        0x00,0x01,0x31,0xA0,0xA1,0x71,0x02,0xF7,0x91,0x85,0x63,0x82,0x10,0x02
     };
-    /* 46 zero */
-    static const uint8 twitter_2[] = "TwitterUser";
-    /* 84-11 zero */
-    static const uint8 twitter_3[] = "TwitterID";
-    /* 64 -9 zero */
-    static const uint8 twitter_4[] = "Twitter Text - ABCDEFGHIJKLMN";
-    /* 425-strlen zero */
+    static const uint8 twitter_2[] = {'T',0x00,'w',0x00,'i',0x00,'t',0x00,'t',0x00,'e',0x00,'r',0x00,'U',0x00,'s',0x00,'e',0x00,'r',0x00};
+    static const uint8 twitter_3[] = {'T',0x00,'w',0x00,'i',0x00,'t',0x00,'t',0x00,'e',0x00,'r',0x00,'I',0x00,'D',0x00};
+    static const uint8 twitter_4[] = {'T',0x00,'w',0x00,'i',0x00,'t',0x00,'t',0x00,'e',0x00,'r',0x00,' ',0x00,'T',0x00,'e',0x00,'x',0x00,'t',0x00,' ',0x00,'-',0x00,' ',0x00,'A',0x00,'B',0x00,'C',0x00,'D',0x00,'E',0x00,'F',0x00,'G',0x00,'H',0x00,'I',0x00,'J',0x00,'K',0x00,'L',0x00,'M',0x00,'N',0x00};
 
     if(!send_pkt){
-        DEBUG(("Send buffer error\n"));
+        DEBUG_SPP(("Send buffer error\n"));
         return;
     }
 
@@ -311,10 +326,7 @@ static void SppSendTwitter(uint8 index)
         send_seq++;
     }
 
-    if(index<0x24)
-        len = 0x0288;
-    else
-        len = 0x0103;
+    len = 0x028e;
 
     send_pkt[0] = 0xeb;
     send_pkt[1] = 0x0b;
@@ -339,23 +351,23 @@ static void SppSendTwitter(uint8 index)
     if(index == 0){
         SppWrite((uint8*)twitter_1,sizeof(twitter_1));
         crc = crcCalc(crc,(uint8*)twitter_1,sizeof(twitter_1));
-        SppWriteZero(46);
-        crc = crcZero(crc,46);
         
-        SppWrite((uint8*)twitter_2,strlen((char*)twitter_2));
-        crc = crcCalc(crc,(uint8*)twitter_2,strlen((char*)twitter_2));
-        SppWriteZero(84-strlen((char*)twitter_2));
-        crc = crcZero(crc,84-strlen((char*)twitter_2));
+        SppWrite((uint8*)twitter_2,sizeof(twitter_2));
+        crc = crcCalc(crc,(uint8*)twitter_2,sizeof(twitter_2));
+        SppWriteZero(LEN_USERNAME-sizeof(twitter_2));
+        crc = crcZero(crc,LEN_USERNAME-sizeof(twitter_2));
         
-        SppWrite((uint8*)twitter_3,strlen((char*)twitter_3));
-        crc = crcCalc(crc,(uint8*)twitter_3,strlen((char*)twitter_3));
-        SppWriteZero(64-strlen((char*)twitter_3));
-        crc = crcZero(crc,64-strlen((char*)twitter_3));
+        SppWrite((uint8*)twitter_3,sizeof(twitter_3));
+        crc = crcCalc(crc,(uint8*)twitter_3,sizeof(twitter_3));
+        SppWriteZero(32-sizeof(twitter_3));
+        crc = crcZero(crc,32-sizeof(twitter_3));
         
-        SppWrite((uint8*)twitter_4,strlen((char*)twitter_4));
-        crc = crcCalc(crc,(uint8*)twitter_4,strlen((char*)twitter_4));
-        SppWriteZero(425-strlen((char*)twitter_4));
-        crc = crcZero(crc,425-strlen((char*)twitter_4));
+        SppWrite((uint8*)twitter_4,sizeof(twitter_4));
+        crc = crcCalc(crc,(uint8*)twitter_4,sizeof(twitter_4));
+        
+        SppWriteZero(len-LEN_PAYLOAD_HEADER-LEN_PAYLOAD_COUNT-LEN_TIMESTAMP-LEN_USERNAME-LEN_USERID-sizeof(twitter_4));
+        crc = crcZero(crc,len-LEN_PAYLOAD_HEADER-LEN_PAYLOAD_COUNT-LEN_TIMESTAMP-LEN_USERNAME-LEN_USERID-sizeof(twitter_4));
+        
         crc ^= 0xffff;
         crc_byte[0] = crc>>8;
         crc_byte[1] = crc & 0xff;
@@ -363,11 +375,11 @@ static void SppSendTwitter(uint8 index)
     }
     else {
         
-        crc = crcZero(crc,len-5);
+        crc = crcZero(crc,len-LEN_PAYLOAD_HEADER);
         crc ^= 0xffff;
         crc_byte[0] = crc>>8;
         crc_byte[1] = crc & 0xff;
-        SppWriteZero(len-5);
+        SppWriteZero(len-LEN_PAYLOAD_HEADER);
         SppWrite(crc_byte,2);
     }    
 }
@@ -385,43 +397,30 @@ static void ResponseSpp(void)
         SppSendPacket(recv_pkt->dir,0,4,1);
         switch(recv_pkt->command){
         case 0x0002:
-            cmd[0] = 0;
-            cmd[1] = 0x08;
-            cmd[2] = 0;
-            SppSendPacket(0x01,cmd,3,0);
-            memcpy(vin_info,recv_pkt->data + 6, 21);
-            vin_info[21] = 0;
-            break;
+            /* connect ack */
         case 0x0004:
-        case 0x0006:
+            /* activate ack */
+            memcpy(vin_info,recv_pkt->data + 6, 17);
+            vin_info[17] = 0;
+            SppSendPacket(0x01,(uint8*)pkt_id,sizeof(pkt_id),0);
+            if(recv_pkt->command == 0x0004)
+                SppVinInfoPrint();
+            break;
+        case 0x0100:
             SppSendPacket(0x01,(uint8*)pkt_activate,sizeof(pkt_activate),0);
             break;
-        case 0x000a:
+        case 0x1400:    
+            SppSendPacket(0x01,(uint8*)pkt_chg,sizeof(pkt_chg),0);
+            break;
+        case 0x0104:
             cmd[0] = 0;
-            cmd[1] = 0;
-            cmd[2] = 0x0c;
+            cmd[1] = 0x01;
+            cmd[2] = 0x06;
             cmd[3] = 0;
-            SppSendPacket(recv_pkt->dir,cmd,4,0);
+            SppSendPacket(0x01,cmd,4,0);
             break;
-        case 0x0802:
-            if((recv_pkt->fragment_index + 1) == recv_pkt->fragment_number){
-                cmd[0] = 0;
-                cmd[1] = 0x0c;
-                cmd[2] = 0;
-                SppSendPacket(0x01,cmd,3,0);
-            }
-            break;
-        case 0x0c02:
-            if((recv_pkt->fragment_index + 1) == recv_pkt->fragment_number){
-                cmd[0] = 0;
-                cmd[1] = 0x0e;
-                cmd[2] = 0;
-                SppSendPacket(0x01,cmd,3,0);
-            }
-            break;
-        case 0x0e02:
-            if((recv_pkt->fragment_index + 1) == recv_pkt->fragment_number)
-                SppVinInfoPrint();
+        case 0x2002:
+            /* activate end */
             break;
         case 0x1100: /* twitter request */
         case 0x1102: /* twitter update request */
@@ -462,8 +461,8 @@ void SppParse(Source source)
 
 	if(source != StreamSourceFromSink(spp_sink))
 	    return;
-#if 0
-    DEBUG((">>"));
+#if SHOW_SPP_MSG
+    DEBUG_SPP((">>"));
 #endif    
 	while((size = SourceSize(source)) > 0 )
 	{
@@ -471,11 +470,11 @@ void SppParse(Source source)
 
 /* need to check maximum Source size */
 		for(i=0;i<size;i++){
-#if 0		
+#if SHOW_SPP_MSG		
 		    if(i<16){
-    			DEBUG(("%02x ",ptr[i]));
+    			DEBUG_SPP(("%02x ",ptr[i]));
     		}else if(i==16){
-    			DEBUG(("..."));
+    			DEBUG_SPP(("..."));
             }    		
 #endif
     		switch(pkt_state)
@@ -484,7 +483,7 @@ void SppParse(Source source)
                 if(ptr[i]==0xeb)
                     pkt_state = frame_preamble;
                 else{
-                    DEBUG(("?%x\n",ptr[i]));
+                    DEBUG_SPP(("?%x\n",ptr[i]));
                 }
                 break;
             case frame_preamble:
@@ -602,23 +601,23 @@ void SppParse(Source source)
                 pkt_index = 0;
                 /* print summary */
 #if 0                
-                DEBUG(("\nPKT RECV :\n"));
-                DEBUG(("direction  : %02x\n",recv_pkt->dir));
-                DEBUG(("addr       : %04x\n",recv_pkt->addr));
-                DEBUG(("seq_no     : %04x\n",recv_pkt->seq_no));
-                DEBUG(("payload_len: %d\n",recv_pkt->payload_len));
-                DEBUG(("header_crc : %04x\n",recv_pkt->header_crc));
-                DEBUG(("data_crc   : %04x\n",recv_pkt->data_crc));
-                DEBUG(("fragment   : %d/%d\n",recv_pkt->fragment_index,recv_pkt->fragment_number));
-                DEBUG(("command    : %04x\n",recv_pkt->command));
-                DEBUG(("payload    :\n"));
+                DEBUG_SPP(("\nPKT RECV :\n"));
+                DEBUG_SPP(("direction  : %02x\n",recv_pkt->dir));
+                DEBUG_SPP(("addr       : %04x\n",recv_pkt->addr));
+                DEBUG_SPP(("seq_no     : %04x\n",recv_pkt->seq_no));
+                DEBUG_SPP(("payload_len: %d\n",recv_pkt->payload_len));
+                DEBUG_SPP(("header_crc : %04x\n",recv_pkt->header_crc));
+                DEBUG_SPP(("data_crc   : %04x\n",recv_pkt->data_crc));
+                DEBUG_SPP(("fragment   : %d/%d\n",recv_pkt->fragment_index,recv_pkt->fragment_number));
+                DEBUG_SPP(("command    : %04x\n",recv_pkt->command));
+                DEBUG_SPP(("payload    :\n"));
                 for(j=0;j<recv_pkt->payload_len && j<20;j++){
-                    DEBUG(("%02x ",recv_pkt->data[j]));
+                    DEBUG_SPP(("%02x ",recv_pkt->data[j]));
                 }
                 if(j<recv_pkt->payload_len){
-                    DEBUG(("..."));
+                    DEBUG_SPP(("..."));
                 }
-                DEBUG(("\n"));
+                DEBUG_SPP(("\n"));
 #endif
                 ResponseSpp(); 
                 
@@ -648,7 +647,7 @@ void handleSppMessage(MessageId id, Message message)
 		{
 			SPP_CONNECT_CFM_T *cfm = (SPP_CONNECT_CFM_T *) message;
 		
-			DEBUG(("SPP_CONNECT_CFM result = %d\n", cfm->status));
+			DEBUG_SPP(("SPP_CONNECT_CFM result = %d\n", cfm->status));
 
 			if(cfm->status == spp_connect_success)
 			{
@@ -661,7 +660,7 @@ void handleSppMessage(MessageId id, Message message)
 #else
                     if(recv_pkt == 0)
 #endif    
-                        DEBUG(("malloc fail\n"));
+                        DEBUG_SPP(("malloc fail\n"));
                 }
 
 			    spp = cfm->spp;
@@ -677,11 +676,11 @@ void handleSppMessage(MessageId id, Message message)
 		{
 			SPP_CONNECT_IND_T* ind = (SPP_CONNECT_IND_T *) message;
 			SppConnectResponseLazy(ind->spp, TRUE, &ind->addr, 1, FRAME_SIZE);
-		    DEBUG(("SPP CONN IND\n"));
+		    DEBUG_SPP(("SPP CONN IND\n"));
 		}
 			break;
 		case SPP_DISCONNECT_IND:
-		    DEBUG(("SPP Disconnect\n"));
+		    DEBUG_SPP(("SPP Disconnect\n"));
 			spp_sink = 0;
 			spp = 0;
 
