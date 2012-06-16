@@ -108,6 +108,7 @@
 { AT + CPBS = %s:storage \r } : aghfpHandleSelectPhonebookMemoryStorage
 
 { AT + CNMI = ? \r } : aghfpHandleNewMessageIndicationQuery
+{ AT + CNMI = %d:mode, %d:mt \r } : aghfpHandleShortNewMessageIndication
 { AT + CNMI = %d:mode, %d:mt, %d:bm, %d:ds, %d:bfr \r } : aghfpHandleNewMessageIndication
 { AT + CPMS  ? \r } : aghfpHandlePreferedMessageStorageStatus
 { AT + CPMS = ? \r } : aghfpHandlePreferedMessageStorageQuery

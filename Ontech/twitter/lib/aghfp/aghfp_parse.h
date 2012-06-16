@@ -122,6 +122,11 @@ struct aghfpHandleSendMessage
 {
   struct sequence sender;
 };
+struct aghfpHandleShortNewMessageIndication
+{
+  uint16 mode;
+  uint16 mt;
+};
 struct aghfpHandleNewMessageIndication
 {
   uint16 bfr;
@@ -192,6 +197,7 @@ void aghfpHandleListMessageText(Task , const struct aghfpHandleListMessageText *
 void aghfpHandleReadMessage(Task , const struct aghfpHandleReadMessage *);
 void aghfpHandleSendMessage(Task , const struct aghfpHandleSendMessage *);
 void aghfpHandleNewMessageIndicationQuery(Task );
+void aghfpHandleShortNewMessageIndication(Task , const struct aghfpHandleShortNewMessageIndication *);
 void aghfpHandleNewMessageIndication(Task , const struct aghfpHandleNewMessageIndication *);
 void aghfpHandleCnumParse(Task );
 void aghfpHandleCopsStatusParse(Task );

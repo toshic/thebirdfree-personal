@@ -712,6 +712,7 @@ ptr parseData(ptr s, ptr e, Task task)
         struct aghfpHandleListMessageText aghfpHandleListMessageText;
         struct aghfpHandleReadMessage aghfpHandleReadMessage;
         struct aghfpHandleSendMessage aghfpHandleSendMessage;
+        struct aghfpHandleShortNewMessageIndication aghfpHandleShortNewMessageIndication;
         struct aghfpHandleNewMessageIndication aghfpHandleNewMessageIndication;
         struct aghfpHandleCopsFormatParse aghfpHandleCopsFormatParse;
         struct aghfpHandleSelectPhonebookMemoryStorage aghfpHandleSelectPhonebookMemoryStorage;
@@ -1152,6 +1153,19 @@ ptr parseData(ptr s, ptr e, Task task)
 #endif
 #ifdef TEST_HARNESS
             printf("Called aghfpHandleNewMessageIndicationQuery");
+            putchar('\n');
+#endif
+            continue;
+          }
+          if(match1(skip1(UtilGetNumber(skip1(skipOnce1(UtilGetNumber(skip1(t, e), e, &uu->aghfpHandleShortNewMessageIndication.mode), e), e), e, &uu->aghfpHandleShortNewMessageIndication.mt), e), e))
+          {
+#ifndef TEST_HARNESS
+            aghfpHandleShortNewMessageIndication(task, &uu->aghfpHandleShortNewMessageIndication);
+#endif
+#ifdef TEST_HARNESS
+            printf("Called aghfpHandleShortNewMessageIndication");
+            printf(" mode=%d", uu->aghfpHandleShortNewMessageIndication.mode);
+            printf(" mt=%d", uu->aghfpHandleShortNewMessageIndication.mt);
             putchar('\n');
 #endif
             continue;
@@ -1985,6 +1999,28 @@ aghfpHandleNewMessageIndicationQuery
    Match "=:"
    Skip " \t"
    Skip "?"
+   Skip " \t"
+   Match "\r\n"
+
+
+aghfpHandleShortNewMessageIndication
+   Skip " \t"
+   MatchChar A
+   MatchChar T
+   Skip " \t"
+   MatchChar +
+   Skip " \t"
+   MatchChar C
+   MatchChar N
+   MatchChar M
+   MatchChar I
+   Skip " \t"
+   Match "=:"
+   Skip " \t"
+   GetNumber mode
+   SkipOnce ",;"
+   Skip " \t"
+   GetNumber mt
    Skip " \t"
    Match "\r\n"
 
