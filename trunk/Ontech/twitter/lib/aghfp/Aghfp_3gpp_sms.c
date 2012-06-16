@@ -79,6 +79,19 @@ void aghfpHandleNewMessageIndication(Task task, const struct aghfpHandleNewMessa
 	aghfpSendOk(aghfp);
 }
 
+void aghfpHandleShortNewMessageIndication(Task task, const struct aghfpHandleShortNewMessageIndication *cnmi)
+{
+	AGHFP *aghfp = (AGHFP *) task;
+
+	MAKE_AGHFP_MESSAGE(AGHFP_NEW_MESSAGE_IND);
+	message->mode = cnmi->mode;
+	message->aghfp = aghfp;
+	MessageSend(aghfp->client_task, AGHFP_NEW_MESSAGE_IND, message);
+
+	AGHFP_3GPP_DEBUG(("AT+CNMI=%d,%d\n",cnmi->mode,cnmi->mt));
+	aghfpSendOk(aghfp);
+}
+
 void aghfpHandlePreferedMessageStorageQuery(Task task)
 {
 	AGHFP *aghfp = (AGHFP *) task;
