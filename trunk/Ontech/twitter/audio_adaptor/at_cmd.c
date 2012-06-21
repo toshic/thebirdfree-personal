@@ -1235,7 +1235,7 @@ void inband_ring_enable(Task task, const struct inband_ring_enable *inband)
 
 void inband_ring_query(Task task)
 {
-    SendEvent(EVT_INBAND_STAUS,the_app->support_inbandring);
+    SendEvent(EVT_INBAND_STATUS,the_app->support_inbandring);
 }
 
 void current_call_enable(Task task, const struct current_call_enable *clcc)
@@ -1246,7 +1246,7 @@ void current_call_enable(Task task, const struct current_call_enable *clcc)
 
 void currnet_call_query(Task task)
 {
-    SendEvent(EVT_INBAND_STAUS,the_app->support_clcc);
+    SendEvent(EVT_CLCC_STATUS,the_app->support_clcc);
 }
 
 void query_status(Task task)
