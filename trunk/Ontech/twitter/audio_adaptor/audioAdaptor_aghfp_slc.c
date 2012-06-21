@@ -25,11 +25,15 @@ DESCRIPTION
 */
 void aghfpSlcInitHf (void)
 {
-    uint16 supported_feature = aghfp_incoming_call_reject | aghfp_enhanced_call_status | aghfp_enhanced_call_control | aghfp_extended_error_codes;
+    uint16 supported_feature = aghfp_incoming_call_reject;
     if ( (the_app->aghfp == NULL))
     {
         if(the_app->support_inbandring)
             supported_feature |= aghfp_inband_ring;
+
+        if(the_app->support_clcc)
+            supported_feature |= aghfp_enhanced_call_status | aghfp_enhanced_call_control | aghfp_extended_error_codes;
+            
             AghfpInit(&the_app->task, aghfp_handsfree_15_profile, supported_feature); 
     }
 }

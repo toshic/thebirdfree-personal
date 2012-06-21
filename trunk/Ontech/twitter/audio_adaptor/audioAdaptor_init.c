@@ -286,10 +286,15 @@ DESCRIPTION
 */
 void initProfile (void)
 {
-    uint16 inband = 0;
-    PsRetrieve(0,&inband,1);
-    if(inband)
+    uint16 ps = 0;
+    PsRetrieve(0,&ps,1);
+    if(ps)
         the_app->support_inbandring = TRUE;
+    ps = 0;
+    PsRetrieve(1,&ps,1);
+    if(ps)
+        the_app->support_clcc = TRUE;
+        
      aghfpSlcInitHf();
 }
 

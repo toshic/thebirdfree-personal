@@ -58,7 +58,9 @@ typedef enum
 	EVT_PBAP_PULL_PHONEBOOK_START,
 	EVT_PBAP_PULL_PHONEBOOK_COMPLETE,
 	EVT_SMS_READY,
-	EVT_CONN_STATUS
+	EVT_CONN_STATUS,
+	EVT_INBAND_STAUS,
+	EVT_CLCC_STATUS
 }evt_string_id;
 
 
@@ -83,6 +85,10 @@ struct set_volume_speaker
 struct virtual_incoming_call
 {
   struct sequence callerid;
+};
+struct current_call_enable
+{
+  uint16 enable;
 };
 struct sms_new_message_ind
 {
@@ -114,11 +120,14 @@ struct write_local_name
   struct sequence name;
 };
 void inband_ring_enable(Task , const struct inband_ring_enable *);
+void inband_ring_query(Task );
 void set_volume_microphone(Task , const struct set_volume_microphone *);
 void set_volume_speaker(Task , const struct set_volume_speaker *);
 void audio_connect_req(Task );
 void audio_disconnect_req(Task );
 void virtual_incoming_call(Task , const struct virtual_incoming_call *);
+void current_call_enable(Task , const struct current_call_enable *);
+void currnet_call_query(Task );
 void sms_new_message_ind(Task , const struct sms_new_message_ind *);
 void a2dp_signal_connect_req_to_ags(Task );
 void a2dp_signal_connect_req(Task , const struct a2dp_signal_connect_req *);
