@@ -26,6 +26,9 @@
 { AT + MRST \r } : master_reset
 { AT + VIN = ? \r } : vin_request
 { AT + IBR = %d:enable \r } : inband_ring_enable
+{ AT + IBR = ? \r } : inband_ring_query
+{ AT + CLCC = %d:enable \r } : current_call_enable
+{ AT + CLCC = ? \r } : currnet_call_query
 { AT + STAT = ? \r } : query_status
 { AT + SCAN = %d:mode \r } : set_scan_mode
 

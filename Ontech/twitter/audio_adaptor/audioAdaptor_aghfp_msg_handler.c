@@ -1074,7 +1074,10 @@ void aghfpMsgHandleLibMessage(MessageId id, Message message)
         {
             DEBUG_AGHFP(("AGHFP_CURRENT_CALLS_IND\n"));
 			/* PJH : send current call status here */
+            if(the_app->support_clcc)
 			sendAghfpCurrentCallInfo(((AGHFP_CURRENT_CALLS_IND_T *)message)->aghfp);
+    		else
+                AghfpSendError(((AGHFP_CURRENT_CALLS_IND_T *)message)->aghfp);
             break;
         }    
         case AGHFP_NETWORK_OPERATOR_IND:
