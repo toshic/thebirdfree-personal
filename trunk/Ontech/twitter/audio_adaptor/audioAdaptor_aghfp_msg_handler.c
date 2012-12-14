@@ -128,13 +128,13 @@ static void disconnectAudio (devInstanceTaskData *inst)
 }
 
 /* need to be called every call state change event */
-static void sendAghfpCurrentCallInfo(AGHFP *aghfp)
+static void sendAghfpCurrentCallInfo(AGHFP_CURRENT_CALLS_IND_T *ind)
 {
-    devInstanceTaskData *inst = devInstanceFindFromAG(aghfp);
+    devInstanceTaskData *inst = devInstanceFindFromAG(ind->aghfp);
     mvdAghfpState current_state = getAghfpState(inst);
 	aghfp_call_info call;
 
-	if(current_state == AghfpStateCallSetup || current_state == AghfpStateCallActive)
+	if(ind->last_idx == 0 && (current_state == AghfpStateCallSetup || current_state == AghfpStateCallActive))
 	{
         call.idx = 1;
 		if(the_app->call_type == aghfp_call_type_incoming)
@@ -154,9 +154,10 @@ static void sendAghfpCurrentCallInfo(AGHFP *aghfp)
         call.type = 129;
 		call.size_number = the_app->size_remote_number;
 		call.number = the_app->remote_number;
-		AghfpSendCurrentCall(aghfp,&call);
+		AghfpSendCurrentCall(ind->aghfp,&call);
 	}
-    AghfpSendOk(aghfp);
+	else
+		AghfpSendCurrentCallsComplete(ind->aghfp);
 }
 
 
@@ -1075,7 +1076,7 @@ void aghfpMsgHandleLibMessage(MessageId id, Message message)
             DEBUG_AGHFP(("AGHFP_CURRENT_CALLS_IND\n"));
 			/* PJH : send current call status here */
             if(the_app->support_clcc)
-			sendAghfpCurrentCallInfo(((AGHFP_CURRENT_CALLS_IND_T *)message)->aghfp);
+				sendAghfpCurrentCallInfo(((AGHFP_CURRENT_CALLS_IND_T *)message));
     		else
                 AghfpSendError(((AGHFP_CURRENT_CALLS_IND_T *)message)->aghfp);
             break;
@@ -1095,7 +1096,7 @@ void aghfpMsgHandleLibMessage(MessageId id, Message message)
 			AGHFP_CURRENT_CALLS_CFM_T *cfm = (AGHFP_CURRENT_CALLS_CFM_T *)message;
 			if(cfm->status == aghfp_success)
 			{
-				AghfpSendCurrentCallsComplete(cfm->aghfp);
+/*				AghfpSendCurrentCallsComplete(cfm->aghfp);*/
 			}
 			break;
 		}

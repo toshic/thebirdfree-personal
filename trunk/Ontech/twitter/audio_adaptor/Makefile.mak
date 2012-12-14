@@ -25,7 +25,7 @@ FLASHSIZE=8192
 BUILD_MERGE=merge
 PANIC_ON_PANIC=1
 FIRMWAREIMAGE=
-LIBRARY_VERSION=
+LIBRARY_VERSION=twitter_Lib
 
 LIBS=-la2dp -laghfp -laudio -lavrcp -lcodec -lbattery -lbdaddr -lconnection -lcsr_tone_plugin -lcsr_sbc_encoder_plugin -lregion -lservice -lcsr_faststream_source_plugin -lcsr_sco_loopback_plugin_debug -lcsr_mp3_encoder_plugin -lgoep -lgoep_apphdrs -lmd5 -lpbaps -lpbap_common -lsdp_parse -lcsr_cvsd_usb_no_dsp_plugin -lcsr_common_no_dsp_plugin -lspp
 #LIBS+= -lsyncs
@@ -101,5 +101,5 @@ INPUTS=\
 # Project-specific options
 type=1
 
--include audio_adaptor.mak
+#-include audio_adaptor.mak
 include $(BLUELAB)/Makefile.vm

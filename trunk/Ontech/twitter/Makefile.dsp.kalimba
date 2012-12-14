@@ -1,0 +1,5 @@
+SUPPORTED_DSP_CORES += kalimba 
+DSP_REVISIONS       += 1=kalimba
+kalimba_kalpac_flags =
+kalimba_kalasm_flags =
+kalimba_arch_dir     = bc3mm
