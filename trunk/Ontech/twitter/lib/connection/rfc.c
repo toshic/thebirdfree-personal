@@ -36,6 +36,7 @@ NOTES
 #define DEFAULT_RFCOMM_PARAMETER_MASK       (PM_BIT_RATE | PM_DATA_BITS | PM_STOP_BITS | PM_PARITY | PM_PARITY_TYPE | PM_XON | PM_XOFF | PM_XONXOFF_INPUT | PM_XONXOFF_OUTPUT | PM_RTR_INPUT | PM_RTR_OUTPUT | PM_RTC_INPUT | PM_RTC_OUTPUT)
 
 
+#define RFCOMM_DEFAULT_FRAME_SIZE_MOD (256)
 
 /****************************************************************************
 
@@ -44,7 +45,7 @@ DESCRIPTION
 */
 static void initConfigParams(rfcomm_config_params *config)
 {
-    config->max_frame_size = RFCOMM_DEFAULT_FRAME_SIZE;
+    config->max_frame_size = RFCOMM_DEFAULT_FRAME_SIZE_MOD;
     config->break_signal = DEFAULT_RFCOMM_BREAK_SIGNAL;
     config->modem_status = DEFAULT_RFCOMM_MODEM_STATUS_SIGNAL;
     config->timeout = D_SEC(DEFAULT_RFCOMM_CONNECTION_TIMEOUT);
