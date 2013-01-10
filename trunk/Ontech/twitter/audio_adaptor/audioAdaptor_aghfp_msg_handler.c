@@ -85,7 +85,7 @@ static void connectAudio(Sink audio_sink)
         
 #ifdef KAL_MSG
             /* Switch the DSP to SCO mode */
-            PanicFalse(KalimbaSendMessage(KALIMBA_ENCODER_SELECT, EncoderSco, 0, 0, 0));
+			KalimbaSendMessage(KALIMBA_ENCODER_SELECT, EncoderSco, 0, 0, 0);
 #endif
 			AudioSetVolume(the_app->vgs,the_app->codecTask);
 			CodecSetInputGainNow(the_app->codecTask,the_app->vgm,left_and_right_ch);

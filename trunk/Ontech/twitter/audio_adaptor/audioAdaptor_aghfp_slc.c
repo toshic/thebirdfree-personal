@@ -169,6 +169,11 @@ void aghfpSlcAudioClose (void)
             setAghfpState(inst, AghfpStateAudioClosing);
             AghfpAudioDisconnect(inst->aghfp);
         }
+		else if(getAghfpState(inst) == AghfpStateCallActive)
+		{
+			setAghfpState(inst, AghfpStateCallShutdown);
+			AghfpCallTerminate(inst->aghfp, FALSE);
+		}
     }
 }
 
