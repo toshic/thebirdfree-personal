@@ -28,7 +28,6 @@ NOTES
 #include <bdaddr.h>
 #include <panic.h>
 
-
 /* Default parameters for an S1 esco connection.  Configured to obtain best ESCO link possible. */
 static const sync_config_params default_s1_sync_config_params =
 {
@@ -117,6 +116,11 @@ static void startAudioConnectRequest(AGHFP *aghfp)
 {
     sync_config_params config_params;
 
+	if(aghfp->audio_packet_type == 0) /* not set */
+	{
+		aghfpStoreAudioParams(aghfp, sync_all_esco | sync_all_sco, aghfpGetDefaultAudioParams(sync_all_esco | sync_all_sco));
+	}
+
 	/* Start Codec Negotiaion if:
 			Audio id disconnected AND
 			WBS is not being overridden AND
@@ -165,7 +169,7 @@ static void startAudioConnectRequest(AGHFP *aghfp)
     config_params.rx_bandwidth = aghfp->audio_params.bandwidth;
     config_params.max_latency = aghfp->audio_params.max_latency;
     config_params.voice_settings = aghfp->audio_params.voice_settings;
-    
+
     /* Issue a Synchronous connect request to the connection lib */
     ConnectionSyncConnectRequest(&aghfp->task, aghfp->rfcomm_sink, &config_params);
 }
