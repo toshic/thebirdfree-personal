@@ -988,7 +988,9 @@ void audio_disconnect_req(Task task)
 {
 	if(the_app->dev_inst[0] && the_app->dev_inst[0]->aghfp_sink)
 	{
-		aghfpSlcAudioClose();
+/*		aghfpSlcAudioClose();*/
+		MessageSend(task,APP_VOIP_CALL_INACTIVE,0);
+
 	}
 	else
 		SendError();
