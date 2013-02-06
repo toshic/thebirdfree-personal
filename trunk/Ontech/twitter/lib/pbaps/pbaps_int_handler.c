@@ -309,13 +309,18 @@ static void handleIntPhonebookFirst(pbapsState *state, PBAPS_GET_PHONEBOOK_FIRST
 			const uint8* type = PbapcoGetPhonebookMimeType(&typeLen);
 		
 			if ((msg->pbook_size != 0) || (msg->new_missed !=0))
-			{ /* Send using App. Params */
+			{ 
+				uint8 appHeader[8];
+				uint16 hdrLen = 0;
+				/* Send using App. Params */
 				/* Store Parameters */
 				state->pbook_size = msg->pbook_size;
 				state->new_missed = msg->new_missed;
+
+				hdrLen = pbapsBuildApplicationHeaders(state,appHeader);
 				
-				GoepRemoteGetResponseHeaders(state->handle, goep_svr_resp_OK, msg->totalLen,
-						0, NULL, typeLen, type);
+				GoepRemoteGetResponseAppHeaders(state->handle, goep_svr_resp_OK, msg->totalLen,
+						hdrLen, appHeader, typeLen, type);
 			}
 			else
 			{ /* Just send a reponse */
