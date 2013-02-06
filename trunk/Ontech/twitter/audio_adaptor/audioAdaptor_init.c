@@ -35,24 +35,10 @@ DESCRIPTION
 #ifdef USER_CONFIGURE_CODEC
     static const sep_config_type sbc_sep_usb = { SBC_SEID, KALIMBA_RESOURCE_ID, sep_media_type_audio, a2dp_source, FALSE, 0, sizeof(sbc_caps_source_usb), sbc_caps_source_usb };
     static const sep_config_type sbc_sep_analogue = { SBC_SEID, KALIMBA_RESOURCE_ID, sep_media_type_audio, a2dp_source, FALSE, 0, sizeof(sbc_caps_source_analogue), sbc_caps_source_analogue };
-
-    static const sep_config_type faststream_sep_usb = { FASTSTREAM_SEID, KALIMBA_RESOURCE_ID, sep_media_type_audio, a2dp_source, FALSE, 14, sizeof(faststream_caps_source_usb), faststream_caps_source_usb };
-    static const sep_config_type faststream_sep_analogue = { FASTSTREAM_SEID, KALIMBA_RESOURCE_ID, sep_media_type_audio, a2dp_source, FALSE, 14, sizeof(faststream_caps_source_analogue), faststream_caps_source_analogue };
-    
-    static const sep_config_type faststream_sep_bidirection_usb = { FASTSTREAM_SEID, KALIMBA_RESOURCE_ID, sep_media_type_audio, a2dp_source, FALSE, 14, sizeof(faststream_caps_bidirection_source_usb), faststream_caps_bidirection_source_usb };
-    static const sep_config_type faststream_sep_bidirection_analogue = { FASTSTREAM_SEID, KALIMBA_RESOURCE_ID, sep_media_type_audio, a2dp_source, FALSE, 14, sizeof(faststream_caps_bidirection_source_analogue), faststream_caps_bidirection_source_analogue };
-
 #else
 
     static const sep_config_type sbc_sep_usb = { SBC_SEID, KALIMBA_RESOURCE_ID, sep_media_type_audio, a2dp_source, TRUE, 0, sizeof(sbc_caps_source_usb), sbc_caps_source_usb };
     static const sep_config_type sbc_sep_analogue = { SBC_SEID, KALIMBA_RESOURCE_ID, sep_media_type_audio, a2dp_source, TRUE, 0, sizeof(sbc_caps_source_analogue), sbc_caps_source_analogue };
-
-    static const sep_config_type faststream_sep_usb = { FASTSTREAM_SEID, KALIMBA_RESOURCE_ID, sep_media_type_audio, a2dp_source, TRUE, 14, sizeof(faststream_caps_source_usb), faststream_caps_source_usb };
-    static const sep_config_type faststream_sep_analogue = { FASTSTREAM_SEID, KALIMBA_RESOURCE_ID, sep_media_type_audio, a2dp_source, TRUE, 14, sizeof(faststream_caps_source_analogue), faststream_caps_source_analogue };
-
-    static const sep_config_type faststream_sep_bidirection_usb = { FASTSTREAM_SEID, KALIMBA_RESOURCE_ID, sep_media_type_audio, a2dp_source, TRUE, 14, sizeof(faststream_caps_bidirection_source_usb), faststream_caps_bidirection_source_usb };
-    static const sep_config_type faststream_sep_bidirection_analogue = { FASTSTREAM_SEID, KALIMBA_RESOURCE_ID, sep_media_type_audio, a2dp_source, TRUE, 14, sizeof(faststream_caps_bidirection_source_analogue), faststream_caps_bidirection_source_analogue };
-    
 #endif
 
 
@@ -64,34 +50,6 @@ typedef struct
     const sep_config_type   *optional_config;    /* The SEP config data. These configs are defined above. */
     TaskData                *plugin;    /* The audio plugin to use. */
 } optional_codec_type;
-
-
-/* ************************************************************************************
-    
-    Tables which indicates which A2DP codecs are avaiable on the audio adaptors; and 
-    their seid values, and corresponding plugins.
-
-------------------------------------------------------------------------------------- */
-
-static const optional_codec_type optionalCodecList[NUM_SOURCE_TYPE][NUM_OPTIONAL_CODECS] = 
-{   
-    /* USB Stream End Points */
-    {
-    #ifdef INCLUDE_MP3_ENCODER_PLUGIN
-        {MP3_SEID, MP3_CODEC_BIT, &mp3_sep_usb, 0, (TaskData *)&csr_mp3_encoder_plugin},
-    #endif
-        {FASTSTREAM_SEID, FASTSTREAM_CODEC_BIT, &faststream_sep_usb, &faststream_sep_bidirection_usb, (TaskData *)&csr_faststream_source_plugin}      
-    },
-    
-    /* Analogue Stream End Points */
-    {
-    #ifdef INCLUDE_MP3_ENCODER_PLUGIN
-        {MP3_SEID, MP3_CODEC_BIT, &mp3_sep_analogue, 0, (TaskData *)&csr_mp3_encoder_plugin},
-    #endif
-        {FASTSTREAM_SEID, FASTSTREAM_CODEC_BIT, &faststream_sep_analogue, &faststream_sep_bidirection_analogue, (TaskData *)&csr_faststream_source_plugin}
-    }
-};
-
 
 
 /****************************************************************************

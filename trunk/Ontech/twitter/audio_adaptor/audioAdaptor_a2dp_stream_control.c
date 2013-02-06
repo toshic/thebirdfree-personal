@@ -79,22 +79,6 @@ void a2dpStreamStartDsp(bool isA2DPstreaming)
             index = FileFind(FILE_ROOT, sbc_encoder, sizeof(sbc_encoder)-1); 
             codec_type = CodecSbc;
         }
-        else if ( (audio_plugin == (TaskData *)&csr_faststream_source_plugin) )
-        {
-            index = FileFind(FILE_ROOT, faststream_encoder, sizeof(faststream_encoder)-1);
-            
-            if(the_app->bidirect_faststream)
-                codec_type = CodecFaststream_bd;
-            else
-                codec_type = CodecFaststream;
-        }
-    #ifdef INCLUDE_MP3_ENCODER_PLUGIN    
-        else if ( (audio_plugin == (TaskData *)&csr_mp3_encoder_plugin) )
-        {
-            index = FileFind(FILE_ROOT, mp3_encoder, sizeof(mp3_encoder)-1); 
-            codec_type = CodecMp3;
-        }
-    #endif
     }
     else
     {    

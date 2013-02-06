@@ -14,6 +14,7 @@ OUTPUT=audio_adaptor
 OUTDIR=D:/CSR_SDK/Audio-Adaptor-SDK-2009.R1/apps/audio_adaptor
 HARDWARE_INDEX=4
 DEFS=-DUSER_CONFIGURE_CODEC -DDEV_PC_1645_ANALOGUE -DxENABLE_DEBUG -DNO_CHARGER_TRAPS -DKAL_MSG 
+#DEFS+=-DPANIC_TRACE
 
 DEBUGTRANSPORT=SPITRANS=USB SPIPORT=0
 EXECUTION_MODE=native
@@ -27,7 +28,7 @@ PANIC_ON_PANIC=1
 FIRMWAREIMAGE=
 LIBRARY_VERSION=twitter_Lib
 
-LIBS=-la2dp -laghfp -laudio -lavrcp -lcodec -lbattery -lbdaddr -lconnection -lcsr_tone_plugin -lcsr_sbc_encoder_plugin -lregion -lservice -lcsr_faststream_source_plugin -lcsr_sco_loopback_plugin_debug -lcsr_mp3_encoder_plugin -lgoep -lgoep_apphdrs -lmd5 -lpbaps -lpbap_common -lsdp_parse -lcsr_cvsd_usb_no_dsp_plugin -lcsr_common_no_dsp_plugin -lspp
+LIBS=-la2dp -laghfp -laudio -lavrcp -lcodec_nowolfson -lbdaddr -lconnection -lcsr_tone_plugin -lcsr_sbc_encoder_plugin -lregion -lservice -lgoep -lgoep_apphdrs -lpbaps -lpbap_common -lsdp_parse -lcsr_cvsd_usb_no_dsp_plugin -lspp
 #LIBS+= -lsyncs
 INPUTS=\
       audio_adaptor.mak\
@@ -70,6 +71,7 @@ INPUTS=\
       vcard_gen.c\
 	  SppServer.c\
 	  WritePSKey.c\
+	  PanicTrace.c\
       audioAdaptor_a2dp.h\
       audioAdaptor_a2dp_stream_control.h\
       audioAdaptor_a2dp_msg_handler.h\

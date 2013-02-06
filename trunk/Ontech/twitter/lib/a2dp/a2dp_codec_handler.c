@@ -20,10 +20,6 @@ NOTES
 #include "a2dp_codec_handler.h"
 
 #include "a2dp_caps_parse.h"
-#include "a2dp_aac.h"
-#include "a2dp_atrac.h"
-#include "a2dp_csr_faststream.h"
-#include "a2dp_mp3.h"
 #include "a2dp_reconfigure_handler.h"
 #include "a2dp_sbc.h"
 #include "a2dp_send_command_handler.h"
@@ -45,26 +41,6 @@ static bool getCodecFromCaps(const uint8 *local_caps, uint8 *codec_type)
 	/* return the codec type (SBC, MP3, etc) */
 	*codec_type = local_codec[3];
 	return TRUE;
-}
-
-
-static bool isCodecCsrFaststream(const uint8 *local_caps)
-{
-	const uint8 *local_codec = local_caps;
-	uint32 local_vendor_id;
-    uint16 local_codec_id;
-
-	/* find the codec specific info in caps */
-	if (!a2dpFindCodecSpecificInformation(&local_codec,0))
-		return FALSE;
-
-	local_vendor_id = a2dpConvertUint8ValuesToUint32(&local_codec[4]);
-	local_codec_id = (local_codec[8] << 8) | local_codec[9];
-
-	if ((local_vendor_id == A2DP_CSR_VENDOR_ID) && (local_codec_id == A2DP_CSR_FASTSTREAM_CODEC_ID))
-		return TRUE;
-
-	return FALSE;
 }
 
 
@@ -110,27 +86,6 @@ bool a2dpHandleSelectingCodecSettings(A2DP *a2dp, uint16 size_service_caps, uint
 				selectOptimalSbcCapsSink(a2dp->sep.current_sep->sep_config->caps, service_caps);
 				accept = TRUE;
 				break;
-			case AVDTP_MEDIA_CODEC_MPEG1_2_AUDIO:
-				selectOptimalMp3CapsSink(a2dp->sep.current_sep->sep_config->caps, service_caps);
-				accept = TRUE;
-				break;
-			case AVDTP_MEDIA_CODEC_MPEG2_4_AAC:
-				selectOptimalAacCapsSink(service_caps);
-				accept = TRUE;
-				break;
-#ifdef A2DP_ATRAC				
-			case AVDTP_MEDIA_CODEC_ATRAC:
-				selectOptimalAtracCapsSink(a2dp->sep.current_sep->sep_config->caps, service_caps);
-				accept = TRUE;
-				break;
-#endif /* A2DP_ATRAC */				
-			case AVDTP_MEDIA_CODEC_NONA2DP:
-				if (isCodecCsrFaststream(a2dp->sep.current_sep->sep_config->caps))
-				{
-					selectOptimalCsrFastStreamCapsSink(a2dp->sep.current_sep->sep_config->caps, service_caps);
-					accept = TRUE;
-				}
-				break;
 			default:
 				break;
 			}
@@ -143,33 +98,6 @@ bool a2dpHandleSelectingCodecSettings(A2DP *a2dp, uint16 size_service_caps, uint
 			case AVDTP_MEDIA_CODEC_SBC:
 				selectOptimalSbcCapsSource(a2dp->sep.current_sep->sep_config->caps, service_caps);
 				accept = TRUE;
-				break;
-			case AVDTP_MEDIA_CODEC_MPEG1_2_AUDIO:
-				selectOptimalMp3CapsSource(a2dp->sep.current_sep->sep_config->caps, service_caps);
-				accept = TRUE;
-				break;
-			case AVDTP_MEDIA_CODEC_MPEG2_4_AAC:
-				/* Not Yet Implemented */
-				/*
-				selectOptimalAacCapsSource(a2dp->sep.current_sep->sep_config->caps, service_caps);
-				accept = TRUE;
-				*/
-				accept = FALSE;
-				break;
-			case AVDTP_MEDIA_CODEC_ATRAC:
-				/* Not Yet Implemented */
-				/*
-				selectOptimalAtracCapsSource(a2dp->sep.current_sep->sep_config->caps, service_caps);
-				accept = TRUE;
-				*/
-				accept = FALSE;
-				break;
-			case AVDTP_MEDIA_CODEC_NONA2DP:
-				if (isCodecCsrFaststream(a2dp->sep.current_sep->sep_config->caps))
-				{
-					selectOptimalCsrFastStreamCapsSource(a2dp->sep.current_sep->sep_config->caps, service_caps);
-					accept = TRUE;
-				}
 				break;
 			default:
 				break;
@@ -244,24 +172,6 @@ void a2dpSendCodecAudioParams(A2DP *a2dp)
 					bitpool = bitpool_max;
 			}
 			getSbcConfigSettings(service_caps, &rate, &mode);
-			break;
-		case AVDTP_MEDIA_CODEC_MPEG1_2_AUDIO:
-			getMp3ConfigSettings(service_caps, &rate, &mode);
-			break;
-		case AVDTP_MEDIA_CODEC_MPEG2_4_AAC:
-			getAacConfigSettings(service_caps, &rate, &mode);
-			break;
-#ifdef A2DP_ATRAC			
-		case AVDTP_MEDIA_CODEC_ATRAC:
-			getAtracConfigSettings(service_caps, &rate, &mode);
-			break;
-#endif /* A2DP_ATRAC */			
-		case AVDTP_MEDIA_CODEC_NONA2DP:
-			if (isCodecCsrFaststream(service_caps))
-			{
-				/* Get the config settings so they can be sent to the client */
-				getCsrFastStreamConfigSettings(service_caps, a2dp->sep.current_sep->sep_config->role, &rate, &mode, &voice_rate, &bitpool, &format);
-			}
 			break;
 		default:
 			return;

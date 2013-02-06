@@ -74,6 +74,8 @@ define variant_rules
 
 # Make CFLAGS unique across libraries
 CFLAGS_$(1)_$(2) := $$(strip $$(CFLAGS$(3)))
+# PANIC TRACE setting
+# CFLAGS_$(1)_$(2) += -DPANIC_TRACE
 # Stop them bleeding across into other libraries
 CFLAGS$(3)       :=
 

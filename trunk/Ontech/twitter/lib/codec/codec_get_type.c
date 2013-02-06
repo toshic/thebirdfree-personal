@@ -30,10 +30,12 @@ codec_type CodecGetCodecType(Task codecTask)
     {
 		return codec_csr_internal;
     }
+#ifndef CODEC_EXCLUDE_WOLFSON
     else if (codecTask->handler == wolfsonMessageHandler)
     {
         return codec_wm8731;
     }
+#endif	
 	else
 	{
 		return codec_none;
