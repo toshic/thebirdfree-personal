@@ -868,6 +868,7 @@ void GoepRemotePutResponseAck(GOEP *goep);
 */
 void GoepRemoteGetResponse(GOEP *goep, goep_svr_resp_codes result, uint32 totLen, uint16 size_name, const uint8* name, uint16 size_type, const uint8* type, uint16 size_data, const uint8* data, bool lastPacket);
 
+void GoepRemoteGetResponseHdr(GOEP *goep, goep_svr_resp_codes result, uint32 totLen, uint16 size_name, const uint8* name, uint16 size_type, const uint8* type, uint16 size_hdr, uint8* hdr, uint16 size_data, const uint8* data, bool lastPacket);
 
 /*!
 	@brief Send a subsequent response to a Remote Get request.
@@ -983,6 +984,7 @@ void GoepLocalGetFirstPacketHeaders(GOEP *goep, uint16 size_name, const uint8* n
 	be called to actually send the packet.
 */
 void GoepRemoteGetResponseHeaders(GOEP *goep, goep_svr_resp_codes result, uint32 totLen, uint16 size_name, const uint8* name, uint16 size_type, const uint8* type);
+void GoepRemoteGetResponseAppHeaders(GOEP *goep, goep_svr_resp_codes result, uint32 totLen, uint16 size_header, uint8* header, uint16 size_type, const uint8* type);
 
 #endif /* GOEP_H_ */
 

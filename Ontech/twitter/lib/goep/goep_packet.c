@@ -329,7 +329,7 @@ goep_lib_status goepSendGetStart(goepState *state,
 	if (state->useHeaders)
 	{
 		/* Add App Headers 'header' */
-		goepHdrAddAppSpecHeader(state->sink, &len);
+		goepHdrAddAppSpecHeader(state->sink, NULL, 0, &len);
 		
 		/* update length field */
 		goepHdrSetPacketLen(state, state->sink, len);
@@ -584,10 +584,21 @@ goep_lib_status goepSendConnectResponse(goepState *state, uint16 resp,
 }
 
 /* Send Remote Get Response */
+
+
 goep_lib_status goepSendGetResponse(goepState *state, uint16 respCode, uint32 totLen, 
 									const uint8* name, uint16 nameLen, 
 									const uint8* type, uint16 typeLen, 
 									Source data, 	   uint16 dataLen)
+{
+	return goepSendGetResponseHdr(state,respCode,totLen,name,nameLen,type,typeLen,data,dataLen,NULL,0);
+}
+
+goep_lib_status goepSendGetResponseHdr(goepState *state, uint16 respCode, uint32 totLen, 
+									const uint8* name, uint16 nameLen, 
+									const uint8* type, uint16 typeLen, 
+									Source data,	   uint16 dataLen,
+									uint8* appHeader, uint16 hdrLen)
 {
 	uint16 len=0;
 
@@ -635,11 +646,22 @@ goep_lib_status goepSendGetResponse(goepState *state, uint16 respCode, uint32 to
 		}
 		StreamMove(state->sink, data, dataLen);
 	}
-	
-	if (state->useHeaders)
+
+	if(hdrLen)
 	{
 		/* Add App Headers 'header' */
-		goepHdrAddAppSpecHeader(state->sink, &len);
+		goepHdrAddAppSpecHeader(state->sink, appHeader, hdrLen, &len);
+
+		/* update length field */
+		goepHdrSetPacketLen(state, state->sink, len);
+	
+		/* Send packet */
+		SinkFlush(state->sink, len);
+	}
+	else if (state->useHeaders)
+	{
+		/* Add App Headers 'header' */
+		goepHdrAddAppSpecHeader(state->sink, NULL, 0, &len);
 
 		/* update length field */
 		goepHdrSetPacketLen(state, state->sink, len);

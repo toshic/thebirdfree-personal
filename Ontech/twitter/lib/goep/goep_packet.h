@@ -108,6 +108,12 @@ goep_lib_status goepSendGetResponse(goepState *state, uint16 respCode, uint32 to
 									const uint8* type, uint16 typeLen, 
 									Source data,	   uint16 dataLen);
 
+goep_lib_status goepSendGetResponseHdr(goepState *state, uint16 respCode, uint32 totLen, 
+									const uint8* name, uint16 nameLen, 
+									const uint8* type, uint16 typeLen, 
+									Source data,	   uint16 dataLen,
+									uint8* appHeader, uint16 hdrLen);
+
 /* Send Packet containing app. specific parameters */
 void goepSendAppSpecific(goepState *state, uint16 length);
 

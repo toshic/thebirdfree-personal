@@ -248,6 +248,7 @@ void pbapsExtractvCardListingParameters(pbapsState *state, GOEP_REMOTE_GET_START
 void pbapsExtractvCardEntryParameters(pbapsState *state, GOEP_REMOTE_GET_START_HDRS_IND_T *msg);
 bool pbapsExtractPhonebookParameters(pbapsState *state, GOEP_REMOTE_GET_START_HDRS_IND_T *msg);
 uint16 pbapsAddApplicationHeaders(pbapsState *state, Sink sink);
+uint16 pbapsBuildApplicationHeaders(pbapsState *state, uint8 *appHeader);
 
 uint16 pbapsExtractvCardEntry(const uint8 *src);
 

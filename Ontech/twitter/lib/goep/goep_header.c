@@ -228,10 +228,10 @@ bool goepHdrContainBody(const uint8* buffer, const uint16 start, const uint16 st
 
 /* Add header info for application specific parameters
 */
-void goepHdrAddAppSpecHeader(Sink sink, uint16 *length)
+void goepHdrAddAppSpecHeader(Sink sink, uint8* data, uint16 dataLen, uint16 *length)
 {
 	uint8* s = SinkMap(sink);
-	uint16 len = 3; /* Header ID */
+	uint16 len = 3 + dataLen; /* Header ID */
 	uint16 o = SinkClaim(sink, len);
 	
 	if (o==0xffff)
@@ -241,8 +241,11 @@ void goepHdrAddAppSpecHeader(Sink sink, uint16 *length)
 	/* Packet type */
 	s[0] = goep_Hdr_AppSpecific;
 	/* Packet Length - Will be updated later with the correct value */
-	s[1] = 0;
-	s[2] = 0;
+	s[1] = (len>>8)&0xff;
+	s[2] = len&0xff;
+
+	if(dataLen)
+		memcpy(s + 3, data, dataLen);
 	
 	*length=*length+len;
 }

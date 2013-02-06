@@ -54,7 +54,7 @@ bool goepHdrAddStringHeader(Sink sink, const uint8 type, const uint16 hdrLen, co
 
 /* Add header info for application specific parameters
 */
-void goepHdrAddAppSpecHeader(Sink sink, uint16 *length);
+void goepHdrAddAppSpecHeader(Sink sink, uint8* data, uint16 dataLen, uint16 *length);
 
 /* Add Header without any body (just the header section) */
 bool goepHdrAddEmptyHeader(Sink sink, const uint8 type, const uint16 hdrLen, uint16 *length);

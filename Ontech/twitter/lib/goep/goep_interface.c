@@ -875,6 +875,26 @@ void GoepRemoteGetResponse(GOEP *goep, goep_svr_resp_codes result, uint32 totLen
 	}
 }
 
+void GoepRemoteGetResponseHdr(GOEP *goep, goep_svr_resp_codes result, uint32 totLen,
+				  uint16 size_name, const uint8* name,
+				  uint16 size_type, const uint8* type,
+				  uint16 size_hdr, uint8* hdr,
+				  uint16 size_data, const uint8* data, bool lastPacket)
+{
+	uint16 respCode = convGoepResponseCode(result, lastPacket);
+	Source src = StreamRegionSource(data, size_data);
+	
+	/* Send relevant response packet */
+	goepSendGetResponseHdr(goep, respCode, totLen, name, size_name, type, size_type, src, size_data, hdr, size_hdr);
+	
+	if (respCode != goep_Rsp_Continue)
+	{ /* If the last packet is being sent or the request has been rejected */
+		goepMsgSendRemoteGetCompleteInd(goep, goep_success);
+		goep->state = goep_connected;
+	}
+}
+
+
 /*!
 	@brief Send the first response to a Remote Get request.
 	@param goep GOEP Session Handle (as returned in GOEP_REGISTER_CFM).
@@ -1034,4 +1054,11 @@ void GoepRemoteGetResponseHeaders(GOEP *goep, goep_svr_resp_codes result, uint32
 	GoepRemoteGetResponse(goep, result, totLen,
 				  size_name, name, size_type, type, 0, NULL, FALSE);
 }
+
+void GoepRemoteGetResponseAppHeaders(GOEP *goep, goep_svr_resp_codes result, uint32 totLen, uint16 size_header, uint8* header, uint16 size_type, const uint8* type)
+{
+	GoepRemoteGetResponseHdr(goep, result, totLen,
+				  0, NULL, size_type, type, size_header, header, 0, NULL, TRUE);
+}
+
 
