@@ -93,6 +93,7 @@ static void appCallOpenReq (devInstanceTaskData *inst)
             /* else fall through to AppStateConnected case */
         }    
         case AppStateIdle:
+		case AppStateConnecting:	/* execption handling - incoming call can be placed while A2DP connect */
         {
             setAppState(AppStateInCall);
             aghfpCallCreate(inst, the_app->call_type);
@@ -320,6 +321,7 @@ static bool commActionCall(mvdCommAction *comm_action)
     switch (the_app->app_state)
     {
         case AppStateIdle:
+		case AppStateConnecting:	/* execption handling - incoming call can be placed while A2DP connect */
         {
             /* See if a HandsFree device is connected. This assumes that a maximum of 1 can be connected. */
             if ((inst = aghfpSlcGetConnectedHF()) != NULL)
@@ -1070,6 +1072,7 @@ static void handleAppVoipCallIncoming(void)
     {
         case AppStateIdle:        
         case AppStateStreaming:
+		case AppStateConnecting:	/* execption handling - incoming call can be placed while A2DP connect */
         {
             the_app->call_type = aghfp_call_type_incoming;
             kickCommAction(CommActionCall);
