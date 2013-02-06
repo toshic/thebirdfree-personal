@@ -648,7 +648,7 @@ typedef struct devInstanceData
 #define PBAPS_MIN_BUFFER_SIZE 60
 
 /* Buffer size to try and allocate first */
-#define PBAPS_BUFFER_START_SIZE 0x6c
+#define PBAPS_BUFFER_START_SIZE 250 /* 0x6c */
 
 /* PBAP Server State */
 typedef struct
