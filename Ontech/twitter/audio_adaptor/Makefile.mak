@@ -71,7 +71,6 @@ INPUTS=\
       vcard_gen.c\
 	  SppServer.c\
 	  WritePSKey.c\
-	  PanicTrace.c\
       audioAdaptor_a2dp.h\
       audioAdaptor_a2dp_stream_control.h\
       audioAdaptor_a2dp_msg_handler.h\
