@@ -1,6 +1,6 @@
 /****************************************************************************
-Copyright (C) Cambridge Silicon Radio Limited 2004-2009
-Part of BlueLab 4.1.2-Release
+Copyright (C) Cambridge Silicon Radio Ltd. 2004-2009
+Part of Audio-Adaptor-SDK 2009.R1
 
 FILE NAME
     avrcp_l2cap_handler.c
@@ -15,33 +15,24 @@ DESCRIPTION
 #include "avrcp_l2cap_handler.h"
 #include "avrcp_sdp_handler.h"
 #include "avrcp_signal_handler.h"
-#include "avrcp_init.h"
+#include "init.h"
 
 #include <panic.h>
-#include <stdlib.h>
 
 
 /* Reset the local state values to their initial states */
 static void resetAvrcpValues(AVRCP* avrcp)
 {
-	/* Reset the local state values to their initial states */
-	avrcpSetState(avrcp, avrcpReady);	
+	/* Set the local state to ready */
+	avrcpSetState(avrcp, avrcpReady);
+
+	/* Reset the remaining local state */
 	avrcp->pending = avrcp_none;
     avrcp->block_received_data = 0;
-	avrcp->continuation_pdu = 0;
-	avrcp->continuation_data = 0;
-	avrcp->srcUsed = 0;
+	avrcp->watchdog = 0;
 	avrcp->sink = 0;
-	avrcp->cmd_transaction_label = 0;
-	avrcp->rsp_transaction_label = 0;
-	avrcp->last_ctp_fragment = avrcp_frag_none;
-	avrcp->registered_events = 0;
-	avrcp->sdp_search_mode = avrcp_sdp_search_none;
-	avrcp->last_metadata_pdu = 0;
-	avrcp->last_metadata_fragment = avrcp_frag_none;
-
-	MessageCancelAll(&avrcp->task, AVRCP_INTERNAL_WATCHDOG_TIMEOUT);
-	MessageCancelAll(&avrcp->task, AVRCP_INTERNAL_SEND_RESPONSE_TIMEOUT);
+	avrcp->transaction_label = 0;
+	avrcp->fragmented = avrcp_frag_none;
 
 	/* Free any memory that may be allocated */
 	if (avrcp->identifier)
@@ -51,8 +42,6 @@ static void resetAvrcpValues(AVRCP* avrcp)
 	}
 }
 
-
-/*****************************************************************************/
 static avrcp_status_code convertL2capDisconnectStatus(l2cap_disconnect_status l2cap_status)
 {
     switch(l2cap_status)
@@ -98,6 +87,12 @@ void avrcpHandleL2capConnectCfm(AVRCP *avrcp, const CL_L2CAP_CONNECT_CFM_T *cfm)
 	if (cfm->status == l2cap_connect_success)
 	{
 		status = avrcp_success;
+		
+		/* Break any Source connections. A bug has been seen where the firmware sees the Source 
+		   already to be in use, even on first connect. This resulted in no data being received. 
+			See B-47773 for details. 
+		*/
+		StreamDisconnect(StreamSourceFromSink(cfm->sink),0);
 
 		/* Update the profile state to indicate we're connected */
 		avrcpSetState(avrcp, avrcpConnected);
@@ -115,6 +110,8 @@ void avrcpHandleL2capConnectCfm(AVRCP *avrcp, const CL_L2CAP_CONNECT_CFM_T *cfm)
 	{
         if (cfm->status == l2cap_connect_timeout)
             status = avrcp_timeout;
+		else if(cfm->status == l2cap_connect_failed_key_missing)
+			status = avrcp_key_missing;
         else
 		    status = avrcp_fail;
 

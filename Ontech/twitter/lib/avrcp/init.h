@@ -1,9 +1,9 @@
 /****************************************************************************
-Copyright (C) Cambridge Silicon Radio Limited 2004-2009
-Part of BlueLab 4.1.2-Release
+Copyright (C) Cambridge Silicon Radio Ltd. 2004-2009
+Part of Audio-Adaptor-SDK 2009.R1
 
 FILE NAME
-    avrcp_init.h
+    init.h
     
 DESCRIPTION
 	
@@ -11,8 +11,6 @@ DESCRIPTION
 
 #ifndef AVRCP_INIT_H_
 #define AVRCP_INIT_H_
-
-#include "avrcp_private.h"
 
 
 /****************************************************************************
@@ -22,7 +20,7 @@ NAME
 DESCRIPTION
 	Initialise all members of the AVRCP task data structure.
 */
-void avrcpInitTaskData(AVRCP *avrcp, Task client, avrcpState state, avrcp_device_type dev, uint8 controller_features, uint8 target_features, uint8 extensions, uint16 lazy);
+void avrcpInitTaskData(AVRCP *avrcp, Task client, avrcpState state, avrcp_device_type dev, uint16 lazy);
 
 
 /****************************************************************************

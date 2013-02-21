@@ -1,6 +1,6 @@
 /****************************************************************************
-Copyright (C) Cambridge Silicon Radio Limited 2004-2009
-Part of BlueLab 4.1.2-Release
+Copyright (C) Cambridge Silicon Radio Ltd. 2004-2009
+Part of Audio-Adaptor-SDK 2009.R1
 
 FILE NAME
     avctp_connect.c
@@ -9,11 +9,9 @@ DESCRIPTION
 */
 
 #include "avrcp.h"
-#include "avrcp_common.h"
-#include "avrcp_connect_handler.h"
 #include "avrcp_private.h"
-#include "avrcp_send_response.h"
-#include "avrcp_init.h"
+#include "avrcp_common.h"
+#include "init.h"
 
 #include <panic.h>
 
@@ -50,59 +48,45 @@ void AvrcpConnect(AVRCP *avrcp, const bdaddr *bd_addr)
     avrcpSendInternalConnectReq(avrcp, bd_addr);
 }
 
+
 /*****************************************************************************/
 void AvrcpConnectLazy(Task clientTask, const bdaddr *bd_addr, const avrcp_init_params *config)
 {
+    AVRCP *avrcp = PanicUnlessNew(AVRCP);
+    
+#ifdef AVRCP_DEBUG_LIB	
     if (!config)
     {
-        /* Client must pass down a valid config so report connect fail */
-        MAKE_AVRCP_MESSAGE(AVRCP_CONNECT_CFM);
-	    message->status = avrcp_fail;
-	    message->sink = 0;
-	    message->avrcp = 0;
-	    MessageSend(clientTask, AVRCP_CONNECT_CFM, message);
-
-        /* 
-            TODO use fun below but it needs updating
-        avrcpSendCommonCfmMessageToApp(AVRCP_CONNECT_CFM, avrcp_fail, 0, avrcp);
-        */
+        AVRCP_DEBUG(("Null config structure\n"));
     }
-    else
-    {
-        AVRCP *avrcp = PanicUnlessNew(AVRCP);
-        avrcpInitTaskData(avrcp, clientTask, avrcpReady, config->device_type, config->supported_controller_features, config->supported_target_features, config->profile_extensions, 1);
-        avrcpSendInternalConnectReq(avrcp, bd_addr);
-    }
-}
-
-
-/*****************************************************************************/
-void AvrcpConnectResponseLazy(AVRCP *avrcp, uint16 connection_id, bool accept, const avrcp_init_params *config)
-{
-    if (!config)
-    {
-        /* Client must pass down a valid config so report connect fail */
-        avrcpSendCommonCfmMessageToApp(AVRCP_CONNECT_CFM, avrcp_fail, 0, avrcp);
-
-        /* Reject the connection and destroy the task instance */
-        avrcpSendInternalConnectResp(avrcp, connection_id, 0);
-        MessageSend(&avrcp->task, AVRCP_INTERNAL_TASK_DELETE_REQ, 0);
-    }
-    else
-    {
-        /* Finish off task instance initialisation before respnding to connect request. */
-        avrcpInitTaskData(avrcp, avrcp->clientTask, avrcp->state, config->device_type, config->supported_controller_features, config->supported_target_features, config->profile_extensions, 1);
-        avrcpSendInternalConnectResp(avrcp, connection_id, accept);
-    }
+#endif
+    
+    avrcpInitTaskData(avrcp, clientTask, avrcpReady, config->device_type, 1);
+    avrcpSendInternalConnectReq(avrcp, bd_addr);
 }
 
 
 /*****************************************************************************/
 void AvrcpConnectResponse(AVRCP *avrcp, uint16 connection_id, bool accept)
 {
-	avrcpSendInternalConnectResp(avrcp, connection_id, accept);
+    avrcpSendInternalConnectResp(avrcp, connection_id, accept);
 }
 
+
+/*****************************************************************************/
+void AvrcpConnectResponseLazy(Task clientTask, AVRCP *avrcp, uint16 connection_id, bool accept, const avrcp_init_params *config)
+{
+#ifdef AVRCP_DEBUG_LIB	
+    if (accept && !config)
+    {
+        AVRCP_DEBUG(("Null config structure\n"));
+    }
+#endif
+
+    /* Finish off task instance initialisation before respnding to connect request. */
+    avrcpInitTaskData(avrcp, clientTask, avrcp->state, accept ? config->device_type : avrcp_device_none, 1);
+    avrcpSendInternalConnectResp(avrcp, connection_id, accept);
+}
 
 
 /****************************************************************************

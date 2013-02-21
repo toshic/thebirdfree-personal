@@ -1,6 +1,6 @@
 /****************************************************************************
-Copyright (C) Cambridge Silicon Radio Limited 2004-2009
-Part of BlueLab 4.1.2-Release
+Copyright (C) Cambridge Silicon Radio Ltd. 2004-2009
+Part of Audio-Adaptor-SDK 2009.R1
 
 FILE NAME
     avrcp_connect_handler.c
@@ -14,6 +14,7 @@ DESCRIPTION
 #include "avrcp_connect_handler.h"
 
 #include <panic.h>
+
 
 /****************************************************************************
 NAME	
