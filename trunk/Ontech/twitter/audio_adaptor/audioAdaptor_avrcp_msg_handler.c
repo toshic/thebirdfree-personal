@@ -228,7 +228,7 @@ static void handleAvrcpConnectInd(AVRCP_CONNECT_IND_T *ind)
         profileSlcAcceptConnectInd(dev_inst);
         
         DEBUG_AVRCP(("   Accepted AVRCP connection\n"));
-        AvrcpConnectResponseLazy(&dev_inst->task, ind->avrcp, ind->connection_id, TRUE, &init_params); 
+        AvrcpConnectResponseLazy(ind->avrcp, ind->connection_id, TRUE, &init_params); 
  
         /* Finished so return */
         return;
@@ -236,7 +236,7 @@ static void handleAvrcpConnectInd(AVRCP_CONNECT_IND_T *ind)
     
     /* Reject incoming connection, either there is an existing instance, or we failed to create a new instance */
     DEBUG_AVRCP(("   Rejected AVRCP connection\n"));
-    AvrcpConnectResponseLazy(&the_app->task, ind->avrcp, ind->connection_id, FALSE, NULL);    
+    AvrcpConnectResponseLazy(ind->avrcp, ind->connection_id, FALSE, NULL);    
 }
 
 
@@ -281,7 +281,6 @@ static void handleAvrcpConnectCfm(devInstanceTaskData *inst, const AVRCP_CONNECT
                     AvrcpConnectLazy(&inst->task, &inst->bd_addr, &avrcp_config);   
                 }
                 else 
-#endif					
 				if( msg->status == avrcp_key_missing )
                 {
                     /* Delete link key from our side and try again */
@@ -290,6 +289,7 @@ static void handleAvrcpConnectCfm(devInstanceTaskData *inst, const AVRCP_CONNECT
                     AvrcpConnectLazy(&inst->task, &inst->bd_addr, &avrcp_config);   
                 }
                 else
+#endif					
                 {                
                     setAvrcpState(inst, AvrcpStateDisconnected);
                     profileSlcConnectCfm(inst, ProfileAvrcp, FALSE);
