@@ -1,4 +1,5 @@
 
-VARIANTS := debug
+VARIANTS := debug ct
 
 CFLAGS_debug := -DAVRCP_DEBUG_LIB  # flags for building debug version of the avrcp lib
+CFLAGS_ct := -DAVRCP_CT_SUPPORT
