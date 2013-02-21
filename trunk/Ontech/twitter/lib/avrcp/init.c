@@ -1,9 +1,9 @@
 /****************************************************************************
-Copyright (C) Cambridge Silicon Radio Limited 2004-2009
-Part of BlueLab 4.1.2-Release
+Copyright (C) Cambridge Silicon Radio Ltd. 2004-2009
+Part of Audio-Adaptor-SDK 2009.R1
 
 FILE NAME
-	avrcp_init.c        
+	init.c        
 
 DESCRIPTION
 	This file contains the initialisation code for the avrcp profile library.
@@ -20,8 +20,8 @@ NOTES
 #include "avrcp.h"
 #include "avrcp_private.h"
 #include "avrcp_common.h"
-#include "avrcp_init.h"
-#include "avrcp_profile_handler.h"
+#include "init.h"
+#include "profile_handler.h"
 
 #include <panic.h>
 
@@ -32,7 +32,7 @@ const profile_task_recipe avrcp_recipe = {
     AVRCP_INTERNAL_TASK_INIT_REQ,
     {avrcpProfileHandler},
     1,
-    (const profile_task_recipe *) 0
+    0
 };
 
 
@@ -52,7 +52,7 @@ static void avrcpInit(Task theAppTask, const avrcp_init_params *config, uint16 l
         if ((config->device_type == avrcp_target) ||
             (config->device_type == avrcp_controller) ||
             (config->device_type == avrcp_target_and_controller))    
-            avrcpInitTaskData(avrcp, theAppTask, avrcpInitialising, config->device_type, config->supported_controller_features, config->supported_target_features, config->profile_extensions, lazy);
+            avrcpInitTaskData(avrcp, theAppTask, avrcpInitialising, config->device_type, lazy);
         else
         {
             avrcpSendInitCfmToClient(theAppTask, 0, avrcp_unsupported);
@@ -76,7 +76,7 @@ static void avrcpInit(Task theAppTask, const avrcp_init_params *config, uint16 l
 
 
 /*****************************************************************************/
-void avrcpInitTaskData(AVRCP *avrcp, Task client, avrcpState state, avrcp_device_type dev, uint8 controller_features, uint8 target_features, uint8 extensions, uint16 lazy)
+void avrcpInitTaskData(AVRCP *avrcp, Task client, avrcpState state, avrcp_device_type dev, uint16 lazy)
 {
     /* Set the handler function */
 	avrcp->task.handler = avrcpProfileHandler;
@@ -88,35 +88,15 @@ void avrcpInitTaskData(AVRCP *avrcp, Task client, avrcpState state, avrcp_device
     avrcpSetState(avrcp, state);
     avrcp->pending = avrcp_none;
     avrcp->block_received_data = 0;
-	avrcp->srcUsed = 0;
+    avrcp->watchdog = 0;
     avrcp->sink = 0;
-	avrcp->cmd_transaction_label = 0;
-	avrcp->rsp_transaction_label = 0;
-    avrcp->last_ctp_fragment = avrcp_frag_none;
+	avrcp->transaction_label = 0;
+    avrcp->fragmented = avrcp_frag_none;
 	avrcp->l2cap_mtu = 672; /* default l2cap mtu */
     avrcp->identifier = 0;
     avrcp->device_type = dev;
     avrcp->lazy = lazy;
-	avrcp->registered_events = 0;
-	avrcp->continuation_pdu = 0;
-	avrcp->sdp_search_mode = avrcp_sdp_search_none;
-
-	avrcp->local_target_features = (target_features & 0x3f); /* Only first 6 bits are currently valid */
-	avrcp->local_controller_features = (controller_features & 0xf); /* Only category device bits for controller */
-
-	/* Make sure bit 0 is set if metadata bits are also set. */
-	if (target_features & (AVRCP_PLAYER_APPLICATION_SETTINGS|AVRCP_GROUP_NAVIGATION))
-		avrcp->local_target_features |= 0x1;
-	/* If no target features supplied then enable category 2 as default. */
-
-	avrcp->local_extensions = extensions;
-	avrcp->last_metadata_fragment = 0;
-	avrcp->last_metadata_pdu = 0;
-
-    (avrcp->dataFreeTask.cleanUpTask).handler = avrcpDataCleanUp;
-    avrcp->dataFreeTask.sent_data = 0;
 }
-
 
 /*****************************************************************************/
 void AvrcpInit(Task theAppTask, const avrcp_init_params *config)

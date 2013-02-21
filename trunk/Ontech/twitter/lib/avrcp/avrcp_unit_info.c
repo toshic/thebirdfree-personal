@@ -1,7 +1,6 @@
 /****************************************************************************
-Copyright (C) Cambridge Silicon Radio Limited 2004-2009
-Part of BlueLab 4.1.2-Release
-
+Copyright (C) Cambridge Silicon Radio Ltd. 2004-2009
+Part of Audio-Adaptor-SDK 2009.R1
 
 FILE NAME
 	avrcp_signal.c        
@@ -19,11 +18,12 @@ NOTES
 */
 #include "avrcp.h"
 #include "avrcp_private.h"
-#include "avrcp_signal_unit_info.h"
-#include "avrcp_send_response.h"
+#include "avrcp_signal_handler.h"
+
+#include <panic.h>
+#include <string.h>
 
 
-#ifdef AVRCP_CT_SUPPORT
 /****************************************************************************
 NAME	
 	AvrcpUnitInfo
@@ -56,13 +56,9 @@ MESSAGE RETURNED
 	AVRCP_UNITINFO_CFM - This message contains the unit_type and a
 	unique 24-bit Company ID
 */
-
-/*****************************************************************************/
 void AvrcpUnitInfo(AVRCP *avrcp)
 {
-	if (avrcp->dataFreeTask.sent_data || avrcp->block_received_data || avrcp->pending)
-		avrcpSendUnitInfoCfmToClient(avrcp, avrcp_busy, 0, 0, (uint32) 0);
-	else if (!avrcp->sink)
+	if (!avrcp->sink)
 		/* Immediately reject the request if we have not been passed a valid sink */
 		avrcpSendUnitInfoCfmToClient(avrcp, avrcp_invalid_sink, 0, 0, (uint32) 0);
 	else
@@ -70,13 +66,5 @@ void AvrcpUnitInfo(AVRCP *avrcp)
 		MessageSend(&avrcp->task, AVRCP_INTERNAL_UNITINFO_REQ, 0);
 	}
 }
-#endif
-
-/*****************************************************************************/
-void AvrcpUnitInfoResponse(AVRCP *avrcp, bool accept, avc_subunit_type unit_type, uint8 unit, uint32 company_id)
-{
-	sendUnitInfoResponse(avrcp, accept, unit_type, unit, company_id);
-}
-
 
 

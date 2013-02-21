@@ -1,6 +1,6 @@
 /****************************************************************************
-Copyright (C) Cambridge Silicon Radio Limited 2004-2009
-Part of BlueLab 4.1.2-Release
+Copyright (C) Cambridge Silicon Radio Ltd. 2004-2009
+Part of Audio-Adaptor-SDK 2009.R1
 
 FILE NAME
 	avrcp_signal.c        
@@ -18,14 +18,12 @@ NOTES
 */
 #include "avrcp.h"
 #include "avrcp_private.h"
-#include "avrcp_send_response.h"
-#include "avrcp_signal_passthrough.h"
+#include "avrcp_signal_handler.h"
 
 #include <panic.h>
-#include <source.h>
+#include <string.h>
 
 
-#ifdef AVRCP_CT_SUPPORT
 /****************************************************************************
 NAME	
 	AvrcpPassthrough
@@ -82,9 +80,7 @@ void AvrcpPassthrough(AVRCP *avrcp, avc_subunit_type subunit_type, avc_subunit_i
 	}
 #endif
     
-	if (avrcp->block_received_data || (avrcp->pending && (avrcp->pending != avrcp_next_group) && (avrcp->pending != avrcp_previous_group)))
-		avrcpSendPassthroughCfmToClient(avrcp, avrcp_busy);
-	else if (!avrcp->sink)
+	if (!avrcp->sink)
 		/* Immediately reject the request if we have not been passed a valid sink */
 		avrcpSendPassthroughCfmToClient(avrcp, avrcp_invalid_sink);
 	else
@@ -112,13 +108,4 @@ void AvrcpPassthrough(AVRCP *avrcp, avc_subunit_type subunit_type, avc_subunit_i
 	}
 }
 /*lint +e818 +e830 */
-#endif
-
-
-/*****************************************************************************/
-void AvrcpPassthroughResponse(AVRCP *avrcp, avrcp_response_type response)
-{
-	sendPassThroughResponse(avrcp, response);
-}
-
 
