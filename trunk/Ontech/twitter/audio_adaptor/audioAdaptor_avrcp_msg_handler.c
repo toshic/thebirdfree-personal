@@ -153,7 +153,14 @@ static void handleAvrcpOperation (avc_operation_id opid, bool state)
         else if (opid == opid_play)
         {
 			SendEvent(EVT_AVRCP_CMD_PLAY,state);
-			MessageSend(&the_app->task,APP_AUDIO_STREAMING_ACTIVE,0);
+            if ( the_app->audio_streaming_state==StreamingActive )
+            {
+				MessageSend(&the_app->task,APP_AUDIO_STREAMING_INACTIVE,0);
+            }
+            else
+            {
+				MessageSend(&the_app->task,APP_AUDIO_STREAMING_ACTIVE,0);
+            }
         }
         else if (opid == opid_forward)
         {
