@@ -146,7 +146,9 @@ static void sendAghfpCurrentCallInfo(AGHFP_CURRENT_CALLS_IND_T *ind)
 			call.status = aghfp_call_state_active;
 		else if(the_app->call_type == aghfp_call_type_incoming)
 			call.status = aghfp_call_state_incoming;
-		else 
+		else if(the_app->call_type == aghfp_call_type_outgoing)
+			call.status = aghfp_call_state_dialling;
+		else
 			call.status = aghfp_call_state_waiting;
 	
 		call.mode = aghfp_call_mode_voice;

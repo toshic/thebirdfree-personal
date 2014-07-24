@@ -92,14 +92,14 @@ void aghfpSendCallerId(AGHFP *aghfp, uint8 type, uint16 size_number, uint16 size
 	char buf[4];
 	
 	aghfpAtCmdBegin(aghfp);
-	aghfpAtCmdString(aghfp, "+CLIP: ");
+	aghfpAtCmdString(aghfp, "+CLIP: \"");
 	
 	if (size_number && data)
 	{
 		aghfpAtCmdData(aghfp, data, size_number);
 	}
 	
-    aghfpAtCmdString(aghfp, ",");
+    aghfpAtCmdString(aghfp, "\",");
 	sprintf(buf, "%d", type);
 	aghfpAtCmdString(aghfp, buf);
 	

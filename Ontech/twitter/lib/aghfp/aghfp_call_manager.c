@@ -220,7 +220,8 @@ static void manageCallIdle (AGHFP *aghfp, aghfp_call_event call_event, aghfp_cal
 				}
 				else
 				{
-					aghfpSendInBandRingToneEnable(aghfp, FALSE);
+					/* do not send BSIR=0 
+					aghfpSendInBandRingToneEnable(aghfp, FALSE);*/
 				}
 			}
 	        aghfpSetState(aghfp, aghfp_incoming_call_establish);

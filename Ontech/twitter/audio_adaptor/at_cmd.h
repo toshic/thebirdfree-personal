@@ -60,7 +60,8 @@ typedef enum
 	EVT_SMS_READY,
 	EVT_CONN_STATUS,
 	EVT_INBAND_STATUS,
-	EVT_CLCC_STATUS
+	EVT_CLCC_STATUS,
+	EVT_SSP_STATUS
 }evt_string_id;
 
 
@@ -71,6 +72,10 @@ struct sequence
 };
 
 struct inband_ring_enable
+{
+  uint16 enable;
+};
+struct ssp_enable
 {
   uint16 enable;
 };
@@ -121,6 +126,8 @@ struct write_local_name
 };
 void inband_ring_enable(Task , const struct inband_ring_enable *);
 void inband_ring_query(Task );
+void ssp_enable(Task , const struct ssp_enable *);
+void ssp_query(Task );
 void set_volume_microphone(Task , const struct set_volume_microphone *);
 void set_volume_speaker(Task , const struct set_volume_speaker *);
 void audio_connect_req(Task );

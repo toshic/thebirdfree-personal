@@ -1098,6 +1098,7 @@ static void handleAppVoipCallOutgoing(void)
 {        
     switch ( the_app->app_state )
     {
+        case AppStateIdle:        
         case AppStateConnected:        
         case AppStateStreaming:
         {

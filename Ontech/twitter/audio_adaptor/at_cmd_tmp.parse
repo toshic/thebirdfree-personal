@@ -29,6 +29,8 @@
 { AT + IBR = ? \r } : inband_ring_query
 { AT + CLCC = %d:enable \r } : current_call_enable
 { AT + CLCC = ? \r } : currnet_call_query
+{ AT + SSP = %d:enable \r } : ssp_enable
+{ AT + SSP = ? \r } : ssp_query
 { AT + STAT = ? \r } : query_status
 { AT + SCAN = %d:mode \r } : set_scan_mode
 
