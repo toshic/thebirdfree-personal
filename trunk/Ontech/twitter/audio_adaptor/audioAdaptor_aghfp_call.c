@@ -42,11 +42,11 @@ void aghfpCallCreate (devInstanceTaskData *inst, aghfp_call_type call_type)
             setAghfpState(inst, AghfpStateCallSetup);
 			if((the_app->support_inbandring || call_type != aghfp_call_type_incoming) && inst->audio_sink==0)
             {    /* Need to set up new audio connection with call */
-                AghfpCallCreateAudio(inst->aghfp, call_type, TRUE, AUDIO_PACKET_TYPES, NULL);
+                AghfpCallCreateAudio(inst->aghfp, call_type, the_app->support_inbandring, AUDIO_PACKET_TYPES, NULL);
             }
             else
             {   /* Use existing audio connection for call */
-                AghfpCallCreate(inst->aghfp, call_type, TRUE);
+                AghfpCallCreate(inst->aghfp, call_type, the_app->support_inbandring);
             }
             break;
         }

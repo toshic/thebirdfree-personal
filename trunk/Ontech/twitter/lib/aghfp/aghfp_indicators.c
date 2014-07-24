@@ -106,7 +106,7 @@ void aghfpHandleSendServiceIndicator(AGHFP *aghfp, aghfp_service_availability av
 	char buf[2];
 
 	aghfpAtCmdBegin(aghfp);
-	aghfpAtCmdString(aghfp, "+CIEV:1,"); /*service indicator is index 1 (see aghfpHandleSendCindDetails)*/
+	aghfpAtCmdString(aghfp, "+CIEV: 1,"); /*service indicator is index 1 (see aghfpHandleSendCindDetails)*/
 	sprintf(buf, "%d", availability);
 	aghfpAtCmdString(aghfp, buf);
 	aghfpAtCmdEnd(aghfp);
@@ -134,7 +134,7 @@ void aghfpSendCallIndicator(AGHFP *aghfp, aghfp_call_status status)
 	char buf[2];
 
 	aghfpAtCmdBegin(aghfp);
-	aghfpAtCmdString(aghfp, "+CIEV:2,"); /*call indicator is index 2 (see aghfpHandleSendCindDetails)*/
+	aghfpAtCmdString(aghfp, "+CIEV: 2,"); /*call indicator is index 2 (see aghfpHandleSendCindDetails)*/
 	sprintf(buf, "%d", status);
 	aghfpAtCmdString(aghfp, buf);
 	aghfpAtCmdEnd(aghfp);
@@ -182,7 +182,7 @@ void aghfpSendCallSetupIndicator(AGHFP *aghfp, aghfp_call_setup_status type)
     char buf[2];
 
     aghfpAtCmdBegin(aghfp);
-    aghfpAtCmdString(aghfp, "+CIEV:3,"); /*call setup indicator is index 3 (see aghfpHandleSendCindDetails)*/
+    aghfpAtCmdString(aghfp, "+CIEV: 3,"); /*call setup indicator is index 3 (see aghfpHandleSendCindDetails)*/
     sprintf(buf, "%d", type);
     aghfpAtCmdString(aghfp, buf);
     aghfpAtCmdEnd(aghfp);
@@ -251,7 +251,7 @@ void aghfpHandleSendCallHeldIndicator(AGHFP *aghfp, aghfp_call_held_status statu
 	char buf[2];
 
 	aghfpAtCmdBegin(aghfp);
-	aghfpAtCmdString(aghfp, "+CIEV:4,"); /*call held indicator is index 4 (see aghfpHandleSendCindDetails)*/
+	aghfpAtCmdString(aghfp, "+CIEV: 4,"); /*call held indicator is index 4 (see aghfpHandleSendCindDetails)*/
 	sprintf(buf, "%d", status);
 	aghfpAtCmdString(aghfp, buf);
 	aghfpAtCmdEnd(aghfp);
@@ -288,7 +288,7 @@ void aghfpHandleSendSignalIndicator(AGHFP *aghfp, uint16 level)
 	char buf[2];
 
 	aghfpAtCmdBegin(aghfp);
-	aghfpAtCmdString(aghfp, "+CIEV:5,"); /*signal indicator is index 5 (see aghfpHandleSendCindDetails)*/
+	aghfpAtCmdString(aghfp, "+CIEV: 5,"); /*signal indicator is index 5 (see aghfpHandleSendCindDetails)*/
 	sprintf(buf, "%d", level);
 	aghfpAtCmdString(aghfp, buf);
 	aghfpAtCmdEnd(aghfp);
@@ -325,7 +325,7 @@ void aghfpHandleSendRoamIndicator(AGHFP *aghfp, aghfp_roam_status status)
 	char buf[2];
 
 	aghfpAtCmdBegin(aghfp);
-	aghfpAtCmdString(aghfp, "+CIEV:6,"); /*roam indicator is index 6 (see aghfpHandleSendCindDetails)*/
+	aghfpAtCmdString(aghfp, "+CIEV: 6,"); /*roam indicator is index 6 (see aghfpHandleSendCindDetails)*/
 	sprintf(buf, "%d", status);
 	aghfpAtCmdString(aghfp, buf);
 	aghfpAtCmdEnd(aghfp);
@@ -362,7 +362,7 @@ void aghfpHandleSendBattChgIndicator(AGHFP *aghfp, uint16 level)
 	char buf[2];
 
 	aghfpAtCmdBegin(aghfp);
-	aghfpAtCmdString(aghfp, "+CIEV:7,"); /*service indicator is index 7 (see aghfpHandleSendCindDetails)*/
+	aghfpAtCmdString(aghfp, "+CIEV: 7,"); /*service indicator is index 7 (see aghfpHandleSendCindDetails)*/
 	sprintf(buf, "%d", level);
 	aghfpAtCmdString(aghfp, buf);
 	aghfpAtCmdEnd(aghfp);

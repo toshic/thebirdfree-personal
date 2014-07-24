@@ -29,6 +29,10 @@ struct inband_ring_enable
 {
   uint16 enable;
 };
+struct ssp_enable
+{
+  uint16 enable;
+};
 struct set_volume_microphone
 {
   uint16 volume;
@@ -76,6 +80,8 @@ struct write_local_name
 };
 void inband_ring_enable(Task , const struct inband_ring_enable *);
 void inband_ring_query(Task );
+void ssp_enable(Task , const struct ssp_enable *);
+void ssp_query(Task );
 void set_volume_microphone(Task , const struct set_volume_microphone *);
 void set_volume_speaker(Task , const struct set_volume_speaker *);
 void audio_connect_req(Task );

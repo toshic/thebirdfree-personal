@@ -580,16 +580,16 @@ void aghfpHandleSendCurrentCall(AGHFP *aghfp, AGHFP_INTERNAL_SEND_CURRENT_CALL_T
    	message->aghfp = aghfp;
    	message->last_idx = res->idx;
    	
-	sprintf( buf, "%d, %d, %d, %d, %d", res->idx, res->dir, res->status, res->mode, res->mpty);
+	sprintf( buf, "%d,%d,%d,%d,%d", res->idx, res->dir, res->status, res->mode, res->mpty);
     
 	aghfpAtCmdBegin(aghfp);
 	aghfpAtCmdString(aghfp, "+CLCC: ");
 	aghfpAtCmdString(aghfp, buf);
 	if ( res->size_number )
 	{
-    	aghfpAtCmdString(aghfp, ", ");
+    	aghfpAtCmdString(aghfp, ",\"");
 	    aghfpAtCmdData(aghfp, res->number, res->size_number);
-    	sprintf( buf, ", %d", res->type);
+    	sprintf( buf, "\",%d", res->type);
 		aghfpAtCmdString(aghfp, buf);
 	}
     aghfpAtCmdEnd(aghfp);
