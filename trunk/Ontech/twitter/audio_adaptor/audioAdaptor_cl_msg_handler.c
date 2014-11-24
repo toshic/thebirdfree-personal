@@ -611,6 +611,15 @@ void clMsgHandleLibMessage(MessageId id, Message message)
 			UartPrintf("\r\n+RSSI=%d\r\n",((CL_DM_RSSI_CFM_T*)message)->rssi);
             break;
 		}
+		case CL_DM_DUT_CFM:
+		{
+            DEBUG_CL(("CL_DM_DUT_CFM %d\n",((CL_DM_DUT_CFM_T*)message)->status));
+			if(((CL_DM_DUT_CFM_T*)message)->status == success)
+				UartPrintf("\r\nOK\r\n");
+			else
+				UartPrintf("\r\nERROR\r\n");
+            break;
+		}
         default:
         {
             DEBUG_CL(("Unhandled CL message 0x%X\n", (uint16)id));    

@@ -33,6 +33,7 @@
 { AT + SSP = ? \r } : ssp_query
 { AT + STAT = ? \r } : query_status
 { AT + SCAN = %d:mode \r } : set_scan_mode
+{ AT + DUT \r } : enter_dut_mode
 
 
 

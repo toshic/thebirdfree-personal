@@ -124,6 +124,7 @@ struct write_local_name
 {
   struct sequence name;
 };
+void enter_dut_mode(Task );
 void inband_ring_enable(Task , const struct inband_ring_enable *);
 void inband_ring_query(Task );
 void ssp_enable(Task , const struct ssp_enable *);
